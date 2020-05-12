@@ -6,25 +6,8 @@ php:
 install:
   - composer install
 
-before_deploy:
-- rm .env
-- rm .env.travis
-- rm .env.example
-- touch .env
-- export ARTIFACT_PRE=$(echo $TRAVIS_REPO_SLUG | sed  s_^.*/__)
-- export ARTIFACT_NAME=${ARTIFACT_PRE}-${TRAVIS_BRANCH}-$(
-  echo ${TRAVIS_COMMIT} | cut -b 1-8
-  )-$(
-  date -u +%FT%T%Z
-  ).zip
-- export ELASTIC_BEANSTALK_LABEL=$(echo $ARTIFACT_NAME | sed s_.zip__)
-- zip $ARTIFACT_NAME -q -r * .[^.]*
-- ls -la $ARTIFACT_NAME
-
 deploy:
   provider: elasticbeanstalk
-  skip_cleanup: true
-  zip_file: "$ARTIFACT_NAME"
   access_key_id: ${AWS_ACCESS_KEY_ID}
   secret_access_key: ${AWS_SECRET_ACCESS_KEY}
   region: ${AWS_DEFAULT_REGION}
