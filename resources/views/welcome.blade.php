@@ -81,7 +81,7 @@
 
             <div class="content">
                 <div class="title m-b-md">
-                    AWS Integration v_2
+                    AWS Integration v_3
                 </div>
 
                 <div class="links">
