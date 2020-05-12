@@ -6,6 +6,8 @@ php:
 install:
   - composer install
 
+script: ./vendor/bin/phpunit
+
 before_deploy:
 - rm .env
 - rm .env.travis
