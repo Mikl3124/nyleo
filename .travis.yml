@@ -1,0 +1,18 @@
+language: php
+
+php:
+  - 7.3
+
+install:
+  - composer install
+
+deploy:
+  provider: elasticbeanstalk
+  access_key_id: ${AWS_ACCESS_KEY_ID}
+  secret_access_key: ${AWS_SECRET_ACCESS_KEY}
+  region: ${AWS_DEFAULT_REGION}
+  app: ${BEANSTALK_APP}
+  env: ${BEANSTALK_ENV}
+  bucket: ${BEANSTALK_BUCKET}
+  wait_until_deployed: true
+  edge: true # opt in to dpl v2
