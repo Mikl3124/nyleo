@@ -81,7 +81,7 @@
 
             <div class="content">
                 <div class="title m-b-md">
-                    Hello Coco
+                    AWS Integration
                 </div>
 
                 <div class="links">
