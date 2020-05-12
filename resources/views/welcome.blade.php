@@ -81,7 +81,7 @@
 
             <div class="content">
                 <div class="title m-b-md">
-                    AWS Integration https Yes Nyleo CRM_2 !!
+                    1....
                 </div>
 
                 <div class="links">
