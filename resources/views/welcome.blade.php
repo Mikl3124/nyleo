@@ -81,7 +81,7 @@
 
             <div class="content">
                 <div class="title m-b-md">
-                    AWS Integration https
+                    AWS Integration https v_2
                 </div>
 
                 <div class="links">
