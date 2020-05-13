@@ -81,7 +81,7 @@
 
             <div class="content">
                 <div class="title m-b-md">
-                    Https....v_7
+                    Https....v_
                 </div>
 
                 <div class="links">
