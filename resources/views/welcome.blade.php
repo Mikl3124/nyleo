@@ -81,7 +81,7 @@
 
             <div class="content">
                 <div class="title m-b-md">
-                    Hello Nyleo 3 !
+                    Hello Nyleo 4 !
                 </div>
 
                 <div class="links">
