@@ -24,28 +24,29 @@ class HomeController extends Controller
      * @return \Illuminate\Contracts\Support\Renderable
      */
     public function index()
-    {   
+    {
         if (Auth::user()){
-            $step = Auth::user()->step;
-            if (Auth::user()->role != 'admin') {
-                if (Auth::user()->custom_password != true) {
-                    return view('client.welcome-change-password');
-                } else {
-                    return view('client.dashboard', compact('step'));
-                }
-        }   
+          $step = Auth::user()->step;
+          if (Auth::user()->role != 'admin') {
+              if (Auth::user()->custom_password != true) {
+                  return view('client.welcome-change-password');
+              } else {
+                  return view('client.dashboard', compact('step'));
+              }
+        }
             return view('admin.dashboard');
         } else {
             $step = 0;
             return view('auth.login', compact('step'));
         }
 
-           
-        
+
+
     }
 
     public function admin()
     {
-        return view('admin.dashboard');
+
+        return view('admin.dashboard', compact('step'));
     }
 }

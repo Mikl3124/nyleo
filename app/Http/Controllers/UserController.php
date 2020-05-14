@@ -53,6 +53,7 @@ class UserController extends Controller
       public function changePassword(Request $request)
     {
       $user = Auth::user();
+      $step = 0;
       $value = $request->all();
 
         $rules = [
@@ -74,7 +75,7 @@ class UserController extends Controller
             $user->custom_password = true;
             if($user->save()){
               Flashy::success("Mot de passe modifié");
-              return Redirect::back();
+              return view('client.dashboard', compact('step'));
             }
             Flashy::error("Un problème est survenu...");
             return Redirect::back();
@@ -136,9 +137,9 @@ class UserController extends Controller
                 Flashy::success("Vous avez mis à jour vos coordonnées avec succès");
                 return Redirect::back();
               };
-            Flashy::error("Il y a une erreur dans le formulaire 2");
+            Flashy::error("Il y a une erreur dans le formulaire!");
             return Redirect::back();
-            
+
           }
 
     }
