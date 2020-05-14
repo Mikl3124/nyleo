@@ -79,45 +79,45 @@
 					{{-- ------------------------- steps ----------------------- --}}
 					<div class="row d-flex justify-content-around mt-2">
 						<div class="col-md-2 text-center w-100">
-								@if ($step === 0)
-										<a href="http://" class="btn btn-primary">Informations</a>
+								@if ($step > 0)
+										<a href="{{route('client.edit', Auth::user())}}" class="btn-success btn-lg btn-block mb-2">Informations</a>
 								@else
-										<a href="{{route('client.edit', Auth::user())}}" class="btn btn-primary">Etape 1 : Informations</a>
+										<a href="{{route('client.edit', Auth::user())}}" class="btn btn-secondary btn-block btn-lg disabled">Etape 1 : Informations</a>
 								@endif
 						</div>
 						<div class="col-md-2 text-center w-100">
-								@if ($step >= 0)
-										<a href="http://" class="btn btn-primary">Projet</a>
+								@if ($step > 1)
+										<a href="http://" class="btn-success btn-lg btn-block mb-2">Projet</a>
 								@else
-										<a href="http://" class="btn btn-secondary disabled">Etape 2: Projet</a>
+										<a href="http://" class="btn btn-secondary btn-block btn-lg disabled">Etape 2: Projet</a>
 								@endif
 						</div>
 						<div class="col-md-2 text-center w-100">
-								@if ($step >= 1)
-										<a href="http://" class="btn btn-primary">Devis</a>
+								@if ($step > 2)
+										<a href="http://" class="btn-success btn-lg btn-block mb-2">Devis</a>
 								@else
-										<a href="http://" class="btn btn-secondary disabled">Etape 3: Devis</a>
+										<a href="http://" class="btn btn-secondary btn-block btn-lg disabled">Etape 3: Devis</a>
 								@endif
 						</div>
 						<div class="col-md-2 text-center w-100">
-								@if ($step === 2)
-										<a href="http://" class="btn btn-primary">Avant-Projet</a>
+								@if ($step > 3)
+										<a href="http://" class="btn-success btn-lg btn-block mb-2">Avant-Projet</a>
 								@else
-										<a href="http://" class="btn btn-secondary disabled">Etape 4: Avant-Projet</a>
+										<a href="http://" class="btn btn-secondary btn-block btn-lg disabled">Etape 4: Avant-Projet</a>
 								@endif
 						</div>
 						<div class="col-md-2 text-center w-100">
-								@if ($step === 3)
-										<a href="http://" class="btn btn-primary">Facture</a>
+								@if ($step > 5)
+										<a href="http://" class="btn-success btn-lg btn-block mb-2">Facture</a>
 								@else
-										<a href="http://" class="btn btn-secondary disabled">Etape 5: Facture</a>
+										<a href="http://" class="btn btn-secondary btn-block btn-lg disabled">Etape 5: Facture</a>
 								@endif
 						</div>
 						<div class="col-md-2 text-center w-100">
-								@if ($step === 4)
-										<a href="http://" class="btn btn-primary">Consulter mon Projet</a>
+								@if ($step > 6 )
+										<a href="http://" class="btn-success btn-lg btn-block mb-2">Consulter mon Projet</a>
 								@else
-										<a href="http://" class="btn btn-secondary disabled">Etape 6: Livraison</a>
+										<a href="http://" class="btn btn-secondary btn-block btn-lg disabled">Etape 6: Livraison</a>
 								@endif
 						</div>
 					</div>
