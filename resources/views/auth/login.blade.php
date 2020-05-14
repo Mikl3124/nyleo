@@ -13,9 +13,7 @@
                         </div>
                         <form method="POST" action="{{ route('login') }}">
                             @csrf
-                        @if(isset($projet))
-                            <input type="hidden" name="projet" value="{{ $projet }}">
-                        @endif
+
                             <div class="form-group">
                                 <input placeholder="Adresse e-mail" id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
                                 @error('email')
