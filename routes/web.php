@@ -12,27 +12,15 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
-Route::get('/', function () {
-    if (Auth::user()){
-      if(Auth::user()->role === 'admin'){
-        return view('admin.home');
-      } elseif (Auth::user()->role === 'client'){
-        return view('home');
-      }
-    }
-
-    return view('auth.login');
-
-});
-
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
-Route::get('/admin', 'HomeController@admin')->name('admin');
+Route::get('/', 'HomeController@index')->name('home');
 
 //Admin
 Route::post('/client-create', 'UserController@store')->name('client.store');
 
 //User
 Route::post('/profil/password/{id}', 'UserController@changePassword')->name('change.password');
+Route::get('/profil/edit/{id})', 'UserController@clientEdit')->name('client.edit');
+Route::post('/profil/client-update/{id}', 'UserController@clientUpdate')->name('client.update');
+

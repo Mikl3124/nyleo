@@ -1,6 +1,5 @@
 @extends('layouts.app')
 @section('content')
-    @if (Auth::user()->custom_password != true)
     <div class="container-fluid">
       <div class="container">
         <div class="jumbotron">
@@ -57,58 +56,34 @@
  {{-- ---------------  script show password  ----------------- --}}
    <script>
 
-$(document).ready(function() {
-    $("#show_hide_password_1 a").on('click', function(event) {
-        event.preventDefault();
-        if($('#show_hide_password_1 input').attr("type") == "text"){
-            $('#show_hide_password_1 input').attr('type', 'password');
-            $('#show_hide_password_1 i').addClass( "fa-eye-slash" );
-            $('#show_hide_password_1 i').removeClass( "fa-eye" );
-        }else if($('#show_hide_password_1 input').attr("type") == "password"){
-            $('#show_hide_password_1 input').attr('type', 'text');
-            $('#show_hide_password_1 i').removeClass( "fa-eye-slash" );
-            $('#show_hide_password_1 i').addClass( "fa-eye" );
-        }
+    $(document).ready(function() {
+        $("#show_hide_password_1 a").on('click', function(event) {
+            event.preventDefault();
+            if($('#show_hide_password_1 input').attr("type") == "text"){
+                $('#show_hide_password_1 input').attr('type', 'password');
+                $('#show_hide_password_1 i').addClass( "fa-eye-slash" );
+                $('#show_hide_password_1 i').removeClass( "fa-eye" );
+            }else if($('#show_hide_password_1 input').attr("type") == "password"){
+                $('#show_hide_password_1 input').attr('type', 'text');
+                $('#show_hide_password_1 i').removeClass( "fa-eye-slash" );
+                $('#show_hide_password_1 i').addClass( "fa-eye" );
+            }
+        });
+        $("#show_hide_password_2 a").on('click', function(event) {
+            event.preventDefault();
+            if($('#show_hide_password_2 input').attr("type") == "text"){
+                $('#show_hide_password_2 input').attr('type', 'password');
+                $('#show_hide_password_2 i').addClass( "fa-eye-slash" );
+                $('#show_hide_password_2 i').removeClass( "fa-eye" );
+            }else if($('#show_hide_password_2 input').attr("type") == "password"){
+                $('#show_hide_password_2 input').attr('type', 'text');
+                $('#show_hide_password_2 i').removeClass( "fa-eye-slash" );
+                $('#show_hide_password_2 i').addClass( "fa-eye" );
+            }
+        });
     });
-    $("#show_hide_password_2 a").on('click', function(event) {
-        event.preventDefault();
-        if($('#show_hide_password_2 input').attr("type") == "text"){
-            $('#show_hide_password_2 input').attr('type', 'password');
-            $('#show_hide_password_2 i').addClass( "fa-eye-slash" );
-            $('#show_hide_password_2 i').removeClass( "fa-eye" );
-        }else if($('#show_hide_password_2 input').attr("type") == "password"){
-            $('#show_hide_password_2 input').attr('type', 'text');
-            $('#show_hide_password_2 i').removeClass( "fa-eye-slash" );
-            $('#show_hide_password_2 i').addClass( "fa-eye" );
-        }
-    });
-});
 
-</script>
-
-  @else
-  <div class="container">
-      <div class="row justify-content-center">
-          <div class="col-md-8">
-              <div class="card">
-                  <div class="card-header">Dashboard</div>
-
-                  <div class="card-body">
-                      @if (session('status'))
-                          <div class="alert alert-success" role="alert">
-                              {{ session('status') }}
-                          </div>
-                      @endif
-
-                      You are logged in!
-                  </div>
-              </div>
-          </div>
-      </div>
-  </div>
-
-
-  @endif
+    </script>
 
 @endsection
 

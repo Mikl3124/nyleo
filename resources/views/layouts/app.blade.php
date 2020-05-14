@@ -12,6 +12,13 @@
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js"></script>
     <script src="{{ asset('js/app.js') }}" defer></script>
+    <!-- Mapbox  -->
+    <script src='https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.css' rel='stylesheet' />
+    <script src='https://unpkg.com/es6-promise@4.2.4/dist/es6-promise.auto.min.js'></script>
+    <script src="https://unpkg.com/@mapbox/mapbox-sdk/umd/mapbox-sdk.min.js"></script>
+
+
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
@@ -43,6 +50,7 @@
                         <!-- Authentication Links -->
                         @guest
                         @else
+                            {{Auth::user()->email}}
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                     {{ Auth::user()->name }} <span class="caret"></span>
@@ -65,10 +73,57 @@
                 </div>
             </div>
         </nav>
+        <div class="container-fluid">
+    {{-- ------------------------- steps ----------------------- --}}
+    <div class="row d-flex justify-content-around mt-2">
+            <div class="col-md2">
+                @if ($step >= 0)
+                    <a href="http://" class="btn btn-primary">Informations</a>
+                @else
+                    <a href="{{route('client.edit', Auth::user())}}" class="btn btn-primary">Etape 1 : Informations</a>
+                @endif
+            </div>
+            <div class="col-md2">
+                @if ($step >= 1)
+                    <a href="http://" class="btn btn-primary">Projet</a>
+                @else
+                    <a href="http://" class="btn btn-secondary disabled">Etape 2: Projet</a>
+                @endif
+            </div>
+            <div class="col-md2">
+                @if ($step >= 2)
+                    <a href="http://" class="btn btn-primary">Devis</a>
+                @else
+                    <a href="http://" class="btn btn-secondary disabled">Etape 3: Devis</a>
+                @endif
+            </div>
+            <div class="col-md2">
+                @if ($step >= 3)
+                    <a href="http://" class="btn btn-primary">Avant-Projet</a>
+                @else
+                    <a href="http://" class="btn btn-secondary disabled">Etape 4: Avant-Projet</a>
+                @endif
+            </div>
+            <div class="col-md2">
+                @if ($step >= 4)
+                    <a href="http://" class="btn btn-primary">Facture</a>
+                @else
+                    <a href="http://" class="btn btn-secondary disabled">Etape 5: Facture</a>
+                @endif
+            </div>
+            <div class="col-md2">
+                @if ($step >= 5)
+                    <a href="http://" class="btn btn-primary">Consulter mon Projet</a>
+                @else
+                    <a href="http://" class="btn btn-secondary disabled">Etape 6: Livraison</a>
+                @endif
+            </div>
+    </div>
         <main class="py-4">
             @yield('content')
         </main>
     </div>
     @include('flashy::message')
+
 </body>
 </html>
