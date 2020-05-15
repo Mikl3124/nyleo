@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Validator;
 use App\Model\User;
 use Illuminate\Http\Request;
-use MercurySeries\Flashy\Flashy;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -34,7 +33,6 @@ class UserController extends Controller
           ]);
 
           if($validator->fails()){
-            Flashy::error("Il y a une erreur dans la création du client");
             return Redirect::back()
               ->withErrors($validator)
               ->withInput();
@@ -44,8 +42,8 @@ class UserController extends Controller
             $user->role = 'client';
             $user->save();
             //Send mail to new client
+            flashy()->success('Client enrigistré avec succès');
             $this->dispatch(new MailWelcomeMessageToUser($user));
-            Flashy::success("Le client a été créé avec succès!");
             return Redirect::back();
           }
     }
@@ -61,12 +59,12 @@ class UserController extends Controller
         ];
 
         $validator = Validator::make($value, $rules,[
-            'password.confirmed' => 'Les mots de passes ne sont pas identiques',
+            'password.confirmed' => 'Les mots de passe ne sont pas identiques',
 
           ]);
 
           if($validator->fails()){
-            Flashy::error("Un problème est survenu...");
+            flashy()->error( 'Il y a une erreur dans le mot de passe');
             return Redirect::back()
               ->withErrors($validator)
               ->withInput();
@@ -74,10 +72,9 @@ class UserController extends Controller
             $user->password = Hash::make($request['password']);
             $user->custom_password = true;
             if($user->save()){
-              Flashy::success("Mot de passe modifié");
+              flashy()->success('Mot de passe modifié avec succès !');
               return view('client.dashboard', compact('step'));
             }
-            Flashy::error("Un problème est survenu...");
             return Redirect::back();
           }
     }
@@ -111,7 +108,7 @@ class UserController extends Controller
           ]);
 
           if($validator->fails()){
-            Flashy::error("Il y a une erreur dans le formulaire");
+            flashy()->error('Il y a une erreur dans le formulaire');
             return Redirect::back()
               ->withErrors($validator)
               ->withInput();
@@ -133,11 +130,11 @@ class UserController extends Controller
                 }
                 $user->save();
                 //Send mail to new client
+                $step = Auth::user()->step;
+                flashy()->success('Enregistrement effectué, étape validée');
                 $this->dispatch(new MailWelcomeMessageToUser($user));
-                Flashy::success("Vous avez mis à jour vos coordonnées avec succès");
-                return Redirect::back();
+                return view('client.dashboard', compact('step'));
               };
-            Flashy::error("Il y a une erreur dans le formulaire!");
             return Redirect::back();
 
           }

@@ -14,7 +14,7 @@
 
 <script>
   var mapboxAccessKey = "pk.eyJ1IjoibWlrbDMxMjQiLCJhIjoiY2p5azFtbHQwMDkzZjNlb3J2MHQzcG9pdyJ9.kpmULW-SrFK4XiFFqEmITg";
-  console.log(mapboxAccessKey);
+  console.log('Hello from MapBox');
     mapboxgl.accessToken = mapboxAccessKey ;
     var mapboxClient = mapboxSdk({ accessToken: mapboxgl.accessToken });
     mapboxClient.geocoding.forwardGeocode({

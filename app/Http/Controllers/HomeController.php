@@ -29,11 +29,13 @@ class HomeController extends Controller
           $step = Auth::user()->step;
           if (Auth::user()->role != 'admin') {
               if (Auth::user()->custom_password != true) {
+                  flashy()->success('Bienvenue');
                   return view('client.welcome-change-password');
               } else {
+                  flashy()->success('Bienvenue');
                   return view('client.dashboard', compact('step'));
               }
-        }
+        }   flashy()->success('Bienvenue');
             return view('admin.dashboard');
         } else {
             $step = 0;
