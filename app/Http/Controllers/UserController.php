@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use Validator;
 use App\Model\User;
+use App\Mail\TestMail;
 use App\Jobs\JobTestMail;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use App\Jobs\MailWelcomeMessageToUser;
 use Illuminate\Support\Facades\Redirect;
 
@@ -85,8 +87,8 @@ class UserController extends Controller
     public function testMail()
     {
       $user = Auth::user();
-
-       $this->dispatch(new JobTestMail($user));
+        Mail::to($user->email)->send(new TestMail($user));
+       //$this->dispatch(new JobTestMail($user));
         flashy()->success('L\'email de test a été envoyé');
         return Redirect::back();
 
