@@ -25,18 +25,6 @@
                                 </div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="validationCustomAdress">Adresse</label>
-                                <input type="text" class="form-control @error('address') is-invalid @enderror" value="{{old('address', Auth::user()->address)}}" name="address" id="validationCustomAdress" required>
-                                <div class="invalid-feedback">
-                                Veuillez saisir votre adresse
-                                </div>
-                                @error('address')
-                                <div>
-                                    <small  class="text-danger">{{ $message }}</small>
-                                </div>
-                                @enderror
-                            </div>
-                            <div class="col-md-3 mb-3">
                                 <label for="validationCustomCp">Code Postal</label>
                                 <input type="text" class="form-control @error('cp') is-invalid @enderror" value="{{old('cp', Auth::user()->cp)}}" name="cp" id="validationCustomCp"required>
                                 <div class="invalid-feedback">
@@ -48,7 +36,7 @@
                                 </div>
                                 @enderror
                             </div>
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-6 mb-3">
                                 <label for="validationTown">Ville</label>
                                 <input type="text" class="form-control @error('town') is-invalid @enderror" value="{{old('town', Auth::user()->town)}}" name="town" id="validationTown" required>
                                 <div class="invalid-feedback">
