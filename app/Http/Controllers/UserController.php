@@ -90,12 +90,10 @@ class UserController extends Controller
     {
       $user = Auth::user();
 
-      if ($this->dispatch(new MailWelcomeMessageToUser($user))){
-        flashy()->success('Mail envoyé avec succès');
+      $this->dispatch(new MailWelcomeMessageToUser($user));
+        flashy()->success('L\'email de test a été envoyé');
         return Redirect::back();
-      }
-      flashy()->error('Problème dans l\'envoi de mail');
-      return Redirect::back();
+
     }
 
 

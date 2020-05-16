@@ -25,3 +25,5 @@ Route::post('/profil/password/{id}', 'UserController@changePassword')->name('cha
 Route::get('/profil/edit/{id})', 'UserController@clientEdit')->name('client.edit');
 Route::post('/profil/client-update/{id}', 'UserController@clientUpdate')->name('client.update');
 
+//Projet
+Route::get('/projet/edit/{id})', 'ProjetController@projetEdit')->name('projet.edit');
