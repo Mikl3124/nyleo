@@ -10,7 +10,7 @@
             {{-- ----------------------- Card 1 ---------------------- --}}
             <div class="card mt-5">
                 <div class="card-header">
-                    <h3 class="text-center">Le terrain</h3>
+                    <h3 class="text-center">Où se situe le projet?/h3>
                 </div>
                 <div class="card-body">
                         <div class="form-row">
@@ -49,7 +49,7 @@
                                 @enderror
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="validationCustomEmail">Email</label>
+                                <label for="validationCustomEmail">Références cadastrales</label>
                                 <div class="input-group">
                                 <input type="email" class="form-control @error('email') is-invalid @enderror" value="{{old('email', Auth::user()->email)}}" name="email" id="validationCustomEmail" value="{{ Auth::user()->email }}" required>
                                 <div class="invalid-feedback">
