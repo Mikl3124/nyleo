@@ -87,8 +87,8 @@ class UserController extends Controller
     public function testMail()
     {
       $user = Auth::user();
-        Mail::to($user->email)->send(new TestMail($user));
-       //$this->dispatch(new JobTestMail($user));
+        //Mail::to($user->email)->send(new TestMail($user));
+        $this->dispatch(new JobTestMail($user));
         flashy()->success('L\'email de test a été envoyé');
         return Redirect::back();
 
