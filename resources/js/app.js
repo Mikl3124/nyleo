@@ -21,7 +21,6 @@ window.Vue = require('vue');
 
 Vue.component('example-component', require('./components/ExampleComponent.vue').default);
 Vue.component('validation-form', require('./components/ValidationForm.vue').default);
-Vue.component('mapbox-show', require('./components/MapboxShow.vue').default);
 Vue.component('show-password', require('./components/ShowPassword.vue').default);
 
 /**

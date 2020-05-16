@@ -14,12 +14,7 @@ use Illuminate\Support\Facades\Redirect;
 
 class UserController extends Controller
 {
-    public function create()
-    {
-        return view('user.create');
-    }
-
-    public function store(Request $request)
+  public function store(Request $request)
     {
       $user = New User;
       $value = $request->all();
