@@ -18,6 +18,7 @@ Route::get('/', 'HomeController@index')->name('home');
 
 //Admin
 Route::post('/client-create', 'UserController@store')->name('client.store');
+Route::post('/test-mail', 'UserController@testMail')->name('test.mail');
 
 //User
 Route::post('/profil/password/{id}', 'UserController@changePassword')->name('change.password');

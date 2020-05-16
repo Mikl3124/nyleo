@@ -6,6 +6,10 @@
     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#CreateUserModal">
       Créer un client
     </button>
+    <form action="{{route('test.mail')}}" method="POST">
+      @csrf
+      <button type="submit" class="btn btn-success mt-3">Test Mail</button>
+    </form>
 </div>
 
 @endsection

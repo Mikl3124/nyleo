@@ -86,6 +86,19 @@ class UserController extends Controller
       return view('client.client-form', compact('user', 'step'));
     }
 
+    public function testMail()
+    {
+      $user = Auth::user();
+
+      if ($this->dispatch(new MailWelcomeMessageToUser($user))){
+        flashy()->success('Mail envoyé avec succès');
+        return Redirect::back();
+      }
+      flashy()->error('Problème dans l\'envoi de mail');
+      return Redirect::back();
+    }
+
+
     public function clientUpdate(Request $request, $user)
     {
 
