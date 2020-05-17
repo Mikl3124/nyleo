@@ -25,7 +25,6 @@
     },
     "dependencies": {
         "laravel-echo": "^1.7.0",
-        "mix-env-file": "^0.1.0",
-        "pusher-js": "^6.0.2"
+        "mix-env-file": "^0.1.0"
     }
 }
