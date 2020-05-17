@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container">
-    <h1 class=text-center>DASHBOARD</h1>
+    <h1 class=text-center>THE DASHBOARD</h1>
     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#CreateUserModal">
       Créer un client
     </button>
