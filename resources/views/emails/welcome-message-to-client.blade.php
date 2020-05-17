@@ -8,7 +8,27 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 </head>
 
+<style>
+    .footer {
+        clear: both;
+        margin-top: 10px;
+        text-align: center;
+        width: 100%; 
+      }
+        .footer td,
+        .footer p,
+        .footer span,
+        .footer a {
+          color: #999999;
+          font-size: 12px;
+          text-align: center; 
+      }
+
+</style>
+      
+
 <body style="font-family: 'Roboto', sans-serif;color:#353b48;">
+    <span class="preheader">Votre accès personnalisé à Nyleo</span>
     <table with="100%" style="max-width:650px;display:block;margin:auto;">
         <tr>
           <td>
@@ -44,5 +64,16 @@
             <td width="100%"><a href="https://client.nyleo.fr" style="padding:15px;width:150px;text-align:center;border-radius:3px;color:white;font-weight: bold;text-decoration:none;background-color:#ff6600;font-size:20px;">Accéder à la plateforme</a></td>
         </tr>
     </table>
+    <!-- START FOOTER -->
+            <div class="footer">
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td class="content-block">
+                    <span class="apple-link">Nyleo Conception 2020</span>
+                  </td>
+                </tr>
+              </table>
+            </div>
+    <!-- END FOOTER -->
 </body>
 </html>
