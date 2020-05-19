@@ -10,7 +10,7 @@
             {{-- ----------------------- Card 1 ---------------------- --}}
             <div class="card mt-5">
                 <div class="card-header">
-                    <h3 class="text-center">Où se situe le projet?/h3>
+                    <h3 class="text-center">Où se situe le projet?</h3>
                 </div>
                 <div class="card-body">
                         <div class="form-row">
@@ -153,19 +153,19 @@
                         </div>
                     </div>
                 </div>
-                <button class="btn btn-primary mt-3" type="submit">Valider</button>     
-            </div>      
+                <button class="btn btn-primary mt-3" type="submit">Valider</button>
+            </div>
             </div>
         </form>
           {{-- ------------------ Recaptitualtif ---------------------- --}}
-          
+
       </div>
   </div>
 
 
 {{-- ----------- Algolia Place Script --------------- --}}
 
-    
+
 <script>
   (function () {
     var placesAutocomplete = places({

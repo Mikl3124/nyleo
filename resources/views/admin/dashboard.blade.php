@@ -10,7 +10,27 @@
       @csrf
       <button type="submit" class="btn btn-success mt-3">Test Mail</button>
     </form>
+    {{-- --------- TABLE SECTION ---------- --}}
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Email</th>
+          <th scope="col">Etape</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach($users as $user)
+          <tr>
+            <th scope="row">{{ $user->id }}</th>
+            <td>{{ $user->email }}</td>
+            <td>{{ $user->step }}</td>
+          </tr>
+        @endforeach
+      </tbody>
+    </table>
 </div>
+
 
 @endsection
 
