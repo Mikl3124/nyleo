@@ -77,11 +77,16 @@ class UserController extends Controller
           }
     }
 
-    public function clientEdit()
+    public function clientEdit($user)
     {
-      $user = Auth::user();
-      $step = $user->step;
-      return view('client.client-form', compact('user', 'step'));
+      $user = User::find($user);
+      if( $user === Auth::user() || Auth::user()->role === 'admin' ) {
+        $step = $user->step;
+        return view('client.client-form', compact('user', 'step'));
+      } else {
+        flashy()->error('Vous ne pouvez pas accéder à cette section');
+        return Redirect::back();
+      }
     }
 
     public function testMail()

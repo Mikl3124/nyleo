@@ -6,26 +6,37 @@
     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#CreateUserModal">
       Créer un client
     </button>
-    <form action="{{route('test.mail')}}" method="POST">
+    <form action="{{ route('test.mail') }}" method="POST">
       @csrf
       <button type="submit" class="btn btn-success mt-3">Test Mail</button>
     </form>
     {{-- --------- TABLE SECTION ---------- --}}
     <table class="table table-hover">
-      <thead>
-        <tr>
-          <th scope="col">#</th>
-          <th scope="col">Email</th>
-          <th scope="col">Etape</th>
-        </tr>
-      </thead>
+
+        <thead>
+          <tr>
+            <th scope="col">Email</th>
+            <th scope="col">Nom</th>
+            <th scope="col">Prénom</th>
+            <th scope="col">Ville</th>      
+            <th scope="col">Etape</th>
+            <th scope="col"></th>
+          </tr>
+        </thead>        
+
+
       <tbody>
         @foreach($users as $user)
-          <tr>
-            <th scope="row">{{ $user->id }}</th>
-            <td>{{ $user->email }}</td>
-            <td>{{ $user->step }}</td>
-          </tr>
+          
+            <tr>
+                <td>{{ $user->email }}</td>
+                <td>{{ $user->firstname }}</td>
+                <td>{{ $user->lastname }}</td>
+                <td>{{ $user->town }}</td>          
+                <td>{{ $user->step }}</td>
+                <td><a href="{{ route('client.show', $user) }}" class="btn btn-primary">Accéder</a></td>
+            </tr>
+        
         @endforeach
       </tbody>
     </table>
