@@ -15,7 +15,7 @@ class JobTestMail implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $user;
-    
+
     /**
      * Create a new job instance.
      *
@@ -34,6 +34,6 @@ class JobTestMail implements ShouldQueue
     public function handle()
     {
         $user = $this->user;
-        Mail::to($user->email)->queue(new TestMail);
+        Mail::to($user->email)->queue(new TestMail($user));
     }
 }

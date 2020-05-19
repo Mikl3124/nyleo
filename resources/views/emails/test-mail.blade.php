@@ -13,7 +13,7 @@
         clear: both;
         margin-top: 10px;
         text-align: center;
-        width: 100%; 
+        width: 100%;
       }
         .footer td,
         .footer p,
@@ -21,11 +21,11 @@
         .footer a {
           color: #999999;
           font-size: 12px;
-          text-align: center; 
+          text-align: center;
       }
 
 </style>
-      
+
 
 <body style="font-family: 'Roboto', sans-serif;color:#353b48;">
     <span class="preheader">Votre accès personnalisé à Nyleo</span>
@@ -48,13 +48,6 @@
         </tr>
         <tr>
             <td width="100%" style="font-size:22px;display: block;margin-bottom:30px;text-decoration: underline;">Voici vos identifiants:</td>
-        </tr>
-        <tr>
-            <td width="100%" style="font-size:22px;display: block;margin-bottom:30px;">Email: {{ $user->email }}</td>
-    
-        </tr>
-        <tr>
-            <td width="50%" style="font-size:22px;display: block;margin-bottom:30px;">Mot de passe provisoire: nyleo</td> 
         </tr>
         <tr>
             <td width="100%" style="font-size:22px;display: block;margin-bottom:30px;"></td>

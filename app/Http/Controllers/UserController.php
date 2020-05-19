@@ -46,7 +46,7 @@ class UserController extends Controller
           }
     }
 
-      public function changePassword(Request $request)
+    public function changePassword(Request $request)
     {
       $user = Auth::user();
       $step = 0;
