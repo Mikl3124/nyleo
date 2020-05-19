@@ -41,32 +41,12 @@
             </td>
         </tr>
         <tr>
-          <td width="100%" style="font-size:22px;display: block;margin-bottom:30px;">Bonjour</td>
-        </tr>
-        <tr>
-            <td width="100%" style="font-size:22px;display: block;margin-bottom:30px;">Mickael vient de créer votre accès membre sur la plateforme de communication "Nyleo"</td>
-        </tr>
-        <tr>
-            <td width="100%" style="font-size:22px;display: block;margin-bottom:30px;text-decoration: underline;">Voici vos identifiants:</td>
-        </tr>
-        <tr>
-            <td width="100%" style="font-size:22px;display: block;margin-bottom:30px;"></td>
+          <td width="100%" style="font-size:22px;display: block;margin-bottom:30px;">Les test mail fonctionne</td>
         </tr>
 
         <tr style="text-align:center">
-            <td width="100%"><a href="https://client.nyleo.fr" style="padding:15px;width:150px;text-align:center;border-radius:3px;color:white;font-weight: bold;text-decoration:none;background-color:#ff6600;font-size:20px;">Accéder à la plateforme</a></td>
+            <td width="100%"><a href="https://clients.nyleo.fr" style="padding:15px;width:150px;text-align:center;border-radius:3px;color:white;font-weight: bold;text-decoration:none;background-color:#ff6600;font-size:20px;">Accéder à la plateforme</a></td>
         </tr>
     </table>
-    <!-- START FOOTER -->
-            <div class="footer">
-              <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                <tr>
-                  <td class="content-block">
-                    <span class="apple-link">Nyleo Conception 2020</span>
-                  </td>
-                </tr>
-              </table>
-            </div>
-    <!-- END FOOTER -->
 </body>
 </html>
