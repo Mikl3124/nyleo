@@ -18,25 +18,25 @@
             <th scope="col">Email</th>
             <th scope="col">Nom</th>
             <th scope="col">Prénom</th>
-            <th scope="col">Ville</th>      
+            <th scope="col">Ville</th>
             <th scope="col">Etape</th>
             <th scope="col"></th>
           </tr>
-        </thead>        
+        </thead>
 
 
       <tbody>
         @foreach($users as $user)
-          
+
             <tr>
                 <td>{{ $user->email }}</td>
                 <td>{{ $user->firstname }}</td>
                 <td>{{ $user->lastname }}</td>
-                <td>{{ $user->town }}</td>          
+                <td>{{ $user->town }}</td>
                 <td>{{ $user->step }}</td>
-                <td><a href="{{ route('client.show', $user) }}" class="btn btn-primary">Accéder</a></td>
+                <td><a href="" class="btn btn-primary">Accéder</a></td>
             </tr>
-        
+
         @endforeach
       </tbody>
     </table>
