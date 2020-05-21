@@ -150,7 +150,7 @@
         <label class="label" for="file5">
         </label>
         <div class="file-uploader__message-area">
-          <p>Select a file</p>
+          <p>Select file</p>
         </div>
         <div class="file-chooser">
           <input type="file" class="file-chooser__input" id="file5" name="file5[]">
