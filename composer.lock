@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b0fa40fdb161a5ff03dd60729d86d622",
+    "content-hash": "0a68f47c9bd23bae6a63c2d852e11ee6",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -1213,44 +1213,38 @@
             "time": "2020-05-12T20:33:44+00:00"
         },
         {
-            "name": "mercuryseries/flashy",
-            "version": "1.0.4",
+            "name": "league/flysystem-aws-s3-v3",
+            "version": "1.0.24",
             "source": {
                 "type": "git",
-                "url": "https://github.com/mercuryseries/flashy.git",
-                "reference": "b2d7c6d13c3dc35f8bf55e7d5ebc159fb41de27e"
+                "url": "https://github.com/thephpleague/flysystem-aws-s3-v3.git",
+                "reference": "4382036bde5dc926f9b8b337e5bdb15e5ec7b570"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mercuryseries/flashy/zipball/b2d7c6d13c3dc35f8bf55e7d5ebc159fb41de27e",
-                "reference": "b2d7c6d13c3dc35f8bf55e7d5ebc159fb41de27e",
+                "url": "https://api.github.com/repos/thephpleague/flysystem-aws-s3-v3/zipball/4382036bde5dc926f9b8b337e5bdb15e5ec7b570",
+                "reference": "4382036bde5dc926f9b8b337e5bdb15e5ec7b570",
                 "shasum": ""
             },
             "require": {
-                "illuminate/support": "~5.0|~6.0|~7.0|~8.0",
-                "php": ">=5.4.0"
+                "aws/aws-sdk-php": "^3.0.0",
+                "league/flysystem": "^1.0.40",
+                "php": ">=5.5.0"
             },
             "require-dev": {
-                "mockery/mockery": "dev-master"
+                "henrikbjorn/phpspec-code-coverage": "~1.0.1",
+                "phpspec/phpspec": "^2.0.0"
             },
             "type": "library",
             "extra": {
-                "laravel": {
-                    "providers": [
-                        "MercurySeries\\Flashy\\FlashyServiceProvider"
-                    ],
-                    "aliases": {
-                        "Flashy": "MercurySeries\\Flashy\\Flashy"
-                    }
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
                 }
             },
             "autoload": {
-                "psr-0": {
-                    "MercurySeries\\Flashy": "src/"
-                },
-                "files": [
-                    "src/MercurySeries/Flashy/functions.php"
-                ]
+                "psr-4": {
+                    "League\\Flysystem\\AwsS3v3\\": "src/"
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -1258,12 +1252,12 @@
             ],
             "authors": [
                 {
-                    "name": "Honore Hounwanou",
-                    "email": "mercuryseries@gmail.com"
+                    "name": "Frank de Jonge",
+                    "email": "info@frenky.net"
                 }
             ],
-            "description": "Easy flash notifications",
-            "time": "2020-03-21T08:10:43+00:00"
+            "description": "Flysystem adapter for the AWS S3 SDK v3.x",
+            "time": "2020-02-23T13:31:58+00:00"
         },
         {
             "name": "monolog/monolog",

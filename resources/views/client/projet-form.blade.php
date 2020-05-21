@@ -5,7 +5,7 @@
   <div class="container-fluid">
     @include('layouts.steps')
     <div class="container">
-        <form action="{{route('client.update', Auth::user())}}" class="needs-validation" method="POST" novalidate>
+        <form action="" class="needs-validation" method="POST" novalidate>
             @csrf
             {{-- ----------------------- Card 1 ---------------------- --}}
             <div class="card mt-5">
@@ -15,7 +15,10 @@
                 <div class="card-body">
                     <div class="form-group">
                         <label for="ProjetDescription">Courte descriptive des travaux envisagé</label>
-                        <textarea class="form-control" id="ProjetDescription" rows="3"></textarea>
+                        <textarea class="form-control @error('description') is-invalid @enderror" name="description" id="ProjetDescription" rows="3" ></textarea>
+                        @error('description')
+                          <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
             </div>
@@ -38,7 +41,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="validationCustomCp">Code Postal</label>
-                            <input type="text" class="form-control @error('cp') is-invalid @enderror" value="{{old('cp', Auth::user()->cp)}}" name="cp" id="validationCustomCp"required>
+                            <input type="text" class="form-control @error('cp') is-invalid @enderror" value="{{ old('cp') }}" name="cp" id="validationCustomCp"required>
                             <div class="invalid-feedback">
                                 Veuillez saisir le code postal
                             </div>
@@ -50,7 +53,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="validationTown">Ville</label>
-                            <input type="text" class="form-control @error('town') is-invalid @enderror" value="{{old('town', Auth::user()->town)}}" name="town" id="validationTown" required>
+                            <input type="text" class="form-control @error('town') is-invalid @enderror" value="{{old('town')}}" name="town" id="validationTown" required>
                             <div class="invalid-feedback">
                                 Veuillez saisir votre ville
                             </div>
@@ -59,7 +62,7 @@
                                 <small  class="text-danger">{{ $message }}</small>
                             </div>
                             @enderror
-                        </div>    
+                        </div>
                     </div>
                 </div>
             </div>
@@ -73,80 +76,90 @@
                 <div class="card-body">
                     <div class="form-row">
                         <div class="col-md-4 mb-3">
-                            <label for="validationCustomCp">Section</label>
-                            <input type="text" class="form-control @error('cp') is-invalid @enderror" value="{{old('cp', Auth::user()->cp)}}" name="cp" id="validationCustomCp"required>
+                            <label for="validationsCadastreSection">Section</label>
+                            <input type="text" class="form-control @error('cadastre_section') is-invalid @enderror" value="{{old('cadastres_section')}}" name="cadastre-section" id="validationsCadastreSection" >
                             <div class="invalid-feedback">
-                                Veuillez saisir le code postal
+                                Veuillez saisir la section
                             </div>
-                            @error('cp')
+                            @error('cadastre_section')
+                            <div>
+                                <small  class="text-danger">{{ $message }}</small>
+                            </div>
+                            @enderror
+                        </div>
+                        <div class=" col-md-4 mb-3">
+                            <label for="validationCadastreNumber">Numéro</label>
+                            <input type="text" class="form-control @error('cadastre_number') is-invalid @enderror" value="{{old('cadastre_number')}}" name="cadastre_number" id="validationCadastreNumber" >
+                            <div class="invalid-feedback">
+                                Veuillez saisir votre ville
+                            </div>
+                            @error('cadastre_number')
                             <div>
                                 <small  class="text-danger">{{ $message }}</small>
                             </div>
                             @enderror
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label for="validationTown">Numéro</label>
-                            <input type="text" class="form-control @error('town') is-invalid @enderror" value="{{old('town', Auth::user()->town)}}" name="town" id="validationTown" required>
+                            <label for="validationCadastreSuperficie">Superficie en m²</label>
+                            <input type="text" class="form-control @error('cadastre_superficie') is-invalid @enderror" value="{{old('cadastre_superficie')}}" name="cadastre_superficie" id="validationCadastreSuperficie" required>
                             <div class="invalid-feedback">
                                 Veuillez saisir votre ville
                             </div>
-                            @error('town')
+                            @error('cadastre_superficie')
                             <div>
                                 <small  class="text-danger">{{ $message }}</small>
                             </div>
                             @enderror
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="validationTown">Superficie en m²</label>
-                            <input type="text" class="form-control @error('town') is-invalid @enderror" value="{{old('town', Auth::user()->town)}}" name="town" id="validationTown" required>
-                            <div class="invalid-feedback">
-                                Veuillez saisir votre ville
-                            </div>
-                            @error('town')
-                            <div>
-                                <small  class="text-danger">{{ $message }}</small>
-                            </div>
-                            @enderror
-                        </div>         
                     </div>
                     <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="multipleParcellesCadastre">
-                        <label class="form-check-label" for="multipleParcellesCadastre">Plusieurs parcelles sont concernées par le projet</label>
+                      <input type="checkbox" name="multiple_parcelles" class="form-check-input" id="MultipleParcelles">
+                      <label class="form-check-label" for="MultipleParcelles">D'autres parcelles sont concernées ?</label>
                     </div>
                 </div>
             </div>
-        </form>
-          {{-- ------------------ Recaptitualtif ---------------------- --}}
+            {{-- ----------------------- Card 1 ---------------------- --}}
+            <div class="card mt-5">
+                <div class="card-header">
+                    <h3 class="text-center">Avez-vous des documents à joindre (croquis, photo...) ?</h3>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="ProjetDescription">Courte descriptive des travaux envisagé</label>
+                        <textarea class="form-control @error('description') is-invalid @enderror" name="description" id="ProjetDescription" rows="3" ></textarea>
+                        @error('description')
+                          <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+              <button type="submit" class="btn btn-primary">Envoyer</button>
+            </div>
 
+        </form>
       </div>
   </div>
 
+    <div class="container">
+      @if (count($errors) > 0)
+        <ul><li>{{ $error }}</li></ul>
+      @endif
+      <form action="{{ route('file.upload')}}" class="needs-validation" method="POST" enctype="multipart/form-data">
+        @csrf
+        <label class="label" for="file5">
+        </label>
+        <div class="file-uploader__message-area">
+          <p>Select a file</p>
+        </div>
+        <div class="file-chooser">
+          <input type="file" class="file-chooser__input" id="file5" name="file5[]">
+        </div>
+        <button type="submit" class="btn btn-primary">Envoyer</button>
+      </form>
 
-{{-- ----------- Algolia Place Script --------------- --}}
+    </div>
 
-
-<script>
-  (function () {
-    var placesAutocomplete = places({
-        appId: '{{ env('ALGOLIA_APP_ID') }}',
-        apiKey: '{{ env('ALGOLIA_SECRET') }}',
-        container: document.querySelector('#form-address'),
-        templates: {
-            value: function (suggestion) {
-            return suggestion.name;
-        }
-      }
-    }).configure({
-      type: 'address'
-    });
-    placesAutocomplete.on('change', function resultSelected(e) {
-        let coordonnees = e.suggestion.latlng;
-
-        document.querySelector('#departement').value = e.suggestion.county || '';
-        document.querySelector('#form-city').value = e.suggestion.city || '';
-        document.querySelector('#form-zip').value = e.suggestion.postcode || '';
-    });
-  })();
-</script>
 
 @endsection
+

@@ -40,7 +40,6 @@ class UserController extends Controller
             $user->role = 'client';
             $user->save();
             //Send mail to new client
-            flashy()->success('Client enrigistré avec succès');
             $this->dispatch(new MailWelcomeMessageToUser($user));
             return Redirect::back();
           }
@@ -62,7 +61,6 @@ class UserController extends Controller
           ]);
 
           if($validator->fails()){
-            flashy()->error( 'Il y a une erreur dans le mot de passe');
             return Redirect::back()
               ->withErrors($validator)
               ->withInput();
@@ -70,23 +68,17 @@ class UserController extends Controller
             $user->password = Hash::make($request['password']);
             $user->custom_password = true;
             if($user->save()){
-              flashy()->success('Mot de passe modifié avec succès !');
               return view('client.dashboard', compact('step'));
             }
             return Redirect::back();
           }
     }
 
-    public function clientEdit($user)
+    public function clientEdit()
     {
-      $user = User::find($user);
-      if( $user === Auth::user() || Auth::user()->role === 'admin' ) {
+      $user = Auth::user();
         $step = $user->step;
         return view('client.client-form', compact('user', 'step'));
-      } else {
-        flashy()->error('Vous ne pouvez pas accéder à cette section');
-        return Redirect::back();
-      }
     }
 
     public function testMail()
@@ -94,7 +86,6 @@ class UserController extends Controller
       $user = Auth::user();
         //Mail::to($user->email)->send(new TestMail($user));
         $this->dispatch(new JobTestMail($user));
-        flashy()->success('L\'email de test a été envoyé');
         return Redirect::back();
 
     }
@@ -122,7 +113,6 @@ class UserController extends Controller
           ]);
 
           if($validator->fails()){
-            flashy()->error('Il y a une erreur dans le formulaire');
             return Redirect::back()
               ->withErrors($validator)
               ->withInput();
@@ -145,7 +135,6 @@ class UserController extends Controller
                 $user->save();
                 //Send mail to new client
                 $step = Auth::user()->step;
-                flashy()->success('Enregistrement effectué, étape validée');
                 $this->dispatch(new MailWelcomeMessageToUser($user));
                 return view('client.dashboard', compact('step'));
               };

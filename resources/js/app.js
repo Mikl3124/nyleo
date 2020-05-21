@@ -22,6 +22,7 @@ window.Vue = require('vue');
 Vue.component('example-component', require('./components/ExampleComponent.vue').default);
 Vue.component('validation-form', require('./components/ValidationForm.vue').default);
 Vue.component('show-password', require('./components/ShowPassword.vue').default);
+Vue.component('multiple-uploads', require('./components/MultipleUpload.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
