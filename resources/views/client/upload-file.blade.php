@@ -16,10 +16,10 @@
         <div class="file-uploader__message-area">
           <p>Select file</p>
         </div>
-        <div class="file-chooser">
+        <div class="file-chooser ">
           <input type="file" class="file-chooser__input" id="file5" name="file5[]">
         </div>
-        <button type="submit" class="btn btn-primary">Envoyer</button>
+        <button type="submit" class="btn btn-primary btn-lg btn-block">Envoyer</button>
       </form>
     </div>
 

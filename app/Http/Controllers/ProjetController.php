@@ -31,14 +31,15 @@ class ProjetController extends Controller
     {
       $files = $request->file5;
       $results = array_pop($files);
-
       $user = Auth::user();
         foreach ($files as $file) {
             $filename = $file->store('files');
-            File::create([
+            $test = File::create([
                 'user_id' => $user->id,
-                'url' => Storage::disk('s3')->url($filename)
+                'url' => Storage::disk('s3')->url($filename),
+            
             ]);
+            dd($test);
         }
         return 'Upload successful!';
     }

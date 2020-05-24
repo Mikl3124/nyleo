@@ -10,8 +10,8 @@
      var settings = $.extend({
        MessageAreaText: "Aucun fichier sélectionné",
        MessageAreaTextWithFiles: "Vous allez envoyer: ",
-       DefaultErrorMessage: "Failed opening file.",
-       BadTypeErrorMessage: "Invalid type of file.",
+       DefaultErrorMessage: "Impossible d'ouvrir le fichier",
+       BadTypeErrorMessage: "Le type de document n'est pas valide",
        acceptedFileTypes: ['pdf', 'jpg', 'gif', 'jpeg', 'bmp', 'tif', 'tiff', 'png','doc', 'docx', 'zip', 'rar']
      }, options );
 
@@ -110,7 +110,7 @@
 
 $(document).ready(function(){
   $('.fileUploader').uploader({
-    MessageAreaText: "Envoyer des documents"
+    MessageAreaText: "Glissez ou Sélectionnez vos documents"
   });
 });
 </script>
@@ -151,7 +151,7 @@ $(document).ready(function(){
 .removal-button {
   width: 20%;
   border: none;
-  background-color: green;
+  background-color: #38C172;
   color: white;
 }
 .removal-button::before {
@@ -234,7 +234,7 @@ $(document).ready(function(){
 }
 
 .error {
-  background-color: red;
+  background-color: #e3342f;
   color: white;
 }
 
@@ -251,5 +251,21 @@ ul, li {
   font-size: 42px;
   color: #4a4a4a
 }
+
+input#file5 {
+  display: inline-block;
+  width: 100%;
+  padding: 120px 0 0 0;
+  height: 100px;
+  overflow: hidden;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  background: url('https://cdn1.iconfinder.com/data/icons/hawcons/32/698394-icon-130-cloud-upload-512.png') center center no-repeat #e4e4e4;
+  border-radius: 20px;
+  background-size: 60px 60px;
+  cursor: pointer;
+}
+
 
 </style>

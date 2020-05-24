@@ -26,7 +26,7 @@ return [
     |
     */
 
-    'cloud' => env('FILESYSTEM_CLOUD', 's3'),
+    //'cloud' => env('FILESYSTEM_CLOUD', 's3'),
 
     /*
     |--------------------------------------------------------------------------
@@ -82,9 +82,5 @@ return [
     | the locations of the links and the values should be their targets.
     |
     */
-
-    'links' => [
-        public_path('storage') => storage_path('app/public'),
-    ],
 
 ];
