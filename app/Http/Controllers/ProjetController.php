@@ -37,9 +37,7 @@ class ProjetController extends Controller
             $test = File::create([
                 'user_id' => $user->id,
                 'url' => Storage::disk('s3')->url($filename),
-            
             ]);
-            dd($test);
         }
         return 'Upload successful!';
     }
