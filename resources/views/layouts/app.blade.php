@@ -44,17 +44,16 @@
                         <!-- Authentication Links -->
                         @guest
                         @else
-                            {{Auth::user()->email}}
                             <li class="nav-item dropdown">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                    {{ Auth::user()->name }} <span class="caret"></span>
+                                <a class="nav-link dropdown-toggle" href="#" id="account_dd" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                  MENU
                                 </a>
-
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ route('logout') }}"
+                                    <a class="dropdown-item" href="{{ route('upload.page') }}"><i class="fas fa-upload"></i> Envoyer un document</a>
+                                    <a class="dropdown-item text-danger" href="{{ route('upload.page') }}"
                                        onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
-                                        Déconnexion
+                                        <i class="fas fa-sign-out-alt"></i> Déconnexion
                                     </a>
 
                                     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">

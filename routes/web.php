@@ -29,4 +29,6 @@ Route::post('/profil/client-update/{id}', 'UserController@clientUpdate')->name('
 Route::get('/projet/edit/{id})', 'ProjetController@projetEdit')->name('projet.edit');
 
 //Files
+Route::get('/upload', 'ProjetController@showUploadPage')->name('upload.page');
 Route::post('/upload-files', 'ProjetController@uploadFile')->name('file.upload');
+

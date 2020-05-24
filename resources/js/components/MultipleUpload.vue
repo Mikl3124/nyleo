@@ -8,11 +8,11 @@
 
    $.fn.uploader = function( options ) {
      var settings = $.extend({
-       MessageAreaText: "There is no file selected.",
-       MessageAreaTextWithFiles: "File list:",
+       MessageAreaText: "Aucun fichier sélectionné",
+       MessageAreaTextWithFiles: "Vous allez envoyer: ",
        DefaultErrorMessage: "Failed opening file.",
        BadTypeErrorMessage: "Invalid type of file.",
-       acceptedFileTypes: ['pdf', 'jpg', 'gif', 'jpeg', 'bmp', 'tif', 'tiff', 'png','doc', 'docx']
+       acceptedFileTypes: ['pdf', 'jpg', 'gif', 'jpeg', 'bmp', 'tif', 'tiff', 'png','doc', 'docx', 'zip', 'rar']
      }, options );
 
      var uploadId = 1;
@@ -110,7 +110,7 @@
 
 $(document).ready(function(){
   $('.fileUploader').uploader({
-    MessageAreaText: "Select a file."
+    MessageAreaText: "Envoyer des documents"
   });
 });
 </script>
@@ -123,10 +123,10 @@ $(document).ready(function(){
 }
 
 .file-uploader__message-area {
-  font-size: 18px;
+  font-size: 24px;
   padding: 1em;
   text-align: center;
-  color: #377a65;
+  color: #4a4a4a;
 }
 
 .file-list {
@@ -151,7 +151,7 @@ $(document).ready(function(){
 .removal-button {
   width: 20%;
   border: none;
-  background-color: #d65d38;
+  background-color: green;
   color: white;
 }
 .removal-button::before {
@@ -234,7 +234,7 @@ $(document).ready(function(){
 }
 
 .error {
-  background-color: #d65d38;
+  background-color: red;
   color: white;
 }
 
@@ -245,6 +245,11 @@ $(document).ready(function(){
 ul, li {
   margin: 0;
   padding: 0;
+}
+
+.icon_upload{
+  font-size: 42px;
+  color: #4a4a4a
 }
 
 </style>

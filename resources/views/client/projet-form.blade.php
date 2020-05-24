@@ -1,6 +1,5 @@
 @extends('layouts.app')
- <!-- Algolia  -->
-    <script src="https://cdn.jsdelivr.net/npm/places.js@1.18.2"></script>
+
 @section('content')
   <div class="container-fluid">
     @include('layouts.steps')
@@ -118,28 +117,6 @@
                     </div>
                 </div>
             </div>
-            {{-- ----------------------- Card 1 ---------------------- --}}
-            <div class="card mt-5">
-                <div class="card-header">
-                    <h3 class="text-center">Avez-vous des documents à joindre (croquis, photo...) ?</h3>
-                </div>
-                <div class="card-body">
-                    <div class="form-group">
-                        <label for="ProjetDescription">Courte descriptive des travaux envisagé</label>
-                        <textarea class="form-control @error('description') is-invalid @enderror" name="description" id="ProjetDescription" rows="3" ></textarea>
-                        @error('description')
-                          <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-              <button type="submit" class="btn btn-primary">Envoyer</button>
-            </div>
-
-        </form>
-      </div>
-  </div>
 
     <div class="container">
       @if (count($errors) > 0)

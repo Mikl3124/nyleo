@@ -19,6 +19,14 @@ class ProjetController extends Controller
       return view('client.projet-form', compact('user', 'step', 'projet'));
     }
 
+    public function showUploadPage()
+    {
+      $user = Auth::user();
+      $step = $user->step;
+      return view('client.upload-file', compact('user', 'step'));
+    }
+
+
     public function uploadFile(Request $request)
     {
       $files = $request->file5;
@@ -29,8 +37,7 @@ class ProjetController extends Controller
             $filename = $file->store('files');
             File::create([
                 'user_id' => $user->id,
-                'filename' => $filename,
-                'url' => Storage::disk('s3')->url($path)
+                'url' => Storage::disk('s3')->url($filename)
             ]);
         }
         return 'Upload successful!';

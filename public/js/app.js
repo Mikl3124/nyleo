@@ -1914,11 +1914,11 @@ module.exports = {
 (function ($) {
   $.fn.uploader = function (options) {
     var settings = $.extend({
-      MessageAreaText: "There is no file selected.",
-      MessageAreaTextWithFiles: "File list:",
+      MessageAreaText: "Aucun fichier sélectionné",
+      MessageAreaTextWithFiles: "Vous allez envoyer: ",
       DefaultErrorMessage: "Failed opening file.",
       BadTypeErrorMessage: "Invalid type of file.",
-      acceptedFileTypes: ['pdf', 'jpg', 'gif', 'jpeg', 'bmp', 'tif', 'tiff', 'png', 'doc', 'docx']
+      acceptedFileTypes: ['pdf', 'jpg', 'gif', 'jpeg', 'bmp', 'tif', 'tiff', 'png', 'doc', 'docx', 'zip', 'rar']
     }, options);
     var uploadId = 1; //update the messaging
 
@@ -2004,7 +2004,7 @@ module.exports = {
 
 $(document).ready(function () {
   $('.fileUploader').uploader({
-    MessageAreaText: "Select a file."
+    MessageAreaText: "Envoyer des documents"
   });
 });
 
@@ -6524,7 +6524,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "\n.file-uploader {\n  background-color: #dbefe9;\n  border-radius: 3px;\n  color: #242424;\n}\n.file-uploader__message-area {\n  font-size: 18px;\n  padding: 1em;\n  text-align: center;\n  color: #377a65;\n}\n.file-list {\n  background-color: white;\n  font-size: 16px;\n}\n.file-list__name {\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n.file-list li {\n  height: 50px;\n  line-height: 50px;\n  margin-left: .5em;\n  border: none;\n  overflow: hidden;\n}\n.removal-button {\n  width: 20%;\n  border: none;\n  background-color: #d65d38;\n  color: white;\n}\n.removal-button::before {\n  content: \"X\";\n}\n.removal-button:focus {\n  outline: 0;\n}\n.file-chooser {\n  padding: 1em;\n  transition: background-color 1s, height 1s;\n}\n.file-chooser  p {\n  font-size: 18px;\n  padding-top: 1em;\n}\n.file-uploader {\n  max-width: 400px;\n  height: auto;\n  margin: 2em auto;\n}\n.file-uploader * {\n  display: block;\n}\n.file-uploader input[type=submit] {\n  margin-top: 2em;\n  float: right;\n}\n.file-list {\n  margin: 0 auto;\n  max-width: 90%;\n}\n.file-list__name {\n  max-width: 70%;\n  float: left;\n}\n.removal-button {\n  display: inline-block;\n  height: 100%;\n  float: right;\n}\n.file-chooser {\n  width: 90%;\n  margin: .5em auto;\n}\n.file-chooser__input {\n  margin: 0 auto;\n}\n.file-uploader__submit-button {\n  width: 100%;\n  border: none;\n  font-size: 1.5em;\n  padding: 1em;\n  background-color: #72bfa7;\n  color: white;\n}\n.file-uploader__submit-button:hover {\n  background-color: #a7d7c8;\n}\n.file-list li:after, .file-uploader:after {\n  content: \"\";\n  display: table;\n  clear: both;\n}\n.hidden {\n  display: none;\n}\n.hidden input {\n  display: none;\n}\n.error {\n  background-color: #d65d38;\n  color: white;\n}\n*, *::before, *::after {\n  box-sizing: border-box;\n}\nul, li {\n  margin: 0;\n  padding: 0;\n}\n\n", ""]);
+exports.push([module.i, "\n.file-uploader {\n  background-color: #dbefe9;\n  border-radius: 3px;\n  color: #242424;\n}\n.file-uploader__message-area {\n  font-size: 24px;\n  padding: 1em;\n  text-align: center;\n  color: #4a4a4a;\n}\n.file-list {\n  background-color: white;\n  font-size: 16px;\n}\n.file-list__name {\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n.file-list li {\n  height: 50px;\n  line-height: 50px;\n  margin-left: .5em;\n  border: none;\n  overflow: hidden;\n}\n.removal-button {\n  width: 20%;\n  border: none;\n  background-color: green;\n  color: white;\n}\n.removal-button::before {\n  content: \"X\";\n}\n.removal-button:focus {\n  outline: 0;\n}\n.file-chooser {\n  padding: 1em;\n  transition: background-color 1s, height 1s;\n}\n.file-chooser  p {\n  font-size: 18px;\n  padding-top: 1em;\n}\n.file-uploader {\n  max-width: 400px;\n  height: auto;\n  margin: 2em auto;\n}\n.file-uploader * {\n  display: block;\n}\n.file-uploader input[type=submit] {\n  margin-top: 2em;\n  float: right;\n}\n.file-list {\n  margin: 0 auto;\n  max-width: 90%;\n}\n.file-list__name {\n  max-width: 70%;\n  float: left;\n}\n.removal-button {\n  display: inline-block;\n  height: 100%;\n  float: right;\n}\n.file-chooser {\n  width: 90%;\n  margin: .5em auto;\n}\n.file-chooser__input {\n  margin: 0 auto;\n}\n.file-uploader__submit-button {\n  width: 100%;\n  border: none;\n  font-size: 1.5em;\n  padding: 1em;\n  background-color: #72bfa7;\n  color: white;\n}\n.file-uploader__submit-button:hover {\n  background-color: #a7d7c8;\n}\n.file-list li:after, .file-uploader:after {\n  content: \"\";\n  display: table;\n  clear: both;\n}\n.hidden {\n  display: none;\n}\n.hidden input {\n  display: none;\n}\n.error {\n  background-color: red;\n  color: white;\n}\n*, *::before, *::after {\n  box-sizing: border-box;\n}\nul, li {\n  margin: 0;\n  padding: 0;\n}\n.icon_upload{\n  font-size: 42px;\n  color: #4a4a4a\n}\n\n", ""]);
 
 // exports
 
