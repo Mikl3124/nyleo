@@ -7,6 +7,7 @@ use App\Model\Projet;
 use App\Model\FileEntry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ProjetController extends Controller
 {
