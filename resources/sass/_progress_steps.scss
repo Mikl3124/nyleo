@@ -92,9 +92,14 @@ h1 {
   margin-bottom: 3em;
 }
 
+.step-complete{
+  text-decoration: none !important;
+  color: black !important;
+}
 
-
-
+.step-complete:hover {
+  color: #3490dc !important;
+}
 
 
 

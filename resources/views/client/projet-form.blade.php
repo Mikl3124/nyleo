@@ -4,7 +4,7 @@
   <div class="container-fluid">
     @include('layouts.steps')
     <div class="container">
-        <form action="" class="needs-validation" method="POST" novalidate>
+        <form action="{{ route('projet.create') }}" class="needs-validation" method="POST" novalidate>
             @csrf
             {{-- ----------------------- Card 1 ---------------------- --}}
             <div class="card mt-5">
@@ -75,36 +75,36 @@
                 <div class="card-body">
                     <div class="form-row">
                         <div class="col-md-4 mb-3">
-                            <label for="validationsCadastreSection">Section</label>
-                            <input type="text" class="form-control @error('cadastre_section') is-invalid @enderror" value="{{old('cadastres_section')}}" name="cadastre-section" id="validationsCadastreSection" >
+                            <label for="validationsSection">Section</label>
+                            <input type="text" class="form-control @error('section') is-invalid @enderror" value="{{old('section')}}" name="section" id="validationsSection" >
                             <div class="invalid-feedback">
                                 Veuillez saisir la section
                             </div>
-                            @error('cadastre_section')
+                            @error('section')
                             <div>
                                 <small  class="text-danger">{{ $message }}</small>
                             </div>
                             @enderror
                         </div>
                         <div class=" col-md-4 mb-3">
-                            <label for="validationCadastreNumber">Numéro</label>
-                            <input type="text" class="form-control @error('cadastre_number') is-invalid @enderror" value="{{old('cadastre_number')}}" name="cadastre_number" id="validationCadastreNumber" >
+                            <label for="validationNumber">Numéro</label>
+                            <input type="text" class="form-control @error('number') is-invalid @enderror" value="{{old('number')}}" name="number" id="validationNumber" >
                             <div class="invalid-feedback">
                                 Veuillez saisir votre ville
                             </div>
-                            @error('cadastre_number')
+                            @error('number')
                             <div>
                                 <small  class="text-danger">{{ $message }}</small>
                             </div>
                             @enderror
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label for="validationCadastreSuperficie">Superficie en m²</label>
-                            <input type="text" class="form-control @error('cadastre_superficie') is-invalid @enderror" value="{{old('cadastre_superficie')}}" name="cadastre_superficie" id="validationCadastreSuperficie" required>
+                            <label for="validationSuperficie">Superficie en m²</label>
+                            <input type="text" class="form-control @error('superficie') is-invalid @enderror" value="{{old('superficie')}}" name="superficie" id="validationSuperficie">
                             <div class="invalid-feedback">
-                                Veuillez saisir votre ville
+                                Veuillez saisir la superficie du terrain
                             </div>
-                            @error('cadastre_superficie')
+                            @error('superficie')
                             <div>
                                 <small  class="text-danger">{{ $message }}</small>
                             </div>
@@ -117,26 +117,10 @@
                     </div>
                 </div>
             </div>
-
-    <div class="container">
-      @if (count($errors) > 0)
-        <ul><li>{{ $error }}</li></ul>
-      @endif
-      <form action="{{ route('file.upload')}}" class="needs-validation" method="POST" enctype="multipart/form-data">
-        @csrf
-        <label class="label" for="file5">
-        </label>
-        <div class="file-uploader__message-area">
-          <p>Select file</p>
-        </div>
-        <div class="file-chooser">
-          <input type="file" class="file-chooser__input" id="file5" name="file5[]">
-        </div>
-        <button type="submit" class="btn btn-primary">Envoyer</button>
-      </form>
-
+            <button class="btn btn-primary mt-3" type="submit">Valider</button>
+        </form>
     </div>
-
+</div>
 
 @endsection
 

@@ -16,7 +16,7 @@
                   <label for="validationCustomName">Nom</label>
                   <input type="text" class="form-control @error('lastname') is-invalid @enderror" value="{{old('lastname', Auth::user()->firstname)}}" name="lastname" id="validationCustomName"required>
                   <div class="invalid-feedback">
-                    Veullez saisir votre nom
+                    Veuillez saisir votre nom
                   </div>
                   @error('lastname')
                       <div>
@@ -28,7 +28,7 @@
                   <label for="validationCustomFirstname">Prénom</label>
                   <input type="text" class="form-control @error('firstname') is-invalid @enderror" value="{{old('firstname', Auth::user()->firstname)}}" name="firstname" id="validationCustomFirstname"required>
                   <div class="invalid-feedback">
-                    Veullez saisir votre prénom
+                    Veuillez saisir votre prénom
                   </div>
                   @error('firstname')
                       <div>
@@ -42,7 +42,7 @@
                   <label for="validationCustomNaissance">Date de naissance</label>
                   <input type="date" class="form-control @error('birth') is-invalid @enderror" value="{{old('birth', Auth::user()->birth)}}" name="birth" id="validationCustomNaissance"required>
                   <div class="invalid-feedback">
-                    Veullez indiquer votre date de naissance
+                    Veuillez indiquer votre date de naissance
                   </div>
                   @error('birth')
                       <div>
@@ -54,7 +54,7 @@
                   <label for="validationCustomNaissanceLieu">Lieu de Naissance</label>
                   <input type="text" class="form-control @error('birthplace') is-invalid @enderror" value="{{old('birthplace', Auth::user()->birthplace)}}" name= "birthplace" id="validationCustomNaissanceLieu"required>
                   <div class="invalid-feedback">
-                    Veullez saisir votre lieu de naissance
+                    Veuillez saisir votre lieu de naissance
                   </div>
                   @error('lastname')
                       <div>
@@ -85,24 +85,24 @@
                     @enderror
                   </div>
                   <div class="col-md-3 mb-3">
-                    <label for="validationTown">Ville</label>
-                    <input type="text" class="form-control @error('town') is-invalid @enderror" value="{{old('town', Auth::user()->town)}}" name="town" id="validationTown" required>
-                    <div class="invalid-feedback">
-                      Veuillez saisir votre ville
-                    </div>
-                    @error('town')
-                      <div>
-                          <small  class="text-danger">{{ $message }}</small>
-                      </div>
-                    @enderror
-                  </div>
-                  <div class="col-md-3 mb-3">
                     <label for="validationCustomCp">Code Postal</label>
                     <input type="text" class="form-control @error('cp') is-invalid @enderror" value="{{old('cp', Auth::user()->cp)}}" name="cp" id="validationCustomCp"required>
                     <div class="invalid-feedback">
                       Veuillez saisir le code postal
                     </div>
                     @error('cp')
+                      <div>
+                          <small  class="text-danger">{{ $message }}</small>
+                      </div>
+                    @enderror
+                  </div>
+                  <div class="col-md-3 mb-3">
+                    <label for="validationTown">Ville</label>
+                    <input type="text" class="form-control @error('town') is-invalid @enderror" value="{{old('town', Auth::user()->town)}}" name="town" id="validationTown" required>
+                    <div class="invalid-feedback">
+                      Veuillez saisir votre ville
+                    </div>
+                    @error('town')
                       <div>
                           <small  class="text-danger">{{ $message }}</small>
                       </div>

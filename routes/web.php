@@ -16,17 +16,20 @@ Auth::routes();
 
 Route::get('/', 'HomeController@index')->name('home');
 
+
 //Admin
 Route::post('/client-create', 'UserController@store')->name('client.store');
 Route::post('/test-mail', 'UserController@testMail')->name('test.mail');
 
 //User
+Route::get('/profil/show/)', 'UserController@clientShow')->name('client.show');
 Route::post('/profil/password/{id}', 'UserController@changePassword')->name('change.password');
 Route::get('/profil/edit/)', 'UserController@clientEdit')->name('client.edit');
 Route::post('/profil/client-update/{id}', 'UserController@clientUpdate')->name('client.update');
 
 //Projet
 Route::get('/projet/edit/{id})', 'ProjetController@projetEdit')->name('projet.edit');
+Route::post('/projet-create)', 'ProjetController@projetCreate')->name('projet.create');
 
 //Files
 Route::get('/upload', 'ProjetController@showUploadPage')->name('upload.page');

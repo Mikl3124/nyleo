@@ -17,6 +17,12 @@ use Illuminate\Support\Facades\Redirect;
 
 class UserController extends Controller
 {
+  public function clientShow()
+    {
+      $step = Auth::user()->step;
+      return view('client.client-show', compact('step'));
+    }
+
   public function store(Request $request)
     {
       $user = New User;

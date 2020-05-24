@@ -3,9 +3,9 @@
     <div class="row d-flex justify-content-around mt-2">
         <div class="col-md-2 text-center w-100">
                 @if ($step > 0)
-                        <a href="{{route('client.edit', Auth::user())}}" class="btn-success btn-lg btn-block mb-2"><i class="fas fa-check"></i>  Informations</a>
+                        <a href="{{ route('client.show') }}" class="btn-success btn-lg btn-block mb-2"><i class="fas fa-check"></i>  Informations</a>
                 @else
-                        <a href="{{route('client.edit', Auth::user())}}" class="btn btn-secondary btn-block btn-lg disabled mb-2">Etape 1 : Informations</a>
+                        <a href="{{ route('client.edit', Auth::user()) }}" class="btn btn-secondary btn-block btn-lg disabled mb-2">Etape 1 : Informations</a>
                 @endif
         </div>
         <div class="col-md-2 text-center w-100">
