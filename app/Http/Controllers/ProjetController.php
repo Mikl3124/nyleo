@@ -33,7 +33,7 @@ class ProjetController extends Controller
       $results = array_pop($files);
       $user = Auth::user();
         foreach ($files as $file) {
-            $filename = $file->store('files');
+            $filename = $file->store('documents');
             $test = File::create([
                 'user_id' => $user->id,
                 'url' => Storage::disk('s3')->url($filename),
