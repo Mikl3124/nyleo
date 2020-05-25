@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
 @section('content')
-  <div class="container-fluid">
-    @include('layouts.steps')
-
-    <div class="container">
-       <div class="container">
+  <div class="container-fluid row">
+    <div class="col-sm-12 col-md-2">
+      @include('layouts.steps')
+    </div>
+    <div class="col-sm-12 col-md-10">
       @if (count($errors) > 0)
         <ul><li>{{ $error }}</li></ul>
       @endif
@@ -19,9 +19,15 @@
         <div class="file-chooser ">
           <input type="file" class="file-chooser__input" id="file5" name="file5[]">
         </div>
-        <button type="submit" class="btn btn-primary btn-lg btn-block">Envoyer</button>
+        <div class="text-center">
+          <a class="btn btn-secondary mt-3" href="{{ route('home')}}">Annuler</a>
+          <button type="submit" class="btn btn-primary mt-3">Envoyer</button>
+        </div>
+
       </form>
     </div>
+
+
 
 
 

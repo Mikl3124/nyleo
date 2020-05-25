@@ -91,6 +91,6 @@ class ProjetController extends Controller
                 'url' => Storage::disk('s3')->url($filename),
             ]);
         }
-        return route('home', compact('step'));
+        return view('client.dashboard', compact('step'));
     }
 }

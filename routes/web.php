@@ -35,3 +35,6 @@ Route::post('/projet-create)', 'ProjetController@projetCreate')->name('projet.cr
 Route::get('/upload', 'ProjetController@showUploadPage')->name('upload.page');
 Route::post('/upload-files', 'ProjetController@uploadFile')->name('file.upload');
 
+//Messagerie
+Route::get('/messagerie', 'ConversationController@showMessage')->name('message.show');
+Route::post('/message-store', 'ConversationController@storeMessage')->name('message.store');

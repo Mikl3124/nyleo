@@ -1,29 +1,19 @@
 @extends('layouts.app')
 @section('content')
-  <div class="container-fluid">
-    @include('layouts.steps')
-      <div class="container">
+  <div class="container-fluid row">
+    <div class="col-sm-12 col-md-2">
+      @include('layouts.steps')
+    </div>
+    <div class="col-sm-12 col-md-10">
         <form action="{{route('client.update', Auth::user())}}" class="needs-validation" method="POST" novalidate>
           @csrf
           {{-- ----------------------- Card 1 ---------------------- --}}
-          <div class="card mt-5">
+          <div class="card">
             <div class="card-header">
               <h3 class="text-center">Identité</h3>
             </div>
             <div class="card-body">
               <div class="form-row">
-                <div class="col-md-6 mb-3">
-                  <label for="validationCustomName">Nom</label>
-                  <input type="text" class="form-control @error('lastname') is-invalid @enderror" value="{{old('lastname', Auth::user()->firstname)}}" name="lastname" id="validationCustomName"required>
-                  <div class="invalid-feedback">
-                    Veuillez saisir votre nom
-                  </div>
-                  @error('lastname')
-                      <div>
-                          <small  class="text-danger">{{ $message }}</small>
-                      </div>
-                  @enderror
-                </div>
                 <div class="col-md-6 mb-3">
                   <label for="validationCustomFirstname">Prénom</label>
                   <input type="text" class="form-control @error('firstname') is-invalid @enderror" value="{{old('firstname', Auth::user()->firstname)}}" name="firstname" id="validationCustomFirstname"required>
@@ -34,8 +24,20 @@
                       <div>
                           <small  class="text-danger">{{ $message }}</small>
                       </div>
-                  @enderror                
-                </div>      
+                  @enderror
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="validationCustomName">Nom</label>
+                  <input type="text" class="form-control @error('lastname') is-invalid @enderror" value="{{old('lastname', Auth::user()->lastname)}}" name="lastname" id="validationCustomName"required>
+                  <div class="invalid-feedback">
+                    Veuillez saisir votre nom
+                  </div>
+                  @error('lastname')
+                      <div>
+                          <small  class="text-danger">{{ $message }}</small>
+                      </div>
+                  @enderror
+                </div>
               </div>
               <div class="form-row">
                 <div class="col-md-6 mb-3">
@@ -61,7 +63,7 @@
                           <small  class="birthplace">{{ $message }}</small>
                       </div>
                   @enderror
-                </div> 
+                </div>
               </div>
             </div>
           </div>
@@ -139,13 +141,14 @@
                 </div>
               </div>
             </div>
-            <button class="btn btn-primary mt-3" type="submit">Valider</button>     
-          </div>      
+            <div class="text-center">
+              <a class="btn btn-secondary mt-3" href="{{ route('home')}}">Annuler</a>
+              <button class="btn btn-primary mt-3" type="submit">Valider</button>
+            </div>
+
+          </div>
         </div>
       </form>
-          {{-- ------------------ Recaptitualtif ---------------------- --}}
-          
-      </div>
     </div>
 
     <validation-form></validation-form>
