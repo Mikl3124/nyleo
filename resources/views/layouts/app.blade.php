@@ -44,14 +44,30 @@
                         <!-- Authentication Links -->
                         @guest
                         @else
+                            {{-- Notifications --}}
+                            @unless (auth()->user()->unreadNotifications->isEmpty())
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link text-danger" href="#" id="account_dd" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        {{ auth()->user()->unreadNotifications->count() }} <i class="fas fa-comments"></i>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        @foreach (auth()->user()->unreadNotifications as $notification)
+                                            <a class="dropdown-item" href="{{ route('message.showMessageNotification', ['message' => $notification->data['messageId'], 'notification' => $notification->id] ) }}"> <strong>{{ $notification->data['email'] }}</strong> vous a envoyé un message</a>
+                                        @endforeach
+                                        
+                                    </div>                                    
+                                </li>
+                            @endunless
+
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="account_dd" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                   MENU
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                   <a class="dropdown-item" href="{{ route('message.show') }}"><i class="fas fa-comments"></i> Messagerie</a>
+                                    <a class="dropdown-item" href="{{ route('upload.page') }}"><i class="fas fa-briefcase"></i> Mes documents</a>
                                     <a class="dropdown-item" href="{{ route('upload.page') }}"><i class="fas fa-upload"></i> Envoyer un document</a>
-                                    <a class="dropdown-item text-danger" href="{{ route('upload.page') }}"
+                                    <a class="dropdown-item text-danger" 
                                        onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
                                         <i class="fas fa-sign-out-alt"></i> Déconnexion
@@ -68,9 +84,7 @@
             </div>
         </nav>
         <div class="container-fluid">
-        <main class="py-4">
             @yield('content')
-        </main>
-    </div>
+        </div>
 </body>
 </html>

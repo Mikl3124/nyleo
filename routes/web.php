@@ -38,6 +38,7 @@ Route::post('/upload-files', 'ProjetController@uploadFile')->name('file.upload')
 //Messagerie
 Route::get('/messagerie', 'ConversationController@showMessage')->name('message.show');
 Route::post('/message-store', 'ConversationController@storeMessage')->name('message.store');
+Route::get('showMessageNotification/{message}/{notification}', 'ConversationController@showMessageNotification')->name('message.showMessageNotification');
 
 //Admin
 Route::get('/admin/clients/show/{id}', 'AdminController@showClient')->name('admin.client.show');

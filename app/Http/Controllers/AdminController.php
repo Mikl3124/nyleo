@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Redirect;
+use App\Notifications\MessageNotification;
 
 class AdminController extends Controller
 {
@@ -86,6 +87,10 @@ class AdminController extends Controller
             $message->file_message = $filenametostore;
             }
         $message->save();
+
+        // Notification
+        
+        $message->to->notify(new MessageNotification($message, auth()->user()));
 
         return redirect()->route('admin.message.show', $request->to);
     }

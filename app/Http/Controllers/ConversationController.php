@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Redirect;
+use App\Notifications\MessageNotification;
+use Illuminate\Notifications\DatabaseNotification;
 
 class ConversationController extends Controller
 {
@@ -77,6 +79,9 @@ class ConversationController extends Controller
             }
         $message->save();
 
+        // Notification
+        $message->to->notify(new MessageNotification($message, auth()->user()));
+
         return redirect()->route('message.show', Auth::user()->id);
     }
 
@@ -87,5 +92,26 @@ class ConversationController extends Controller
         $dl = Message::find($message);
         return Storage::download('documents/' . $dl->file_message);
 
+    }
+
+    public function showMessageNotification(Message $message, DatabaseNotification $notification)
+    {
+        $notification->markAsRead();
+            if (Auth::user()->role === 'admin'){
+                $user = User::find($notification->data['senderId']);
+                $messages = Message::where('to_id', '=', $user->id)
+                            ->orwhere('from_id', '=', $user->id)
+                            ->latest()
+                            ->get();
+            
+                return view('admin.messagerie.show', compact('user', 'messages'));
+            }
+        $messages = Message::where('to_id', Auth::user()->id)
+                                    ->orwhere('from_id', Auth::user()->id)
+                                    ->latest()
+                                    ->get();
+        $user = User::where('role', '=', 'admin')->first();
+        $step = $user->step;
+        return view('messagerie.show', compact('step', 'messages', 'user'));
     }
 }
