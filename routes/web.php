@@ -38,3 +38,10 @@ Route::post('/upload-files', 'ProjetController@uploadFile')->name('file.upload')
 //Messagerie
 Route::get('/messagerie', 'ConversationController@showMessage')->name('message.show');
 Route::post('/message-store', 'ConversationController@storeMessage')->name('message.store');
+
+//Admin
+Route::get('/admin/clients/show/{id}', 'AdminController@showClient')->name('admin.client.show');
+Route::get('admin/messagerie/{id}', 'AdminController@showMessage')->name('admin.message.show');
+Route::post('admin/message-store', 'AdminController@storeMessage')->name('admin.message.store');
+Route::get('admin/messagerie-download/{message}', 'AdminController@download')->name('admin.messagerie.download');
+Route::get('admin/documents/{id}', 'AdminController@showDocuments')->name('admin.documents.show');

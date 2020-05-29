@@ -34,7 +34,7 @@
                 <td>{{ $user->lastname }}</td>
                 <td>{{ $user->town }}</td>
                 <td>{{ $user->step }}</td>
-                <td><a href="" class="btn btn-primary">Accéder</a></td>
+                <td><a href="{{ route('admin.client.show', $user) }}" class="btn btn-primary">Accéder</a></td>
             </tr>
 
         @endforeach

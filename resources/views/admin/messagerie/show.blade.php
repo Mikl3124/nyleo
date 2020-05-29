@@ -1,13 +1,9 @@
 @extends('layouts.app')
 @section('content')
-  <div class="container-fluid row">
-    <div class="col-sm-12 col-md-2">
-      @include('layouts.steps')
-    </div>
-    <div class="col-sm-12 col-md-10">
-          <div class="card" >
+  <div class="container">
+    <div class="card" >
         <div class="card-header">
-          Conversation avec Nyleo Conception
+          Conversation avec {{ $user->firstname}} {{ $user->lastname}}
         </div>
 
         <div class="card-body scroll" id="messagesBox">
@@ -18,15 +14,16 @@
                             {{-- ------------- Si le contenu du message est vide (fichier à télécharger seulement) ---------------- --}}
                             @if ($message->content === null)
                                 @isset($message->file_message)
-                                    <p class="mb-0"><strong>{{ $message->from_id != $user->id ? 'Moi' : 'Nyleo Conception'}}</strong> <br></p>
+                                    <p class="mb-0"><strong>{{ $message->from_id != $user->id ? 'Moi' : $user->firstname}}</strong> <br></p>
                                     <p class="{{ $message->from_id != $user->id ? 'my_message' : 'his_message'}}">
                                         <a href="{{ route('admin.messagerie.download', $message)}}"><i class="fas fa-download"></i> Télécharger le document</a>
                                     </p>
                                 @endisset
                             {{-- ------------- Si le contenu du message n'est pas vide ---------------- --}}
                             @else
-                                <p class="mb-0"><strong>{{ $message->from_id != $user->id ? 'Moi' : 'Nyleo Conception'}}</strong> <br></p>
+                                <p class="mb-0"><strong>{{ $message->from_id != $user->id ? 'Moi' : $user->firstname}}</strong> <br></p>
                                 <p class="{{ $message->from_id != $user->id ? 'my_message' : 'his_message'}}">{!! nl2br(e($message->content)) !!}</p>
+                                {{-- ------------- Si le message contient une pièce jointe ---------------- --}}
                                 @isset($message->file_message)
                                     @if ($message->content != null)
                                         <p class="{{ $message->from_id != $user->id ? 'my_message' : 'his_message'}}">
@@ -35,7 +32,7 @@
                                     @endif
                                 @endisset
                             @endif
-                            {{-- ------------- Si le message contient une pièce jointe ---------------- --}}
+
 
                         </div>
                     </div>
@@ -48,8 +45,7 @@
             @endif
         </div>
     </div>
-
-    <form action="{{ route('message.store')}}" method="post" enctype="multipart/form-data">
+    <form action="{{ route('admin.message.store', $user)}}" method="post" enctype="multipart/form-data">
       @csrf
       <div class="form-group mt-4">
           <textarea class="form-control @error('content') is-invalid @enderror" placeholder="Votre message privé..." name="content" rows="3"></textarea>
@@ -58,8 +54,10 @@
                   {{ $message }}
               </div>
           @enderror
+          <input name="to" type="hidden" value="{{ $user->id }}">
       </div>
-            <div class="form-group">
+      <!-- ---------------- Upload ------------------ -->
+      <div class="form-group">
           <input type="file" class="form-control-file @error('file_projet') is-invalid @enderror" id="file-message" value="{{ old('file-message') }}" name="file_message">
           @error('file_message')
           <div class="invalid-feedback">{{ $message }}</div>
@@ -69,5 +67,5 @@
     </form>
   </div>
 
-
+<scroll-top></scroll-top>
 @endsection

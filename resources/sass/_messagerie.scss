@@ -1,0 +1,72 @@
+.scroll {
+    max-height: 500px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column-reverse;
+
+}
+
+.my_message{
+    background-color: #ECF0F1;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-bottom: 0px !important;
+}
+
+.his_message{
+    background-color: #CCEAFF;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-bottom: 0px !important;
+
+}
+
+.message_preview_index{
+        font-size: 13px;
+        font-style: italic;
+        color: #bdc4c7 !important;
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+.message_title_index{
+    margin-bottom: 0;
+}
+
+.message_from_index{
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-bottom: 0;
+}
+
+.card_message :hover{
+    background-color: #ECEEEF;
+}
+
+.card_message{
+    padding-left: 15px;
+    padding-right: 15px;
+
+}
+
+.avatar_message{
+    width: 40px;
+    height: 40px;
+    margin-right: 4px;
+    margin-top: 4px;
+    margin-left: 4px;
+    border-radius: 2px;
+    line-height: 30px;
+
+}
+
+.message_date{
+    color: #636c72;
+    font-size: 75%;
+    font-style: italic;
+    margin-bottom: 10px;
+}

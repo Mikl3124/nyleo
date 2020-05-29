@@ -85,12 +85,32 @@ class ProjetController extends Controller
       $results = array_pop($files);
       $user = Auth::user();
         foreach ($files as $file) {
-            $filename = $file->store('documents');
-            $test = File::create([
+            // $filename = $file->store('documents');
+            // File::create([
+            //     'user_id' => $user->id,
+            //     'url' => Storage::disk('s3')->url($filename),
+            // ]);
+            $filenamewithextension = $file->getClientOriginalName();
+
+            //get filename without extension
+            $filename = pathinfo($filenamewithextension, PATHINFO_FILENAME);
+
+            //get file extension
+            $extension = $file->getClientOriginalExtension();
+
+            //filename to store
+            //$path = 'documents/' . $user->lastname. '_' . $user->firstname . '_' . time();
+          $filenametostore = $filename.'_'.time().'.'.$extension;
+
+           $filename = $file->storeAs(
+                'documents', $filenametostore
+            );
+              File::create([
                 'user_id' => $user->id,
-                'url' => Storage::disk('s3')->url($filename),
-            ]);
+                'url' => Storage::disk('s3')->url($filenametostore),
+              ]);
         }
+
         return view('client.dashboard', compact('step'));
     }
 }
