@@ -7,7 +7,7 @@
     <div class="col-sm-12 col-md-10">
           <div class="card" >
         <div class="card-header">
-          Conversation avec Nyleo Conception
+          Conversation avec Nyleo Conception :)
         </div>
 
         <div class="card-body scroll" id="messagesBox">
