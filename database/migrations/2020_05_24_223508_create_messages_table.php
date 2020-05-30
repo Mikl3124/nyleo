@@ -24,6 +24,7 @@ class CreateMessagesTable extends Migration
             $table->text('content')->nullable();;
             $table->timestamps();
             $table->string('file_message')->nullable();
+            $table->string('filename')->nullable();
             $table->dateTime('read_at')->nullable();
         });
     }

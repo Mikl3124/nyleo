@@ -93,21 +93,22 @@ class ProjetController extends Controller
             $filenamewithextension = $file->getClientOriginalName();
 
             //get filename without extension
-            $filename = pathinfo($filenamewithextension, PATHINFO_FILENAME);
+            $originalfilename = pathinfo($filenamewithextension, PATHINFO_FILENAME);
 
             //get file extension
             $extension = $file->getClientOriginalExtension();
 
             //filename to store
             //$path = 'documents/' . $user->lastname. '_' . $user->firstname . '_' . time();
-          $filenametostore = $filename.'_'.time().'.'.$extension;
+          $filenametostore = $originalfilename .'_'.time().'.'.$extension;
 
            $filename = $file->storeAs(
                 'documents', $filenametostore
             );
               File::create([
                 'user_id' => $user->id,
-                'url' => Storage::disk('s3')->url($filenametostore),
+                'url' => Storage::disk('s3')->url('documents/' . $filenametostore),
+                'filename' => $filenamewithextension
               ]);
         }
 

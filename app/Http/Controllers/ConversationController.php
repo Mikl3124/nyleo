@@ -73,9 +73,11 @@ class ConversationController extends Controller
               File::create([
                 'user_id' => Auth::user()->id,
                 'url' => Storage::disk('s3')->url($filenametostore),
+                'filename' => $filenamewithextension
               ]);
             //Store $filenametostore in the database
-            $message->file_message = $filenametostore;
+            $message->file_message = $filename;
+            $message->filename = $filenamewithextension;
             }
         $message->save();
 
@@ -103,7 +105,7 @@ class ConversationController extends Controller
                             ->orwhere('from_id', '=', $user->id)
                             ->latest()
                             ->get();
-            
+
                 return view('admin.messagerie.show', compact('user', 'messages'));
             }
         $messages = Message::where('to_id', Auth::user()->id)

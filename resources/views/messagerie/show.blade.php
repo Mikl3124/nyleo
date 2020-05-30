@@ -1,4 +1,5 @@
 @extends('layouts.app')
+
 @section('content')
   <div class="container-fluid row">
     <div class="col-sm-12 col-md-2">
@@ -20,7 +21,7 @@
                                 @isset($message->file_message)
                                     <p class="mb-0"><strong>{{ $message->from_id != $user->id ? 'Moi' : 'Nyleo Conception'}}</strong><span class="message_date"> Le {{ Carbon\Carbon::parse($message->created_at)->isoFormat('Do MMMM YYYY à h:mm') }}</span> <br></p>
                                     <p class="{{ $message->from_id != $user->id ? 'my_message' : 'his_message'}}">
-                                        <a href="{{ route('admin.messagerie.download', $message)}}"><i class="fas fa-download"></i> Télécharger le document</a>
+                                        <a href="{{ route('admin.messagerie.download', $message)}}"><i class="fas fa-download"></i> {{ $message->filename }}</a>
                                     </p>
                                 @endisset
                             {{-- ------------- Si le contenu du message n'est pas vide ---------------- --}}
@@ -30,7 +31,7 @@
                                 @isset($message->file_message)
                                     @if ($message->content != null)
                                         <p class="{{ $message->from_id != $user->id ? 'my_message' : 'his_message'}}">
-                                        <a href="{{ route('admin.messagerie.download', $message)}}"><i class="fas fa-download"></i> Télécharger le document</a>
+                                        <a href="{{ route('admin.messagerie.download', $message)}}"><i class="fas fa-download"></i> {{ $message->filename }}</a>
                                         </p>
                                     @endif
                                 @endisset

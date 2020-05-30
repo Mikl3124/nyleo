@@ -46,3 +46,5 @@ Route::get('admin/messagerie/{id}', 'AdminController@showMessage')->name('admin.
 Route::post('admin/message-store', 'AdminController@storeMessage')->name('admin.message.store');
 Route::get('admin/messagerie-download/{message}', 'AdminController@download')->name('admin.messagerie.download');
 Route::get('admin/documents/{id}', 'AdminController@showDocuments')->name('admin.documents.show');
+Route::get('admin/quote-create/{id}', 'AdminController@createQuote')->name('devis.create');
+Route::post('admin/quote-store/', 'AdminController@storeQuote')->name('admin.quote.store');

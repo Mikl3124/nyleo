@@ -4,7 +4,7 @@
     <h4>Liste des documents</h4>
     @foreach ($documents as $document)
 
-     <p><a href="{{ $document->url }}">$document->url</a></p>
+     <p><a href="{{ $document->url }}">{{ $document->filename }}</a></p>
 
     @endforeach
   </div>

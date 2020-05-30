@@ -62,7 +62,7 @@ class AdminController extends Controller
 
         if ($files = $request->file('file_message')) {
 
-                    $filenamewithextension = $request->file('file_message')->getClientOriginalName();
+            $filenamewithextension = $request->file('file_message')->getClientOriginalName();
 
             //get filename without extension
             $filename = pathinfo($filenamewithextension, PATHINFO_FILENAME);
@@ -81,15 +81,17 @@ class AdminController extends Controller
             );
               File::create([
                 'user_id' => $request->to,
-                'url' => Storage::disk('s3')->url($filenametostore),
+                'url' => Storage::disk('s3')->url('documents' . $filenametostore),
+                'filename' => $filenamewithextension
               ]);
             //Store $filenametostore in the database
-            $message->file_message = $filenametostore;
+            $message->file_message = $filename;
+            $message->filename = $filenamewithextension;
             }
         $message->save();
 
         // Notification
-        
+
         $message->to->notify(new MessageNotification($message, auth()->user()));
 
         return redirect()->route('admin.message.show', $request->to);
@@ -99,7 +101,7 @@ class AdminController extends Controller
     {
 
         $dl = Message::find($message);
-        return Storage::download('documents/' . $dl->file_message);
+        return Storage::download($dl->file_message);
 
     }
 
@@ -109,5 +111,16 @@ class AdminController extends Controller
       $documents = File::where('user_id', '=', $user->id)->get();
 
       return view('admin.documents.show', compact('documents'));
+    }
+
+    public function createQuote($id)
+    {
+      $user = User::find($id);
+      return view('admin.quote.create', compact('user'));
+    }
+
+    public function storeQuote(Request $request)
+    {
+      dd($request);
     }
 }
