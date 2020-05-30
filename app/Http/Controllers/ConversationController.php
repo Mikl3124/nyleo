@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Validator;
+use Carbon\Carbon;
 use App\Model\File;
 use App\Model\User;
 use App\Model\Message;
@@ -21,7 +22,7 @@ class ConversationController extends Controller
                                     ->latest()
                                     ->get();
         $user = User::where('role', '=', 'admin')->first();
-        $step = $user->step;
+        $step = Auth::user()->step;
         return view('messagerie.show', compact('step', 'messages', 'user'));
     }
 
@@ -97,8 +98,11 @@ class ConversationController extends Controller
     }
 
     public function showMessageNotification(Message $message, DatabaseNotification $notification)
-    {
+    {   
+        $message->read_at = date('Y-m-d H:i:s');
+        $message->save();
         $notification->markAsRead();
+        
             if (Auth::user()->role === 'admin'){
                 $user = User::find($notification->data['senderId']);
                 $messages = Message::where('to_id', '=', $user->id)

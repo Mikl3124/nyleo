@@ -7,7 +7,7 @@
     <div class="col-sm-12 col-md-10">
       <div class="container">
         <div class="card mt-5 ">
-          <h5 class="card-header text-center">Vos informations</h5>
+          <h4 class="card-header text-center">Vos informations</h4>
           <div class="card-body">
             <div class="row">
               <div class="col-sm-12 col-md-6">

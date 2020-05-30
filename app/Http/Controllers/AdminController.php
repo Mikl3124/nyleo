@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Validator;
 use App\Model\File;
 use App\Model\User;
+use App\Model\Quote;
 use App\Model\Message;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +23,7 @@ class AdminController extends Controller
     }
 
     public function showMessage($user)
-    {
+    {    
       $user = User::find($user);
       $messages = Message::where('to_id', '=', $user->id)
                           ->orwhere('from_id', '=', $user->id)
@@ -113,14 +114,4 @@ class AdminController extends Controller
       return view('admin.documents.show', compact('documents'));
     }
 
-    public function createQuote($id)
-    {
-      $user = User::find($id);
-      return view('admin.quote.create', compact('user'));
-    }
-
-    public function storeQuote(Request $request)
-    {
-      dd($request);
-    }
 }

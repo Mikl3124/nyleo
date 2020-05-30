@@ -21,13 +21,13 @@
 
           @case(1)
               <p><a class="step-complete" href="{{ route('client.show', Auth::user()) }}"> <i class="fas fa-check"></i> Fiche client</a></p>
-              <p><i class="fas fa-arrow-right"></i>  Prochaine étape: <a href="{{ route('projet.edit', Auth::user()) }}"> Remplir la fiche projet</a></p>
+              <p><i class="fas fa-arrow-right"></i>  Prochaine étape: <a href="{{ route('projet.create', Auth::user()) }}"> Remplir la fiche projet</a></p>
           @break
 
           @case(2)
               <p><a class="step-complete" href="{{ route('client.show', Auth::user()) }}"> <i class="fas fa-check"></i> Fiche client</a></p>
-              <p><a class="step-complete" href="{{ route('client.show', Auth::user()) }}"> <i class="fas fa-check"></i> Fiche projet</a></p>
-              <p><i class="fas fa-arrow-right"></i> Prochaine étape: <a href="{{ route('client.edit', Auth::user()) }}">Valider votre devis</a></p>
+              <p><a class="step-complete" href="{{ route('projet.show', Auth::user()) }}"> <i class="fas fa-check"></i> Fiche projet</a></p>
+              <p><i class="fas fa-arrow-right"></i> Prochaine étape: <a href="{{ route('quote.show', Auth::user()) }}">Valider votre devis</a></p>
           @break
 
           @default
