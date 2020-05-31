@@ -23,7 +23,6 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
 Vue.component('validation-form', require('./components/ValidationForm.vue').default);
 Vue.component('show-password', require('./components/ShowPassword.vue').default);
 Vue.component('multiple-uploads', require('./components/MultipleUpload.vue').default);
-Vue.component('stripe-checkout', require('./components/StripeCheckout.vue').default);
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
