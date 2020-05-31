@@ -1,95 +1,25 @@
-@extends('layouts.app')
+<!doctype html>
+<html lang="{{ app()->getLocale() }}">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-@section('extra-script')
-    <script src="https://js.stripe.com/v3/"></script>
-@endsection
-
-@section('content')
-
-    <div class="col-md-12">
-        <h1>Page de paiement</h1>
-        <div class="row">
-            <div class="col-md-4">
-
-            </div>
-            <div class="col-md-4">
-                <form action="#" class="my-4" id="payment-form">
-                    <div id="card-element">
-                        <!-- Elements will create input elements here -->
-                    </div>
-
-                <!-- We'll put the error messages in this element -->
-                    <div id="card-errors" role="alert"></div>
-
-                    <button id="submit" class="btn btn-success mt-4">Procéder au paiement</button>
-                </form>
-            </div>
-            <div class="col-md-4">
-                
-            </div>
-        </div>
-    </div>
-@endsection
-
-@section('extra-js')
-    <script>
-        var stripe = Stripe('pk_test_igBQDOGCawrdKCBQPqG5C37X');
-        var elements = stripe.elements();
-        var style = {
-            base: {
-            color: "#32325d",
-            fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
-            fontSmoothing: "antialiased",
-            fontSize: "16px",
-            "::placeholder": {
-                color: "#aab7c4"
-            }
-            },
-            invalid: {
-            color: "#fa755a",
-            iconColor: "#fa755a"
-            }
-        };
-        var card = elements.create("card", { style: style });
-        card.mount("#card-element");
-        
-        card.on('change', ({error}) => {
-            const displayError = document.getElementById('card-errors');
-                if (error) {
-                    displayError.classList.add('alert', 'alert-warning');
-                    displayError.textContent = error.message;
-                } else {
-                     displayError.classList.remove('alert', 'alert-warning');
-                    displayError.textContent = '';
-                }
-        });
- 
-        var form = document.getElementById('payment-form');
-        form.addEventListener('submit', function(ev) {
-            ev.preventDefault();
-            stripe.confirmCardPayment("{{ $clientSecret }}", {
-                payment_method: {
-                    card: card,
-                    billing_details: {
-                        name: 'Jenny Rosen'
-                    }
-                }
-            }).then(function(result) {
-                if (result.error) {
-                    // Show error to your customer (e.g., insufficient funds)
-                    console.log(result.error.message);
-                } else {
-                    // The payment has been processed!
-                    if (result.paymentIntent.status === 'succeeded') {
-                        // Show a success message to your customer
-                        // There's a risk of the customer closing the window before callback
-                        // execution. Set up a webhook or plugin to listen for the
-                        // payment_intent.succeeded event that handles any business critical
-                        // post-payment actions.
-                        console.log(result.paymentIntent);
-                    }
-                }
-            });
-        });
-</script>
-@endsection
+        <title>Laravel</title>
+    </head>
+    <body>
+        <form action="{{ route('stripe.post')}}" method="POST">
+            @csrf
+            <script
+                    src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+                    data-key="pk_test_AXgmaDPOIAiU7iU58igNYqzu002VjpQ5fz"
+                    data-amount="38700"
+                    data-name="Stripe Demo"
+                    data-description="Online course about integrating Stripe"
+                    data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
+                    data-locale="auto"
+                    data-currency="eur">
+            </script>
+        </form>
+    </body>
+</html>
