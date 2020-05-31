@@ -9,17 +9,23 @@
     <div class="col-md-12">
         <h1>Page de paiement</h1>
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-4">
+
+            </div>
+            <div class="col-md-4">
                 <form action="#" class="my-4" id="payment-form">
                     <div id="card-element">
                         <!-- Elements will create input elements here -->
                     </div>
 
-                    <!-- We'll put the error messages in this element -->
+                <!-- We'll put the error messages in this element -->
                     <div id="card-errors" role="alert"></div>
 
-                    <button class="btn btn-success mt-4" id="submit">Procéder au paiment</button>
+                    <button id="submit" class="btn btn-success mt-4">Procéder au paiement</button>
                 </form>
+            </div>
+            <div class="col-md-4">
+                
             </div>
         </div>
     </div>
@@ -46,6 +52,7 @@
         };
         var card = elements.create("card", { style: style });
         card.mount("#card-element");
+        
         card.on('change', ({error}) => {
             const displayError = document.getElementById('card-errors');
                 if (error) {
@@ -56,9 +63,8 @@
                     displayError.textContent = '';
                 }
         });
-
+ 
         var form = document.getElementById('payment-form');
-
         form.addEventListener('submit', function(ev) {
             ev.preventDefault();
             stripe.confirmCardPayment("{{ $clientSecret }}", {
@@ -85,5 +91,5 @@
                 }
             });
         });
-    </script>
+</script>
 @endsection

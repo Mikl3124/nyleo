@@ -58,5 +58,5 @@ Route::get('admin/documents/{id}', 'AdminController@showDocuments')->name('admin
 
 //Stripe
 Route::get('/payment', 'PaymentController@index')->name('payment.index');
-Route::get('/stripe', 'PaymentController@stripe')->name('payment.stripe');
+Route::post('/payment-process', 'PaymentController@process');
 
