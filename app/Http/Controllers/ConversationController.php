@@ -73,7 +73,7 @@ class ConversationController extends Controller
             );
               File::create([
                 'user_id' => Auth::user()->id,
-                'url' => Storage::disk('s3')->url($filenametostore),
+                'url' => Storage::disk('s3')->url('documents/' . $filenametostore),
                 'filename' => $filenamewithextension
               ]);
             //Store $filenametostore in the database

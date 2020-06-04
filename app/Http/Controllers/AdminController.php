@@ -82,7 +82,7 @@ class AdminController extends Controller
             );
               File::create([
                 'user_id' => $request->to,
-                'url' => Storage::disk('s3')->url('documents' . $filenametostore),
+                'url' => Storage::disk('s3')->url('documents/' . $filenametostore),
                 'filename' => $filenamewithextension
               ]);
             //Store $filenametostore in the database

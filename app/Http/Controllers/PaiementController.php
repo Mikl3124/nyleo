@@ -9,6 +9,7 @@ use Stripe\Customer;
 use Stripe\PaymentIntent;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Validator;
 use Illuminate\Support\Facades\Session;
 
@@ -40,7 +41,14 @@ class PaiementController extends Controller
     }
 
     public function success() {
-      return back()->with('success','Votre acompte a bien été enregistré');
+        $user = Auth::user();
+
+        if ($user->step < 3){
+                  $user->step = 3;
+                  $user->save();
+                }
+        $step = $user->step;
+      return route('home', compact('step'))->with('success','Votre acompte a bien été enregistré');
     }
 
 

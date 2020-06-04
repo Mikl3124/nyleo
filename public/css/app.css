@@ -203,6 +203,11 @@ h1 {
   background-color: white !important;
 }
 
+.img-thumbnail {
+  width: 150px !important;
+  height: 150px !important;
+}
+
 /*!
  * Bootstrap v4.5.0 (https://getbootstrap.com/)
  * Copyright 2011-2020 The Bootstrap Authors

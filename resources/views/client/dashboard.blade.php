@@ -30,6 +30,13 @@
               <p><i class="fas fa-arrow-right"></i> Prochaine étape: <a href="{{ route('quote.show', Auth::user()) }}">Valider votre devis</a></p>
           @break
 
+          @case(3)
+              <p><a class="step-complete" href="{{ route('client.show', Auth::user()) }}"> <i class="fas fa-check"></i> Fiche client</a></p>
+              <p><a class="step-complete" href="{{ route('projet.show', Auth::user()) }}"> <i class="fas fa-check"></i> Fiche projet</a></p>
+              <p><a class="step-complete" href=""> <i class="fas fa-check"></i> Votre Devis</a></p>
+              <p><i class="fas fa-arrow-right"></i> Prochaine étape: <a href="{{ route('quote.show', Auth::user()) }}">Valider votre avant projet</a></p>
+          @break
+
           @default
               Default case...
       @endswitch

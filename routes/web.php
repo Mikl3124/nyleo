@@ -43,6 +43,7 @@ Route::get('/quote-download/{id}', 'QuoteController@downloadQuote')->name('quote
 //Files
 Route::get('/upload', 'ProjetController@showUploadPage')->name('upload.page');
 Route::post('/upload-files', 'ProjetController@uploadFile')->name('file.upload');
+Route::get('documents/{id}', 'ProjetController@showDocuments')->name('documents.show');
 
 //Messagerie
 Route::get('/messagerie', 'ConversationController@showMessage')->name('message.show');

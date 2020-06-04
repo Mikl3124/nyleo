@@ -71,7 +71,7 @@
                                     {{-- Si l'utilisateur est un client  --}}
                                     @if (Auth::user()->role != 'admin')
                                     <a class="dropdown-item" href="{{ route('message.show') }}"><i class="fas fa-comments"></i> Messagerie</a>
-                                      <a class="dropdown-item" href="{{ route('upload.page') }}"><i class="fas fa-briefcase"></i> Mes documents</a>
+                                      <a class="dropdown-item" href="{{ route('documents.show', Auth::user()->id ) }}"><i class="fas fa-briefcase"></i> Mes documents</a>
                                       <a class="dropdown-item" href="{{ route('upload.page') }}"><i class="fas fa-upload"></i> Envoyer un document</a>
                                     @endif
                                     <a class="dropdown-item text-danger" href="{{ route('logout') }}"

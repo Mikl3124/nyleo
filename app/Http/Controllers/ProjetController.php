@@ -173,4 +173,13 @@ class ProjetController extends Controller
 
         return view('client.dashboard', compact('step'));
     }
+
+    public function showDocuments()
+    {
+      $user = Auth::user();
+      $step = $user->step;
+      $documents = File::where('user_id', '=', $user->id)->get();
+
+      return view('client.documents-show', compact('step', 'documents'));
+    }
 }
