@@ -57,6 +57,7 @@ Route::get('admin/messagerie-download/{message}', 'AdminController@download')->n
 Route::get('admin/documents/{id}', 'AdminController@showDocuments')->name('admin.documents.show');
 
 //Stripe
-Route::get('stripe', 'PaiementController@stripe')->name('payment.index');
-Route::post('stripe', 'PaiementController@stripePost')->name('stripe.post');
+Route::get('stripe', 'PaiementController@index')->name('payment.index');
+Route::get('/payment-success', 'PaiementController@success');
+Route::get('/payment-failed', 'PaiementController@failed');
 

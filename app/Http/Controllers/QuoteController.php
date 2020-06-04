@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use Stripe\Stripe;
 use App\Model\File;
 use App\Model\User;
 use App\Model\Quote;
 use App\Model\Projet;
+use Stripe\PaymentIntent;
+use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -17,8 +20,22 @@ class QuoteController extends Controller
         $user = Auth::user();
         $step = $user->step;
         $quote = Quote::where('user_id', '=', $user->id)->first();
-        
-        return view('client.quote-show', compact('step', 'quote'));
+        $acount_amount = (round($quote->amount * 30 /100, 0) * 100);
+        $display_amount = round($acount_amount / 100);
+        $customer = Auth::user()->firstname . ' ' . Auth::user()->lastname;
+
+         Stripe::setApiKey(env("STRIPE_SECRET"));
+
+        $intent = PaymentIntent::create([
+            'amount' => $acount_amount,
+            'currency' => 'eur',
+            // Verify your integration in this guide by including this parameter
+            'metadata' => ['integration_check' => 'accept_a_payment'],
+        ]);
+
+        $clientSecret = Arr::get($intent, 'client_secret');
+
+        return view('client.quote-show', compact('step', 'quote', 'clientSecret', 'intent', 'customer', 'display_amount'));
 
     }
 

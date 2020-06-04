@@ -12,6 +12,8 @@
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="{{ asset('js/app.js') }}" defer></script>
+    <script src="https://js.stripe.com/v3/"></script>
+    @yield('extra-script')
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
@@ -23,6 +25,7 @@
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 
 </head>
+
 <body>
 
     <div id="app">
@@ -89,9 +92,11 @@
         </nav>
         <div class="container-fluid">
           <main class = "my-4">
+            @include('flash-message')
             @yield('content')
           </main>
 
         </div>
+        @yield('extra-js')
 </body>
 </html>

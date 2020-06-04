@@ -6,47 +6,44 @@ namespace App\Http\Controllers;
 use Stripe\Charge;
 use Stripe\Stripe;
 use Stripe\Customer;
+use Stripe\PaymentIntent;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Validator;
 use Illuminate\Support\Facades\Session;
 
 class PaiementController extends Controller
 {
-     /**
-     * success response method.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function stripe()
+      /**
+       * success response method.
+       *
+       * @return \Illuminate\Http\Response
+       */
+       public function index()
     {
-        return view('payment.index');
+        Stripe::setApiKey(env("STRIPE_SECRET"));
+
+        $intent = PaymentIntent::create([
+            'amount' => 1099,
+            'currency' => 'eur',
+            // Verify your integration in this guide by including this parameter
+            'metadata' => ['integration_check' => 'accept_a_payment'],
+        ]);
+
+
+        $clientSecret = Arr::get($intent, 'client_secret');
+
+        return view('payment.index', [
+            'clientSecret' => $clientSecret,
+            'intent' => $intent
+        ]);
     }
-  
-    /**
-     * success response method.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function stripePost(Request $request)
-    {
-       try {
-            Stripe::setApiKey('sk_test_R9JQ3Uw7BMGfM6OVva8knxqU00lAC5E45E');
 
-            $customer = Customer::create(array(
-                'email' => $request->stripeEmail,
-                'source' => $request->stripeToken
-            ));
-
-            $charge = Charge::create(array(
-                'customer' => $customer->id,
-                'amount' => 20000,
-                'currency' => 'eur'
-            ));
-
-            return 'Charge successful, you get the course!';
-        } catch (\Exception $ex) {
-            return $ex->getMessage();
-        }
+    public function success() {
+      return back()->with('success','Votre acompte a bien été enregistré');
     }
+
+
 }
+
 
