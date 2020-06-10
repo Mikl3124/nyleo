@@ -27,7 +27,9 @@
           @case(2)
               <p><a class="step-complete" href="{{ route('client.show', Auth::user()) }}"> <i class="fas fa-check"></i> Fiche client</a></p>
               <p><a class="step-complete" href="{{ route('projet.show', Auth::user()) }}"> <i class="fas fa-check"></i> Fiche projet</a></p>
-              <p><i class="fas fa-arrow-right"></i> Prochaine étape: <a href="{{ route('quote.show', Auth::user()) }}">Valider votre devis</a></p>
+            <p><i class="fas fa-arrow-right"></i> Prochaine étape: <a href="{{ route('quote.show', Auth::user()) }}">Valider votre devis</a></p>
+
+              
           @break
 
           @case(3)

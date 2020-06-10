@@ -144,10 +144,10 @@ class ProjetController extends Controller
     public function uploadFile(Request $request)
     {
       $step =Auth::user()->step;
+      $user = User::find($request->userId);
       if ($files = $request->file('file5')){
       $files = $request->file5;
       $results = array_pop($files);
-      $user = User::find($request->userId);
         foreach ($files as $file) {
             $filenamewithextension = $file->getClientOriginalName();
 
@@ -169,8 +169,9 @@ class ProjetController extends Controller
                 'filename' => $filenamewithextension
               ]);
         }
-      }
         return redirect()->route('documents.show', $user->id)->with('success','Vos documents ont bien été enregistrés');
+      }
+        return redirect()->route('documents.show', $user->id)->with('error','Aucun document envoyé');
     }
 
     public function showDocuments($id)

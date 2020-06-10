@@ -20,7 +20,7 @@ class QuoteController extends Controller
     {
           $user = Auth::user();
           $step = $user->step;
-          $quote = Quote::where('user_id', '=', $user->id)->first();
+          $quote = Quote::where('user_id', '=', $user->id)->orderBy('created_at', 'desc')->first();
           $acount_amount = (round($quote->amount * 30 /100, 0) * 100);
           $display_amount = round($acount_amount / 100);
           $customer = Auth::user()->firstname . ' ' . Auth::user()->lastname;

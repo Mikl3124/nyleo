@@ -48,7 +48,8 @@ class PaiementController extends Controller
                   $user->save();
                 }
         $step = $user->step;
-      return route('home', compact('step'))->with('success','Votre acompte a bien été enregistré');
+
+        return redirect()->route('home', compact('step'))->with('success','Votre acompte a bien été enregistré');
     }
 
 
