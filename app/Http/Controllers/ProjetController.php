@@ -126,7 +126,7 @@ class ProjetController extends Controller
                 $projet->save();
 
               };
-            return view('client.upload-file', compact('step'));
+            return view('client.upload-file', compact('step', 'user'));
 
           }
 
