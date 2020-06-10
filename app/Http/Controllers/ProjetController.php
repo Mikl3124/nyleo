@@ -145,9 +145,9 @@ class ProjetController extends Controller
     {
       $step =Auth::user()->step;
       if ($files = $request->file('file5')){
-        $files = $request->file5;
+      $files = $request->file5;
       $results = array_pop($files);
-      $user = Auth::user();
+      $user = User::find($request->userId);
         foreach ($files as $file) {
             $filenamewithextension = $file->getClientOriginalName();
 
@@ -170,13 +170,12 @@ class ProjetController extends Controller
               ]);
         }
       }
-
-        return view('client.dashboard', compact('step'));
+        return redirect()->route('documents.show', $user->id)->with('success','Vos documents ont bien été enregistrés');
     }
 
-    public function showDocuments()
+    public function showDocuments($id)
     {
-      $user = Auth::user();
+      $user = User::find($id);
       $step = $user->step;
       $documents = File::where('user_id', '=', $user->id)->get();
 

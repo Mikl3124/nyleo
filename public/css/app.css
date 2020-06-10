@@ -204,8 +204,18 @@ h1 {
 }
 
 .img-thumbnail {
-  width: 150px !important;
-  height: 150px !important;
+  width: auto !important;
+  max-width: 100% !important;
+}
+
+.navlink {
+  text-decoration: none !important;
+  color: black !important;
+}
+
+.navlink:hover {
+  background-color: #6c757d;
+  color: white !important;
 }
 
 /*!

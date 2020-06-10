@@ -1,4 +1,7 @@
 @extends('layouts.app')
+@section('extra-script')
+  <script src="https://cdn.jsdelivr.net/npm/places.js@1.19.0"></script>
+@endsection
 @section('content')
   <div class="container-fluid row">
     <div class="col-sm-12 col-md-2">
@@ -33,7 +36,7 @@
                       <div class="col-12">
                           <div class="form-group">
                               <label for="form-address">Adresse</label>
-                          <input type="search" value="{{ old('address') }}" class="form-control @error('address') is-invalid @enderror" id="form-address"
+                          <input id="form-address" type="search" value="{{ old('address') }}" class="form-control @error('address') is-invalid @enderror" id="form-address"
                                   name="address" placeholder="Veuillez saisir votre adresse" />
                               @error('address')
                                   <div class="invalid-feedback">{{ $message }}</div>
@@ -42,7 +45,7 @@
                       </div>
                       <div class="col-md-6 mb-3">
                           <label for="validationCustomCp">Code Postal</label>
-                          <input type="text" class="form-control @error('cp') is-invalid @enderror" value="{{ old('cp') }}" name="cp" id="validationCustomCp"required>
+                          <input id="form-zip" type="text" class="form-control @error('cp') is-invalid @enderror" value="{{ old('cp') }}" name="cp" id="validationCustomCp"required>
                           <div class="invalid-feedback">
                               Veuillez saisir le code postal
                           </div>
@@ -54,7 +57,7 @@
                       </div>
                       <div class="col-md-6 mb-3">
                           <label for="validationTown">Ville</label>
-                          <input type="text" class="form-control @error('town') is-invalid @enderror" value="{{ old('town') }}" name="town" id="validationTown" required>
+                          <input id="form-city" type="text" class="form-control @error('town') is-invalid @enderror" value="{{ old('town') }}" name="town" id="validationTown" required>
                           <div class="invalid-feedback">
                               Veuillez saisir votre ville
                           </div>
@@ -123,6 +126,30 @@
           <button class="btn btn-primary mt-3" type="submit">Valider</button>
       </form>
     </div>
+
+@section('extra-js')
+  <script type="application/javascript">
+    window.onload = function(){
+
+    var placesAutocomplete = places({
+      appId: '{{ env('ALGOLIA_APP_ID') }}',
+      apiKey: '{{ env('ALGOLIA_SECRET') }}',
+      container: document.querySelector('#form-address'),
+      templates: {
+        value: function(suggestion) {
+          return suggestion.name;
+        }
+      }
+    }).configure({
+      type: 'address'
+    });
+    placesAutocomplete.on('change', function resultSelected(e) {
+      document.querySelector('#form-city').value = e.suggestion.city || '';
+      document.querySelector('#form-zip').value = e.suggestion.postcode || '';
+    });
+    };
+  </script>
+@endsection
 
 @endsection
 

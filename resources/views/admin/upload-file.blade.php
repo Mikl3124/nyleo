@@ -2,10 +2,8 @@
 
 @section('content')
   <div class="container-fluid row">
-    <div class="col-sm-12 col-md-2">
-      @include('layouts.steps')
-    </div>
-    <div class="col-sm-12 col-md-10">
+    <div class="col-sm-12 col-md-12">
+    <h4 class=text-center>Client: {{ $user->firstname }} {{ $user->lastname }}</h4>
       @if (count($errors) > 0)
         <ul><li>{{ $error }}</li></ul>
       @endif

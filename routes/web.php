@@ -41,7 +41,7 @@ Route::get('admin/quote-create/{id}', 'QuoteController@createQuote')->name('devi
 Route::get('/quote-download/{id}', 'QuoteController@downloadQuote')->name('quote.download');
 
 //Files
-Route::get('/upload', 'ProjetController@showUploadPage')->name('upload.page');
+Route::get('/upload/', 'ProjetController@showUploadPage')->name('upload.page');
 Route::post('/upload-files', 'ProjetController@uploadFile')->name('file.upload');
 Route::get('documents/{id}', 'ProjetController@showDocuments')->name('documents.show');
 
@@ -56,6 +56,7 @@ Route::get('admin/messagerie/{id}', 'AdminController@showMessage')->name('admin.
 Route::post('admin/message-store', 'AdminController@storeMessage')->name('admin.message.store');
 Route::get('admin/messagerie-download/{message}', 'AdminController@download')->name('admin.messagerie.download');
 Route::get('admin/documents/{id}', 'AdminController@showDocuments')->name('admin.documents.show');
+Route::get('admin/upload/{id}', 'AdminController@showUploadPage')->name('admin.upload.page');
 
 //Stripe
 Route::get('stripe', 'PaiementController@index')->name('payment.index');

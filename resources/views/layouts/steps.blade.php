@@ -1,5 +1,6 @@
  @auth
     {{-- ------------------------- steps ----------------------- --}}
+    <h3 class="text-center mb-3">Les étapes</h3>
     <div class="row">
         <div class="text-center w-100">
                 @if ($step > 0)

@@ -23,7 +23,7 @@ class AdminController extends Controller
     }
 
     public function showMessage($user)
-    {    
+    {
       $user = User::find($user);
       $messages = Message::where('to_id', '=', $user->id)
                           ->orwhere('from_id', '=', $user->id)
@@ -113,5 +113,13 @@ class AdminController extends Controller
 
       return view('admin.documents.show', compact('documents'));
     }
+
+    public function showUploadPage($id)
+    {
+      $user = User::find($id);
+      $step = $user->step;
+      return view('admin.upload-file', compact('user', 'step'));
+    }
+
 
 }

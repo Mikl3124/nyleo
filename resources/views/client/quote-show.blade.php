@@ -8,7 +8,6 @@
       <div class="container">
 
           <h4 class="text-center">Votre devis</h4>
-
             <iframe src="{{ Storage::disk('s3')->url($quote->url) }}" width="100%" height="600px"></iframe>
             <div class="d-flex justify-content-between">
                 <a href="{{ route('quote.download', $quote->id) }}">Télécharger votre devis</a>

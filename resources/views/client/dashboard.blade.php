@@ -4,7 +4,7 @@
     <div class="col-sm-12 col-md-2">
       @include('layouts.steps')
     </div>
-    <div class="col-sm-12 col-md-10">
+    <div class="col-sm-12 col-md-8">
       @if(Auth::user()->firstname)
           <h1 class="text-center">
               Bienvenue {{Auth::user()->firstname}}
@@ -40,7 +40,11 @@
           @default
               Default case...
       @endswitch
-        </div>
+      </div>
+      <div class="col-sm-12 col-md-2">
+        @include('layouts.vertical-navbar')
+      </div>
+  </div>
 
 @endsection
 

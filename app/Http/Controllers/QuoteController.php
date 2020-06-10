@@ -12,30 +12,31 @@ use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Redirect;
 
 class QuoteController extends Controller
 {
     public function quoteShow()
     {
-        $user = Auth::user();
-        $step = $user->step;
-        $quote = Quote::where('user_id', '=', $user->id)->first();
-        $acount_amount = (round($quote->amount * 30 /100, 0) * 100);
-        $display_amount = round($acount_amount / 100);
-        $customer = Auth::user()->firstname . ' ' . Auth::user()->lastname;
+          $user = Auth::user();
+          $step = $user->step;
+          $quote = Quote::where('user_id', '=', $user->id)->first();
+          $acount_amount = (round($quote->amount * 30 /100, 0) * 100);
+          $display_amount = round($acount_amount / 100);
+          $customer = Auth::user()->firstname . ' ' . Auth::user()->lastname;
 
-         Stripe::setApiKey(env("STRIPE_SECRET"));
+          Stripe::setApiKey(env("STRIPE_SECRET"));
 
-        $intent = PaymentIntent::create([
-            'amount' => $acount_amount,
-            'currency' => 'eur',
-            // Verify your integration in this guide by including this parameter
-            'metadata' => ['integration_check' => 'accept_a_payment'],
-        ]);
+          $intent = PaymentIntent::create([
+              'amount' => $acount_amount,
+              'currency' => 'eur',
+              // Verify your integration in this guide by including this parameter
+              'metadata' => ['integration_check' => 'accept_a_payment'],
+          ]);
 
-        $clientSecret = Arr::get($intent, 'client_secret');
+          $clientSecret = Arr::get($intent, 'client_secret');
 
-        return view('client.quote-show', compact('step', 'quote', 'clientSecret', 'intent', 'customer', 'display_amount'));
+          return view('client.quote-show', compact('step', 'quote', 'clientSecret', 'intent', 'customer', 'display_amount'));
 
     }
 

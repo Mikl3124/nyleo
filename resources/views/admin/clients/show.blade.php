@@ -9,7 +9,7 @@
 
     <a href="{{ route('admin.message.show', $user) }}" class="btn btn-primary">Messagerie</a>
     <a href="{{ route('admin.documents.show', $user) }}" class="btn btn-primary">Consulter les documents</a>
-    <a href="{{ route('upload.page') }}" class="btn btn-primary">Envoyer un document</a>
+    <a href="{{ route('admin.upload.page', $user) }}" class="btn btn-primary">Envoyer un document</a>
     <a href="{{ route('devis.create', $user) }}" class="btn btn-primary">Saisir le devis</a>
   </div>
 @endsection
