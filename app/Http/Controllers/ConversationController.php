@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use App\Model\File;
 use App\Model\User;
 use App\Model\Message;
+use App\Jobs\NewMessageJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -84,6 +85,8 @@ class ConversationController extends Controller
 
         // Notification
         $message->to->notify(new MessageNotification($message, auth()->user()));
+
+        $this->dispatch(new NewMessageJob($to));
 
         return redirect()->route('message.show', Auth::user()->id);
     }

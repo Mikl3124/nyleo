@@ -11,5 +11,6 @@
     <a href="{{ route('admin.documents.show', $user) }}" class="btn btn-primary">Consulter les documents</a>
     <a href="{{ route('admin.upload.page', $user) }}" class="btn btn-primary">Envoyer un document</a>
     <a href="{{ route('devis.create', $user) }}" class="btn btn-primary">Saisir le devis</a>
+    <a href="{{ route('avantProjet.create', $user) }}" class="btn btn-primary">Envoyer l'avant projet</a>
   </div>
 @endsection

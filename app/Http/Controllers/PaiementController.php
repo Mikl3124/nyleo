@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use Stripe\Charge;
 use Stripe\Stripe;
+use App\Model\Quote;
 use Stripe\Customer;
 use Stripe\PaymentIntent;
 use Illuminate\Support\Arr;
@@ -40,7 +41,10 @@ class PaiementController extends Controller
         ]);
     }
 
-    public function success() {
+    public function success($quote) {
+        $quote = Quote::find($quote);
+        $quote->accepted = 1;
+        $quote->save();
         $user = Auth::user();
 
         if ($user->step < 3){
@@ -48,7 +52,7 @@ class PaiementController extends Controller
                   $user->save();
                 }
         $step = $user->step;
-
+        
         return redirect()->route('home', compact('step'))->with('success','Votre acompte a bien été enregistré');
     }
 

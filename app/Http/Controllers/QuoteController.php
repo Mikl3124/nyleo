@@ -55,6 +55,9 @@ class QuoteController extends Controller
       $quote->amount = $request->amount;
       $quote->user_id = $user->id;
       $quote->projet_id = $request->projetId;
+      $projet = Projet::where('user_id', '=', $user->id)->orderBy('created_at', 'desc')->first();
+      $projet->as_quote = 1;
+      $projet->save();
 
         if ($files = $request->file('quoteFile')) {
 

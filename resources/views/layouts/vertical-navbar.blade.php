@@ -1,5 +1,5 @@
 <div class="text-center mb-3">
-<a class="btn btn-primary btn-block"href="{{ route('message.show') }}"><i class="fas fa-comments"></i> Envoyer un message</a>
+<a class="btn btn-outline-danger btn-block"href="{{ route('message.show') }}"><i class="fas fa-comments"></i> Envoyer un message</a>
 </div>
 
 <div class="card">

@@ -33,6 +33,9 @@ Route::post('/projet-create)', 'ProjetController@projetStore')->name('projet.sto
 Route::post('/projet-update)', 'ProjetController@projetUpdate')->name('projet.update');
 Route::get('/projet/show/{id})', 'ProjetController@projetShow')->name('projet.show');
 Route::get('/projet/edit/{id})', 'ProjetController@projetEdit')->name('projet.edit');
+Route::get('/avant-projet/create/{id})', 'ProjetController@avantProjetCreate')->name('avantProjet.create');
+Route::post('admin/avantProjet-store/', 'ProjetController@avantProjetStore')->name('admin.avantProjet.store');
+
 
 //Devis
 Route::get('/devis/show/{id})', 'QuoteController@quoteShow')->name('quote.show');
@@ -58,8 +61,10 @@ Route::get('admin/messagerie-download/{message}', 'AdminController@download')->n
 Route::get('admin/documents/{id}', 'AdminController@showDocuments')->name('admin.documents.show');
 Route::get('admin/upload/{id}', 'AdminController@showUploadPage')->name('admin.upload.page');
 
+
+
 //Stripe
 Route::get('stripe', 'PaiementController@index')->name('payment.index');
-Route::get('/payment-success', 'PaiementController@success');
+Route::get('/payment-success/{quote}', 'PaiementController@success');
 Route::get('/payment-failed', 'PaiementController@failed');
 

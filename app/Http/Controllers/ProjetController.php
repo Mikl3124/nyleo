@@ -182,4 +182,16 @@ class ProjetController extends Controller
 
       return view('client.documents-show', compact('step', 'documents'));
     }
+
+    public function avantProjetCreate($id)
+    {
+       $user = User::find($id);
+      $projets = Projet::where('user_id', '=', $user->id )->get();
+      return view('admin.avant-projet.create', compact('user', 'projets'));
+    }
+
+    public function avantProjetStore(Request $request)
+    {
+      return 'ok';
+    }
 }

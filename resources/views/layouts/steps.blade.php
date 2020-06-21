@@ -24,9 +24,9 @@
         </div>
         <div class="text-center w-100">
                 @if ($step > 2)
-                        <a href="http://" class="btn-success btn-lg btn-block mb-2"><i class="fas fa-check"></i>  Devis</a>
+                        <a href="{{ route('quote.show', Auth::user()) }}" class="btn-success btn-lg btn-block mb-2"><i class="fas fa-check"></i>  Devis</a>
                 @else
-                        <a href="http://" class="btn btn-secondary btn-block btn-lg disabled mb-2">Etape 3: Devis</a>
+                        <a href="{{ route('quote.show', Auth::user()) }}" class="btn btn-secondary btn-block btn-lg disabled mb-2">Etape 3: Devis</a>
                 @endif
         </div>
         <div class="col-md-12 text-center w-100">

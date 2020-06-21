@@ -5,7 +5,7 @@
     <div class="col-sm-12 col-md-2">
       @include('layouts.steps')
     </div>
-    <div class="col-sm-12 col-md-10">
+    <div class="col-sm-12 col-md-8">
       @if (count($errors) > 0)
         <ul><li>{{ $error }}</li></ul>
       @endif
@@ -24,9 +24,12 @@
           <a class="btn btn-secondary mt-3" href="{{ route('home')}}">Annuler</a>
           <button type="submit" class="btn btn-primary mt-3">Envoyer</button>
         </div>
-
       </form>
     </div>
+        <div class="col-sm-12 col-md-2">
+       @include('layouts.vertical-navbar')
+    </div>
+  </div>
 
 
 

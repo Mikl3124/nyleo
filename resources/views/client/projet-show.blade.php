@@ -4,7 +4,7 @@
     <div class="col-sm-12 col-md-2">
       @include('layouts.steps')
     </div>
-    <div class="col-sm-12 col-md-10">
+    <div class="col-sm-12 col-md-8">
       <div class="container">
         <div class="card mt-5 ">
           <h4 class="card-header text-center">Votre projet</h4>
@@ -39,6 +39,10 @@
           </div>
         </div>
       </div>
-    </div>  
+    </div>
+    <div class="col-sm-12 col-md-2">
+        @include('layouts.vertical-navbar')
+    </div>
+  </div>
 
 @endsection
