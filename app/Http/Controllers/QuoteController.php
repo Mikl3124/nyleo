@@ -9,6 +9,7 @@ use App\Model\Quote;
 use App\Model\Projet;
 use Stripe\PaymentIntent;
 use Illuminate\Support\Arr;
+use App\Jobs\NewQuoteCreate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -90,7 +91,7 @@ class QuoteController extends Controller
         $quote->save();
 
         // Notification
-
+        $this->dispatch(new NewQuoteCreate($user));
 
         return view('admin.clients.show', compact('user'));
     }
