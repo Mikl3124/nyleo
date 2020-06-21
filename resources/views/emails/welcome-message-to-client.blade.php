@@ -42,7 +42,7 @@
         </tr>
 
         <tr style="text-align:center">
-            <td align="center" bgcolor="#ff6600" role="presentation" style="border:none;border-radius:5px;background:#336be4" valign="middle">
+            <td align="center" bgcolor="#ff6600" role="presentation" style="border:none;border-radius:5px;background:#ffff" valign="middle">
 
             <a href="https://clients.nyleo.fr" style="display:inline-block;background:#ff6600;color:#ffffff;font-family:Roboto,sans-serif;font-size:15px;font-weight:normal;line-height:120%;margin:0;text-decoration:none;text-transform:none;padding:16px 20px;border-radius:5px" target="_blank">
 
