@@ -43,16 +43,7 @@
 
         <tr style="text-align:center">
             <td width="100%"><a href="https://clients.nyleo.fr" style="padding:15px;width:150px;text-align:center;border-radius:5px;color:white;font-weight: bold;text-decoration:none;background-color:#ff6600;font-size:20px;">Accéder à la plateforme</a></td>
-            <td align="center" bgcolor="#336be4" role="presentation" style="border:none;border-radius:5px;background:#336be4" valign="middle">
-
-            <a href="https://www.codeur.com/projects" style="display:inline-block;background:#336be4;color:#ffffff;font-family:Roboto,sans-serif;font-size:15px;font-weight:normal;line-height:120%;margin:0;text-decoration:none;text-transform:none;padding:16px 20px;border-radius:5px" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://www.codeur.com/projects&amp;source=gmail&amp;ust=1592856424736000&amp;usg=AFQjCNFxJjm_BfLwM6LQ55lkluUVIfdo3w">
-
-              VOIR TOUS LES PROJETS
-
-            </a>
-
-          </td>
-          </tr>
+        </tr>
     </table>
 
 </body>
