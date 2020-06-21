@@ -20,6 +20,7 @@
             <th scope="col">Prénom</th>
             <th scope="col">Ville</th>
             <th scope="col">Etape</th>
+            <th scope="col">Connecté<th>
             <th scope="col"></th>
           </tr>
         </thead>
@@ -34,6 +35,7 @@
                 <td>{{ $user->lastname }}</td>
                 <td>{{ $user->town }}</td>
                 <td>{{ $user->step }}</td>
+                <td>@if ($user->last_login_at) {{ \Carbon\Carbon::createFromTimeStamp(strtotime($user->last_login_at))->diffForHumans()  }} @else Jamais @endif</td>
                 <td><a href="{{ route('admin.client.show', $user) }}" class="btn btn-primary">Accéder</a></td>
             </tr>
 
