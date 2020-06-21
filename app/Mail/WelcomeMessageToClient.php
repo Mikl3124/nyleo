@@ -31,8 +31,7 @@ class WelcomeMessageToClient extends Mailable
     public function build()
     {
         $user = $this->user;
-         return $this->from('contact@nyleo.fr')
-            ->from("Nyleo Coneption")
+         return $this->from('contact@nyleo.fr', "Nyleo Conception")
             ->subject("Votre accès à la plateforme de communication")
             ->view('emails.welcome-message-to-client');
     }
