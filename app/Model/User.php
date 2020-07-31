@@ -2,6 +2,7 @@
 
 namespace App\Model;
 
+use App\Notifications\ResetPassword;
 use Cmgmyr\Messenger\Traits\Messagable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -45,6 +46,11 @@ class User extends Authenticatable
     public function quotes()
     {
         return $this->hasOne(Projet::class);
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPassword($token));
     }
 
 
