@@ -6,21 +6,6 @@
       @include('layouts.steps')
     </div>
     <div class="col-sm-12 col-md-8">
-<<<<<<< HEAD
-        <div class="card" >
-            <div class="card-header">
-                <h4>Conversation avec Nyleo Conception</h4>
-            </div>
-            <div class="card-body scroll" id="messagesBox">
-                @if (isset($messages) && $messages->count())
-                    @foreach ($messages as $message)
-                        <div class="row mt-3">
-                            <div class="col-md-10 {{ $message->from_id != $user->id ? 'offset-md-2 text-right' : ''}}">
-                                {{-- ------------- Si le contenu du message est vide (fichier à télécharger seulement) ---------------- --}}
-                                @if ($message->content === null)
-                                    @isset($message->file_message)
-                                        <p class="mb-0"><strong>{{ $message->from_id != $user->id ? 'Moi' : 'Nyleo Conception'}}</strong><span class="message_date"> Le {{ Carbon\Carbon::parse($message->created_at)->isoFormat('Do MMMM YYYY à h:mm') }}</span> <br></p>
-=======
           <div class="card" >
         <div class="card-header">
           <h4>Conversation avec Nyleo Conception</h4>
@@ -45,7 +30,6 @@
                                 <p class="{{ $message->from_id != $user->id ? 'my_message' : 'his_message'}}">{!! nl2br(e($message->content)) !!}</p>
                                 @isset($message->file_message)
                                     @if ($message->content != null)
->>>>>>> 6b5f7691500835f60883878a0b4d29a6471beea6
                                         <p class="{{ $message->from_id != $user->id ? 'my_message' : 'his_message'}}">
                                             <a href="{{ route('admin.messagerie.download', $message)}}"><i class="fas fa-download"></i> {{ $message->filename }}</a>
                                         </p>
@@ -97,8 +81,6 @@
     </div>
 </div>
 
-<<<<<<< HEAD
-=======
     <form action="{{ route('message.store')}}" method="post" enctype="multipart/form-data">
       @csrf
       <div class="form-group mt-4">
@@ -123,7 +105,6 @@
   </div>
 </div>
 
->>>>>>> 6b5f7691500835f60883878a0b4d29a6471beea6
 
 
 @endsection
