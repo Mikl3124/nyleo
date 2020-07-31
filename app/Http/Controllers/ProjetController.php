@@ -48,7 +48,7 @@ class ProjetController extends Controller
             'cp' => 'required',
             'town' => 'required',
         ];
-
+        dd('coco');
         $validator = Validator::make($value, $rules,[
 
           ]);
@@ -127,9 +127,7 @@ class ProjetController extends Controller
 
               };
             return view('client.upload-file', compact('step', 'user'));
-
           }
-
     }
 
 
