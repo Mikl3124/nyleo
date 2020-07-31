@@ -17,7 +17,7 @@ class ResetPassword extends ResetPasswordNotification
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($token)
     {
         $this->token = $token;
     }
