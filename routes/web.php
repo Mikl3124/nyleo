@@ -38,16 +38,20 @@ Route::get('/avant-projet/create/{id})', 'ProjetController@avantProjetCreate')->
 Route::post('admin/avantProjet-store/', 'ProjetController@avantProjetStore')->name('admin.avantProjet.store');
 
 
-//Devis
-Route::get('/devis/show/{id})', 'QuoteController@quoteShow')->name('quote.show');
+//Quote
+Route::get('/quote/show/{id})', 'QuoteController@quoteShow')->name('quote.show');
 Route::post('admin/quote-store/', 'QuoteController@storeQuote')->name('admin.quote.store');
 Route::get('admin/quote-create/{id}', 'QuoteController@createQuote')->name('devis.create');
 Route::get('/quote-download/{id}', 'QuoteController@downloadQuote')->name('quote.download');
+Route::get('/quote-accepted/{id}', 'QuoteController@acceptedQuote')->name('quote.accepted');
+Route::get('/quote-delete/{quote_id}{projet_id}', 'QuoteController@deleteQuote')->name('quote.delete');
+
 
 //Files
 Route::get('/upload/', 'ProjetController@showUploadPage')->name('upload.page');
 Route::post('/upload-files', 'ProjetController@uploadFile')->name('file.upload');
 Route::get('documents/{id}', 'ProjetController@showDocuments')->name('documents.show');
+Route::get('documents/delete/{id}', 'ProjetController@deleteDocument')->name('document.delete');
 
 //Messagerie
 Route::get('/messagerie', 'ConversationController@showMessage')->name('message.show');

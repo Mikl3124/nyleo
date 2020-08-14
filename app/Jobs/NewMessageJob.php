@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Model\User;
 use App\Mail\NewMessage;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Facades\Mail;
@@ -14,16 +15,22 @@ class NewMessageJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $user;
+    protected $to;
+    protected $message;
+    protected $from;
+    
     
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($user)
+    public function __construct($to, $message, $from)
     {
-        $this->user = $user;
+        $this->to = $to;
+        $this->message = $message;
+        $this->from = $from;
+
     }
 
     /**
@@ -33,7 +40,15 @@ class NewMessageJob implements ShouldQueue
      */
     public function handle()
     {
-        $user = $this->user;
-        Mail::to($user->email)->queue(new NewMessage($user));
+
+        $to = User::find($this->to);
+        $to_id = $to->id;
+
+        $message = $this->message;
+        $from = User::find($this->from);
+        $from_id = $from->id;
+
+        Mail::to($to->email)->queue(new NewMessage($to_id, $message, $from_id));
+
     }
 }

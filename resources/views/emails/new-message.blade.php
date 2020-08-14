@@ -24,9 +24,21 @@
         <tr>
           <td width="100%" style="font-size:22px;display: block;margin-bottom:30px;">Bonjour</td>
         </tr>
-        <tr>
-            <td width="100%" style="font-size:22px;display: block;margin-bottom:30px;">Vous avez reçu un nouveau message de {{ $user->firstname }} {{ $user->lastname }}</td>
-        </tr>
+        @isset($messageField)
+            <tr>
+            <td width="100%" style="font-size:22px;display: block;margin-bottom:30px;">Vous avez reçu un nouveau message de {{$from_id->firstname}} {{$from_id->lastname}} </td>
+            </tr>
+            <tr>
+                <td width="100%" style="font-size:22px;display: block;margin-bottom:30px;">Le voici: "{{ $messageField }}"</td>
+            </tr>
+        @endisset
+
+        @empty($messageField)
+            <tr>
+                <td width="100%" style="font-size:22px;display: block;margin-bottom:30px;">Vous avez reçu un nouveau document de {{$from_id->lastname}} {{$from_id->firstname}}</td>
+            </tr>
+
+        @endempty
 
         <tr>
             <td width="100%" style="font-size:22px;display: block;margin-bottom:30px;"></td>

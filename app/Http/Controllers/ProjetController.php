@@ -48,7 +48,7 @@ class ProjetController extends Controller
             'cp' => 'required',
             'town' => 'required',
         ];
-        dd('coco');
+ 
         $validator = Validator::make($value, $rules,[
 
           ]);
@@ -183,7 +183,7 @@ class ProjetController extends Controller
 
     public function avantProjetCreate($id)
     {
-       $user = User::find($id);
+      $user = User::find($id);
       $projets = Projet::where('user_id', '=', $user->id )->get();
       return view('admin.avant-projet.create', compact('user', 'projets'));
     }
@@ -191,5 +191,14 @@ class ProjetController extends Controller
     public function avantProjetStore(Request $request)
     {
       return 'ok';
+    }
+
+    public function deleteDocument($id){
+      $file = File::find($id);
+      if($file->user_id === Auth::user()->id || Auth::user()->role === 'admin'){
+        $file->delete();
+      }
+      return redirect()->back();
+
     }
 }
