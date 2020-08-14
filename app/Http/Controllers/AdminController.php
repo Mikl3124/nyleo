@@ -95,7 +95,7 @@ class AdminController extends Controller
         // Notification
 
         $message->to->notify(new MessageNotification($message, auth()->user()));
-        
+
         //email
         $this->dispatch(new NewMessageJob($message->to_id, $message->content, $message->from_id));
 
@@ -128,26 +128,10 @@ class AdminController extends Controller
     public function connectAsClient($id)
     {
       $user = User::find($id);
-<<<<<<< HEAD
-<<<<<<< HEAD
-      Auth::login($user);
-      return redirect()->route('home');
-    }
-=======
-=======
-
->>>>>>> 42b8da172f4aac30956e72e5bce5d9f1df633e26
       if(Auth::user()->role === "admin"){
         Auth::login($user);
       }
 
       return redirect()->route('home');
     }
-
-<<<<<<< HEAD
-
->>>>>>> 30abd8a0d8f9df4e0a8643c554a7e5ea448884e1
-
-=======
->>>>>>> 42b8da172f4aac30956e72e5bce5d9f1df633e26
 }
