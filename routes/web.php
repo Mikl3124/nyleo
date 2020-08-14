@@ -60,7 +60,11 @@ Route::get('showMessageNotification/{message}/{notification}', 'ConversationCont
 
 //Admin
 Route::get('/admin/clients/show/{id}', 'AdminController@showClient')->name('admin.client.show');
+<<<<<<< HEAD
 Route::get('/admin/clients/connectAs/{id}', 'AdminController@connectAsClient')->name('admin.client.connectAs');
+=======
+Route::get('/admin/clients/connect/{id}', 'AdminController@connectAsClient')->name('admin.client.connectAs');
+>>>>>>> 30abd8a0d8f9df4e0a8643c554a7e5ea448884e1
 Route::get('admin/messagerie/{id}', 'AdminController@showMessage')->name('admin.message.show');
 Route::post('admin/message-store', 'AdminController@storeMessage')->name('admin.message.store');
 Route::get('admin/messagerie-download/{message}', 'AdminController@download')->name('admin.messagerie.download');
