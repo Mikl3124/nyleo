@@ -39,6 +39,29 @@
           </form>
         </div>
     </div>
+    @isset($quote)
+      <div class="mt-4">
+        <table class="table">
+          <tbody>
+            <tr>
+              <td>{{ $quote->created_at }}</td>
+              <td><a target="_blank" href="{{ Storage::disk('s3')->url($quote->url) }}">{{ $quote->filename }}</a></td>
+              @if($quote->accepted === 0)
+                <td><a class="btn btn-success" href="{{ route('quote.accepted', $quote  ) }}">Accepter</a></td>
+              @elseif($quote->accepted === 1)
+                <td><a class="btn btn-warning" href="{{ route('quote.accepted', $quote  ) }}">Refuser</a></td>
+              @endif
+              
+              <td><a class="btn btn-danger" href="{{ route('quote.delete', [$quote->id, $projet->id]  ) }}">Supprimer</a></td>
+
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    @endisset
+
+    
   </div>
+
 
 @endsection

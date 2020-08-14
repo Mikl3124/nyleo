@@ -28,6 +28,7 @@ class ConversationController extends Controller
     }
 
     public function storeMessage(Request $request){
+        
         $values = $request->all();
         $to = User::where('role', '=', 'admin')->first();
         if ($files = $request->file('file_message')) {
@@ -56,7 +57,7 @@ class ConversationController extends Controller
                     $message->to_id = $to->id;
 
         if ($files = $request->file('file_message')) {
-
+            
             $filenamewithextension = $request->file('file_message')->getClientOriginalName();
 
             //get filename without extension
@@ -81,12 +82,18 @@ class ConversationController extends Controller
             $message->file_message = $filename;
             $message->filename = $filenamewithextension;
             }
+
         $message->save();
+
+        
 
         // Notification
         $message->to->notify(new MessageNotification($message, auth()->user()));
+        
 
-        $this->dispatch(new NewMessageJob($to));
+        $this->dispatch(new NewMessageJob($to->id, $message->content, $message->from_id));
+
+
 
         return redirect()->route('message.show', Auth::user()->id);
     }
