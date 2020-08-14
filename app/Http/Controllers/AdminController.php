@@ -128,19 +128,12 @@ class AdminController extends Controller
     public function connectAsClient($id)
     {
       $user = User::find($id);
-<<<<<<< HEAD
-      Auth::login($user);
-      return redirect()->route('home');
-    }
-=======
+
       if(Auth::user()->role === "admin"){
         Auth::login($user);
       }
 
       return redirect()->route('home');
     }
-
-
->>>>>>> 30abd8a0d8f9df4e0a8643c554a7e5ea448884e1
 
 }
