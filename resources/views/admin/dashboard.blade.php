@@ -38,10 +38,14 @@
                 <td>@if ($user->last_login_at) {{ \Carbon\Carbon::createFromTimeStamp(strtotime($user->last_login_at))->diffForHumans()  }} @else Jamais @endif</td>
                 <td><a href="{{ route('admin.client.show', $user) }}" class="btn btn-primary">Accéder</a></td>
 <<<<<<< HEAD
+<<<<<<< HEAD
                 <td><a href="{{ route('admin.client.connectAs', $user) }}" class="btn btn-success">Connect as</a></td>
 =======
                 <td><a href="{{ route('admin.client.connectAs', $user) }}" class="btn btn-success">Se connecter</a></td>
 >>>>>>> 30abd8a0d8f9df4e0a8643c554a7e5ea448884e1
+=======
+                <td><a href="{{ route('admin.client.connectAs', $user) }}" class="btn btn-success">Se connecter</a></td>
+>>>>>>> 42b8da172f4aac30956e72e5bce5d9f1df633e26
             </tr>
 
         @endforeach
