@@ -37,6 +37,7 @@
                 <td>{{ $user->step }}</td>
                 <td>@if ($user->last_login_at) {{ \Carbon\Carbon::createFromTimeStamp(strtotime($user->last_login_at))->diffForHumans()  }} @else Jamais @endif</td>
                 <td><a href="{{ route('admin.client.show', $user) }}" class="btn btn-primary">Accéder</a></td>
+                <td><a href="{{ route('admin.client.connectAs', $user) }}" class="btn btn-success">Se connecter</a></td>
             </tr>
 
         @endforeach
