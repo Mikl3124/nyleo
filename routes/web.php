@@ -21,6 +21,13 @@ Route::get('/home', 'HomeController@index')->name('home');
 //Admin
 Route::post('/client-create', 'UserController@store')->name('client.store');
 Route::post('/test-mail', 'UserController@testMail')->name('test.mail');
+Route::get('/admin/clients/show/{id}', 'AdminController@showClient')->name('admin.client.show');
+Route::get('/admin/clients/connect/{id}', 'AdminController@connectAsClient')->name('admin.client.connectAs');
+Route::get('admin/messagerie/{id}', 'AdminController@showMessage')->name('admin.message.show');
+Route::post('admin/message-store', 'AdminController@storeMessage')->name('admin.message.store');
+Route::get('admin/messagerie-download/{message}', 'AdminController@download')->name('admin.messagerie.download');
+Route::get('admin/documents/{id}', 'AdminController@showDocuments')->name('admin.documents.show');
+Route::get('admin/upload/{id}', 'AdminController@showUploadPage')->name('admin.upload.page');
 
 //User
 Route::get('/profil/show/)', 'UserController@clientShow')->name('client.show');
@@ -57,17 +64,6 @@ Route::get('documents/delete/{id}', 'ProjetController@deleteDocument')->name('do
 Route::get('/messagerie', 'ConversationController@showMessage')->name('message.show');
 Route::post('/message-store', 'ConversationController@storeMessage')->name('message.store');
 Route::get('showMessageNotification/{message}/{notification}', 'ConversationController@showMessageNotification')->name('message.showMessageNotification');
-
-//Admin
-Route::get('/admin/clients/show/{id}', 'AdminController@showClient')->name('admin.client.show');
-Route::get('/admin/clients/connect/{id}', 'AdminController@connectAsClient')->name('admin.client.connectAs');
-Route::get('admin/messagerie/{id}', 'AdminController@showMessage')->name('admin.message.show');
-Route::post('admin/message-store', 'AdminController@storeMessage')->name('admin.message.store');
-Route::get('admin/messagerie-download/{message}', 'AdminController@download')->name('admin.messagerie.download');
-Route::get('admin/documents/{id}', 'AdminController@showDocuments')->name('admin.documents.show');
-Route::get('admin/upload/{id}', 'AdminController@showUploadPage')->name('admin.upload.page');
-
-
 
 //Stripe
 Route::get('stripe', 'PaiementController@index')->name('payment.index');
