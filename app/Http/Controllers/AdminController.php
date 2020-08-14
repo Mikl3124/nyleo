@@ -121,5 +121,11 @@ class AdminController extends Controller
       return view('admin.upload-file', compact('user', 'step'));
     }
 
+    public function connectAsClient($id)
+    {
+      $user = User::find($id);
+      Auth::login($user);
+      return redirect()->route('home');
+    }
 
 }
