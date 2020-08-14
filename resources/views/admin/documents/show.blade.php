@@ -8,7 +8,6 @@
         <div class="text-center col-md-3 col-sm-12 my-auto">
           <a target="_blank" href="{{ $document->url }}">
             <img class="img-fluid img-thumbnail" src="https://nyleo.s3.eu-west-3.amazonaws.com/pdf-icon.png">
-            <p> {{ $document->filename }} </p>
           </a>
         </div>
       @elseif(pathinfo($document->filename, PATHINFO_EXTENSION) == 'jpg')

@@ -2,25 +2,32 @@
 
 namespace App\Mail;
 
+use App\Model\User;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 class NewMessage extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $user;
+    public $to_id;
+    public $messageField;
+    public $from_id;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($user)
+    public function __construct($to_id, $messageField, $from_id)
     {
-        $this->user = $user;
+
+        $this->to_id = $to_id;
+        $this->messageField = $messageField;
+        $this->from_id = User::find($from_id);
+
     }
 
     /**
@@ -30,9 +37,9 @@ class NewMessage extends Mailable
      */
     public function build()
     {
-        $user = $this->user;
-        return $this->from('contact@nyleo.fr')
+
+        return $this->from($this->from_id->email)
             ->subject("Nouveau message reçu")
-            ->view('emails.new-message-to-admin');
+            ->view('emails.new-message');
     }
 }

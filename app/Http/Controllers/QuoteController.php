@@ -45,7 +45,9 @@ class QuoteController extends Controller
     {
       $user = User::find($id);
       $projets = Projet::where('user_id', '=', $user->id )->get();
-      return view('admin.quote.create', compact('user', 'projets'));
+      $quote = Quote::where('user_id', '=', $user->id )->first();
+
+      return view('admin.quote.create', compact('user', 'projets', 'quote'));
     }
 
     public function storeQuote(Request $request)
@@ -57,7 +59,9 @@ class QuoteController extends Controller
       $quote->user_id = $user->id;
       $quote->projet_id = $request->projetId;
       $projet = Projet::where('user_id', '=', $user->id)->orderBy('created_at', 'desc')->first();
-      $projet->as_quote = 1;
+
+      if( $projet->as_quote === 0){
+        $projet->as_quote = 1;
       $projet->save();
 
         if ($files = $request->file('quoteFile')) {
@@ -94,6 +98,8 @@ class QuoteController extends Controller
         $this->dispatch(new NewQuoteCreate($user));
 
         return view('admin.clients.show', compact('user'));
+      }
+      return redirect()->back()->withErrors('Devis déjà présent');
     }
 
     public function downloadQuote($quote)
@@ -110,6 +116,42 @@ class QuoteController extends Controller
             $quote = Quote::find($request->quote);
             return view('client.stripe', compact('quote'));
         }
+    }
+
+    public function acceptedQuote($quote)
+    {
+
+      $quote = Quote::find($quote);
+      $user = User::where('id', '=', $quote->user_id);
+      dd($user);
+      if($quote->accepted === 1) {
+        $quote->accepted = 0;
+      } elseif($quote->accepted === 0) {
+        $quote->accepted = 1;
+      }
+      
+      $quote->save();
+      return redirect()->back();
+    }
+
+    public function deleteQuote($quote_id, $projet_id)
+    {
+      $quote = Quote::find($quote_id);
+      $file = File::where('filename', '=', $quote->filename)->first();
+      $projet = Projet::find($projet_id);
+      $user = User::find($quote->user_id);
+
+      if ($quote->user_id === Auth::user()->id || Auth::user()->role === 'admin'){
+        Storage::disk('s3')->delete($quote->url);
+        $projet->as_quote = 0;
+        $user->step = 2;
+        $user->save();
+        $projet->save();
+        $file->delete();
+        $quote->delete();
+      }
+
+      return redirect()->back();
     }
 
 
