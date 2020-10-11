@@ -43,9 +43,8 @@ class NewMessageJob implements ShouldQueue
         $to_id = $to->id;
 
         $message = $this->message;
-        $from_id = $from->id;
 
-        Mail::to($to->email)->queue(new NewMessage($to_id, $message, $from_id));
+        Mail::to($to->email)->queue(new NewMessage($to_id, $message));
 
     }
 }

@@ -14,19 +14,17 @@ class NewMessage extends Mailable
 
     public $to_id;
     public $messageField;
-    public $from_id;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($to_id, $messageField, $from_id)
+    public function __construct($to_id, $messageField)
     {
 
         $this->to_id = $to_id;
         $this->messageField = $messageField;
-        $this->from_id = User::find($from_id);
 
     }
 
@@ -38,7 +36,7 @@ class NewMessage extends Mailable
     public function build()
     {
 
-        return $this->from($this->from_id->email)
+        return $this->from('contact@nyleo.fr', "Nyleo Conception")
             ->subject("Nouveau message reçu")
             ->view('emails.new-message');
     }
