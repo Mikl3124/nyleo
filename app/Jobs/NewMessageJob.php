@@ -17,7 +17,6 @@ class NewMessageJob implements ShouldQueue
 
     protected $to;
     protected $message;
-    protected $from;
     
     
     /**
@@ -29,7 +28,6 @@ class NewMessageJob implements ShouldQueue
     {
         $this->to = $to;
         $this->message = $message;
-        $this->from = $from;
 
     }
 
@@ -45,7 +43,6 @@ class NewMessageJob implements ShouldQueue
         $to_id = $to->id;
 
         $message = $this->message;
-        $from = User::find($this->from);
         $from_id = $from->id;
 
         Mail::to($to->email)->queue(new NewMessage($to_id, $message, $from_id));
