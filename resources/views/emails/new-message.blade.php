@@ -9,7 +9,7 @@
 </head>
 
 <body style="font-family: 'Roboto', sans-serif;color:#353b48;">
-    <span class="preheader">Votre accès personnalisé à Nyleo</span>
+    <span class="preheader">Vous avez un nouveau message</span>
     <table with="100%" style="max-width:650px;display:block;margin:auto;">
         <tr>
           <td>
@@ -26,7 +26,7 @@
         </tr>
         @isset($messageField)
             <tr>
-            <td width="100%" style="font-size:22px;display: block;margin-bottom:30px;">Vous avez reçu un nouveau message de {{$from_id->firstname}} {{$from_id->lastname}} </td>
+            <td width="100%" style="font-size:22px;display: block;margin-bottom:30px;">Vous avez reçu un nouveau message sur la plateforme Nyleo Conception </td>
             </tr>
             <tr>
                 <td width="100%" style="font-size:22px;display: block;margin-bottom:30px;">Le voici: "{{ $messageField }}"</td>
