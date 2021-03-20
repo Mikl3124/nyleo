@@ -2,18 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use Validator;
 use Carbon\Carbon;
 use App\Model\File;
 use App\Model\User;
 use App\Model\Message;
-use App\Mail\NewMessage;
 use App\Jobs\NewMessageJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Validator;
 use App\Notifications\MessageNotification;
 use Illuminate\Notifications\DatabaseNotification;
 
@@ -90,12 +88,12 @@ class ConversationController extends Controller
         $message->save();
 
 
+
         // Notification
         $message->to->notify(new MessageNotification($message, auth()->user()));
-        Mail::to($to->email)
-            ->send(new NewMessage($message->content, $message->from_id));
 
-        // $this->dispatch(new NewMessageJob($to->id, $message->content, $message->from_id));
+
+        $this->dispatch(new NewMessageJob($to->id, $message->content, $message->from_id));
 
 
 

@@ -7,12 +7,10 @@ use App\Model\File;
 use App\Model\User;
 use App\Model\Quote;
 use App\Model\Message;
-use App\Mail\NewMessage;
 use App\Jobs\NewMessageJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Redirect;
 use App\Notifications\MessageNotification;
@@ -93,17 +91,14 @@ class AdminController extends Controller
       $message->file_message = $filename;
       $message->filename = $filenamewithextension;
     }
-    $from = User::find($message->from_id);
+    $message->save();
 
     // Notification
 
     $message->to->notify(new MessageNotification($message, auth()->user()));
+
     //email
-
-    $messageField = $message->content;
-
-    Mail::to($message->to->email)
-      ->send(new NewMessage($message->content, $messageField, $from));
+    $this->dispatch(new NewMessageJob($message->to_id, $message->content, $message->from_id));
 
     return redirect()->route('admin.message.show', $request->to);
   }
