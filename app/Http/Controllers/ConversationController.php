@@ -93,7 +93,7 @@ class ConversationController extends Controller
 
         // Notification
         $message->to->notify(new MessageNotification($message, auth()->user()));
-
+        dd($message);
         Mail::to($to->email)
             ->send(new NewMessage($message->content, $message->from_id));
 
