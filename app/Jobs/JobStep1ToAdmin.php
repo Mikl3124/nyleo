@@ -34,6 +34,8 @@ class JobStep1ToAdmin implements ShouldQueue
     public function handle()
     {
         $user = $this->user;
+        $mailadmin = env('APP_ENV');
+        dd($mailadmin);
         Mail::to(env("MAIL_ADMIN"))->queue(new MailStep1ToAdmin($user));
     }
 }
