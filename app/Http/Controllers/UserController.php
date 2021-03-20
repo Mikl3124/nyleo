@@ -6,6 +6,8 @@ use App\Model\User;
 use App\Mail\TestMail;
 use App\Jobs\JobTestMail;
 use Illuminate\Http\Request;
+use App\Jobs\JobStep1ToAdmin;
+use App\Jobs\MailStep1ToAdmin;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -136,7 +138,7 @@ class UserController extends Controller
         $user->save();
         //Send mail to new client
         $step = Auth::user()->step;
-        $this->dispatch(new MailWelcomeMessageToUser($user));
+        $this->dispatch(new JobStep1ToAdmin($user));
         return view('client.dashboard', compact('step'));
       };
       return Redirect::back();

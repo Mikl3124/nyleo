@@ -351,12 +351,8 @@
                   <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                     <tr>
                       <td>
-                        <p>Bonjour, {{ $user->firstname }}</p>
-                        <p>Mickael viens de créer votre accès à la plateforme de communication Nyleo Conception!</p>
-                        <p>Vous pouvez y accéder avec ses informations:</p>
-                        <p><u>Adresse email:</u> {{ $user->email }}</p>
-                        <p><u>Mot de passe:</u> nyleo</p>
-
+                        <p>{{ $user->firstname }} a complété l'étape 1</p>
+ 
                         <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
                           <tbody>
                             <tr>
