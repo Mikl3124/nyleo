@@ -333,7 +333,7 @@
     </style>
   </head>
   <body class="">
-    <span class="preheader">Un nouveau projet a été posté sur iziplans</span>
+    <span class="preheader">Vos informations ont bien été enregistré</span>
     <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="body">
       <tr>
         <td>&nbsp;</td>
@@ -352,8 +352,7 @@
                   <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                     <tr>
                       <td>
-                        <p>Bonjour {{ $user->firstname }}</p>
-                        <p>Un nouveau projet a été posté, celui-ci est en relation avec vos compétences !</p>
+                        <p>Bonjour, {{ $user->firstname }}</p>
 
                         <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
                           <tbody>
