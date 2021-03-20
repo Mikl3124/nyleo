@@ -7,131 +7,136 @@ use App\Model\File;
 use App\Model\User;
 use App\Model\Quote;
 use App\Model\Message;
+use App\Mail\NewMessage;
 use App\Jobs\NewMessageJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Redirect;
 use App\Notifications\MessageNotification;
 
 class AdminController extends Controller
 {
-    public function showClient($user)
-    {
-      $user = User::find($user);
-      return view('admin.clients.show', compact('user'));
+  public function showClient($user)
+  {
+    $user = User::find($user);
+    return view('admin.clients.show', compact('user'));
+  }
+
+  public function showMessage($user)
+  {
+    $user = User::find($user);
+    $messages = Message::where('to_id', '=', $user->id)
+      ->orwhere('from_id', '=', $user->id)
+      ->latest()
+      ->get();
+
+    return view('admin.messagerie.show', compact('user', 'messages'));
+  }
+
+  public function storeMessage(Request $request)
+  {
+
+    $values = $request->all();
+    if ($files = $request->file('file_message')) {
+      $rules = [];
+    } else {
+      $rules = [
+        'content' => 'required',
+      ];
     }
 
-    public function showMessage($user)
-    {
-      $user = User::find($user);
-      $messages = Message::where('to_id', '=', $user->id)
-                          ->orwhere('from_id', '=', $user->id)
-                          ->latest()
-                          ->get();
+    $validator = Validator::make($values, $rules, [
+      'content.required' => 'Veuillez écrire votre message',
+      'file-message' => 'sometimes|max:5000',
+    ]);
+    if ($validator->fails()) {
 
-      return view('admin.messagerie.show', compact('user', 'messages'));
+      return Redirect::back()
+        ->withErrors($validator)
+        ->withInput();
     }
 
-    public function storeMessage(Request $request){
+    $message = new Message;
+    $message->content = $request->content;
+    $message->from_id = Auth::user()->id;
+    $message->to_id = $request->to;
 
-        $values = $request->all();
-        if ($files = $request->file('file_message')) {
-            $rules = [
-            ];
-        }else{
-            $rules = [
-                'content' => 'required',
-            ];
-        }
+    if ($files = $request->file('file_message')) {
 
-        $validator = Validator::make($values, $rules,[
-            'content.required' => 'Veuillez écrire votre message',
-            'file-message' => 'sometimes|max:5000',
-          ]);
-        if($validator->fails()){
+      $filenamewithextension = $request->file('file_message')->getClientOriginalName();
 
-        return Redirect::back()
-            ->withErrors($validator)
-            ->withInput();
-        }
+      //get filename without extension
+      $filename = pathinfo($filenamewithextension, PATHINFO_FILENAME);
 
-        $message = new Message;
-                    $message->content = $request->content;
-                    $message->from_id = Auth::user()->id;
-                    $message->to_id = $request->to;
+      //get file extension
+      $extension = $request->file('file_message')->getClientOriginalExtension();
 
-        if ($files = $request->file('file_message')) {
+      //filename to store
+      //$path = 'documents/' . $user->lastname. '_' . $user->firstname . '_' . time();
 
-            $filenamewithextension = $request->file('file_message')->getClientOriginalName();
-
-            //get filename without extension
-            $filename = pathinfo($filenamewithextension, PATHINFO_FILENAME);
-
-            //get file extension
-            $extension = $request->file('file_message')->getClientOriginalExtension();
-
-            //filename to store
-            //$path = 'documents/' . $user->lastname. '_' . $user->firstname . '_' . time();
-
-            $filenametostore = $filename.'_'.time().'.'.$extension;
+      $filenametostore = $filename . '_' . time() . '.' . $extension;
 
 
-            $filename = $files->storeAs(
-                'documents', $filenametostore
-            );
-              File::create([
-                'user_id' => $request->to,
-                'url' => Storage::disk('s3')->url('documents/' . $filenametostore),
-                'filename' => $filenamewithextension
-              ]);
-            //Store $filenametostore in the database
-            $message->file_message = $filename;
-            $message->filename = $filenamewithextension;
-            }
-        $message->save();
+      $filename = $files->storeAs(
+        'documents',
+        $filenametostore
+      );
+      File::create([
+        'user_id' => $request->to,
+        'url' => Storage::disk('s3')->url('documents/' . $filenametostore),
+        'filename' => $filenamewithextension
+      ]);
+      //Store $filenametostore in the database
+      $message->file_message = $filename;
+      $message->filename = $filenamewithextension;
+    }
+    $from = User::find($message->from_id);
 
-        // Notification
+    // Notification
 
-        $message->to->notify(new MessageNotification($message, auth()->user()));
+    $message->to->notify(new MessageNotification($message, auth()->user()));
+    //email
 
-        //email
-        $this->dispatch(new NewMessageJob($message->to_id, $message->content, $message->from_id));
+    $messageField = $message->content;
 
-        return redirect()->route('admin.message.show', $request->to);
+    Mail::to($message->to->email)
+      ->send(new NewMessage($message->content, $messageField, $from));
+
+    return redirect()->route('admin.message.show', $request->to);
+  }
+
+  public function download($message)
+  {
+
+    $dl = Message::find($message);
+    return Storage::download($dl->file_message);
+  }
+
+  public function showDocuments($id)
+  {
+    $user = User::find($id);
+    $documents = File::where('user_id', '=', $user->id)->get();
+
+    return view('admin.documents.show', compact('documents'));
+  }
+
+  public function showUploadPage($id)
+  {
+    $user = User::find($id);
+    $step = $user->step;
+    return view('admin.upload-file', compact('user', 'step'));
+  }
+
+  public function connectAsClient($id)
+  {
+    $user = User::find($id);
+    if (Auth::user()->role === "admin") {
+      Auth::login($user);
     }
 
-    public function download($message)
-    {
-
-        $dl = Message::find($message);
-        return Storage::download($dl->file_message);
-
-    }
-
-    public function showDocuments($id)
-    {
-      $user = User::find($id);
-      $documents = File::where('user_id', '=', $user->id)->get();
-
-      return view('admin.documents.show', compact('documents'));
-    }
-
-    public function showUploadPage($id)
-    {
-      $user = User::find($id);
-      $step = $user->step;
-      return view('admin.upload-file', compact('user', 'step'));
-    }
-
-    public function connectAsClient($id)
-    {
-      $user = User::find($id);
-      if(Auth::user()->role === "admin"){
-        Auth::login($user);
-      }
-
-      return redirect()->route('home');
-    }
+    return redirect()->route('home');
+  }
 }

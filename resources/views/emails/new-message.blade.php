@@ -32,10 +32,10 @@
                 <td width="100%" style="font-size:22px;display: block;margin-bottom:30px;">Le voici: "{{ $messageField }}"</td>
             </tr>
         @endisset
-
+        
         @empty($messageField)
             <tr>
-                <td width="100%" style="font-size:22px;display: block;margin-bottom:30px;">Vous avez reçu un nouveau document de {{$from_id->lastname}} {{$from_id->firstname}}</td>
+                <td width="100%" style="font-size:22px;display: block;margin-bottom:30px;">Vous avez reçu un nouveau document</td>
             </tr>
 
         @endempty

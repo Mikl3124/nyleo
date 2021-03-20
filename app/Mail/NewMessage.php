@@ -25,7 +25,6 @@ class NewMessage extends Mailable
 
         $this->to_id = $to_id;
         $this->messageField = $messageField;
-
     }
 
     /**
