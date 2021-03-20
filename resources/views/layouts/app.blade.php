@@ -60,7 +60,7 @@
                                     </a>
                                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         @foreach (auth()->user()->unreadNotifications as $notification)
-                                            <a class="dropdown-item" href="{{ route('message.showMessageNotification', ['message' => $notification->data['messageId'], 'notification' => $notification->id] ) }}"> <strong>{{ $notification->data['email'] }}</strong> vous a envoyé un message</a>
+                                           {{--  <a class="dropdown-item" href="{{ route('message.showMessageNotification', ['message' => $notification->data['messageId'], 'notification' => $notification->id] ) }}"> <strong>{{ $notification->data['email'] }}</strong> vous a envoyé un message</a> --}}
                                         @endforeach
 
                                     </div>
