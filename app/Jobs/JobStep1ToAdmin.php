@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use Illuminate\Bus\Queueable;
+use App\Mail\MailStep1ToAdmin;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -33,6 +34,6 @@ class JobStep1ToAdmin implements ShouldQueue
     public function handle()
     {
         $user = $this->user;
-        Mail::to(env('MAIL_ADMIN'))->queue(new WelcomeMessageToClient($user));
+        Mail::to(env('MAIL_ADMIN'))->queue(new MailStep1ToAdmin($user));
     }
 }
