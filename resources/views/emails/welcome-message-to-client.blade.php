@@ -353,6 +353,10 @@
                     <tr>
                       <td>
                         <p>Bonjour, {{ $user->firstname }}</p>
+                        <p>Mickael viens de créer votre accès à la plateforme de communication Nyleo Conception!</p>
+                        <p>Vous pouvez y accéder avec ses informations:</p>
+                        <p><u>Adresse email:</u> {{ $user->email }}</p>
+                        <p><u>Mot de passe:</u> nyleo</p>
 
                         <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
                           <tbody>
@@ -360,8 +364,8 @@
                               <td align="left">
                                 <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                                   <tbody>
-                                    <tr>
-                                      <td> <a href="https://clients.nyleo.fr/" target="_blank">Aller sur nyleo</a> </td>
+                                    <tr style="text-align:center">
+                                      <td> <a href="https://clients.nyleo.fr/" target="_blank">Accéder à la plateforme nyleo</a> </td>
                                     </tr>
                                   </tbody>
                                 </table>
