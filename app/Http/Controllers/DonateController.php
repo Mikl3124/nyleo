@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Stripe\Charge;
 use Stripe\Stripe;
+use Stripe\Customer;
+use App\Mail\TestMail;
+use App\Mail\SuccessPay;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class DonateController extends Controller
 {
@@ -21,10 +26,10 @@ class DonateController extends Controller
         try {
             $this->doPayment($request->stripeToken, $request->stripeEmail, $request->amount);
         } catch (\Exception $e) {
-            return $e->getMessage();
+            return view('payment.error', compact('e'));
         }
-
-        return view('success');
+        Mail::to($request->stripeEmail)->queue(new SuccessPay($request->amount));
+        return view('payment.success');
     }
 
     protected function doPayment($token, $email, $amount)

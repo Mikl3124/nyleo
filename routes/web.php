@@ -72,8 +72,8 @@ Route::get('/payment-success/{quote}', 'PaiementController@success');
 Route::get('/payment-failed', 'PaiementController@failed');
 
 Route::group(['middleware' => ['web']], function () {
-    Route::get('donate', 'DonateController@index');
-    Route::post('donate', 'DonateController@submit');
+    Route::get('paiement', 'DonateController@index');
+    Route::post('paiement', 'DonateController@submit');
 });
 
 Route::get('/paiement', 'DonateController@index');
