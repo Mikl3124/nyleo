@@ -46,9 +46,9 @@
 
                     </div>
                     <div class="col-md-4 mb-3">
-                        
+
                         <div class="input-group mb-3">
-                        <input type="text" class="form-control" id="amount" name="amount" value="0">
+                        <input type="number" step="0.01" class="form-control" id="amount" name="amount" value="0">
                         <div class="input-group-append">
                             <span class="input-group-text">€</span>
                         </div>
@@ -59,7 +59,7 @@
                 </div>
     </div>
                 <p>
-                <button type="submit" class="btn btn-primary">Continuer</button>
+                <button type="submit" class="btn btn-outline-success">Continuer</button>
             </form>
         @else
             <form action="/paiement" method="POST">
@@ -69,8 +69,7 @@
                         src="https://checkout.stripe.com/checkout.js" class="stripe-button"
                         data-key="{{ config('services.stripe.key') }}"
                         data-amount="{{ $amount }}"
-                        data-name="Paiement Sécurisé"
-                        data-description="Règlement en faveur de Nyleo"
+                        data-description="Nyleo Conception"
                         {{--data-image="/128x128.png"--}}
                         data-image="https://nyleo.s3.eu-west-3.amazonaws.com/logo_nyleo_128.png"
                         data-locale="auto"
@@ -83,7 +82,9 @@
                     // have more than 1 button of that class
                     document.getElementsByClassName("stripe-button-el")[0].hidden=true;
                 </script>
-                <button type="submit" class="btn btn-primary">Confirmez-vous le paiement de {{$amount / 100}} € ?</button>
+                <p>Confirmez-vous le paiement de {{ $amount / 100}}€ à Nyleo Conception?</p>
+                <a class="btn btn-outline-secondary" href="javascript:history.back()">Retour</a>
+                <button type="submit" class="btn btn-success">Confirmer</button>
             </form>
         @endif
     </div>

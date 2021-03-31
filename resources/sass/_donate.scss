@@ -20,6 +20,32 @@ body {
     padding-top: 30px;
     text-align: center;
 }
+.btn-nyleo {
+  background-color: #ffffff;
+          border: solid 1px #ff6600;
+          border-radius: 5px;
+          box-sizing: border-box;
+          color: #ff6600;
+          cursor: pointer;
+          display: inline-block;
+          font-size: 14.4px;
+          margin: 0;
+          padding: 6px 12px;
+          text-decoration: none;
+}
+.btn-nyleo:hover {
+  background-color: #ff6600;
+          border: solid 1px #ff6600;
+          border-radius: 5px;
+          box-sizing: border-box;
+          color: #ffffff;
+          cursor: pointer;
+          display: inline-block;
+          font-size: 14.4px;
+          margin: 0;
+          padding: 6px 12px;
+          text-decoration: none;
+}
 .image {
     width: 75px;
     height: 75px;

@@ -36,8 +36,11 @@
         <div class="image">
             <img src="https://nyleo.s3.eu-west-3.amazonaws.com/logo_nyleo_128.png" />
         </div>
-        <h1 class="text-success">Merci!</h1>
+        <h1>Merci!</h1>
 
         <p>Le paiement a bien été réceptionné, un email de confirmation vous a été envoyé. </p>
+        <div class="text-center">
+          <a href="http://" class="btn-nyleo">Aller sur nyleo.fr</a>
+        </div>
     </div>
 </div>
