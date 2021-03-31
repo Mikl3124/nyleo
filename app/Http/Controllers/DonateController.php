@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use Stripe\Charge;
 use Stripe\Stripe;
 use Stripe\Customer;
-use App\Mail\TestMail;
 use App\Mail\SuccessPay;
 use Illuminate\Http\Request;
+use App\Mail\SuccessPayToAdmin;
 use Illuminate\Support\Facades\Mail;
 
 class DonateController extends Controller
@@ -28,7 +28,13 @@ class DonateController extends Controller
     } catch (\Exception $e) {
       return view('payment.error', compact('e'));
     }
-    Mail::to($request->stripeEmail)->queue(new SuccessPay($request->amount));
+    //send email to customer
+    Mail::to($request->stripeEmail)
+      ->send(new SuccessPay($request->amount));
+    //send email to admin
+    Mail::to(env("MAIL_ADMIN"))
+      ->send(new SuccessPayToAdmin($request->amount, $request->stripeEmail));
+
     return view('payment.success');
   }
 

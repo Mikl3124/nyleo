@@ -40,7 +40,7 @@
 
         <p>Le paiement a bien été réceptionné, un email de confirmation vous a été envoyé. </p>
         <div class="text-center">
-          <a href="http://" class="btn-nyleo">Aller sur nyleo.fr</a>
+          <a href="https://nyleo.fr" class="btn-nyleo">Aller sur nyleo.fr</a>
         </div>
     </div>
 </div>

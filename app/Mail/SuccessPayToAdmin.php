@@ -7,20 +7,22 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class SuccessPay extends Mailable
+class SuccessPayToAdmin extends Mailable
 {
     use Queueable, SerializesModels;
 
     public $amount;
+    public $customer;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($amount)
+    public function __construct($amount, $customer)
     {
         $this->amount = $amount;
+        $this->customer = $customer;
     }
 
     /**
@@ -31,7 +33,7 @@ class SuccessPay extends Mailable
     public function build()
     {
         return $this->from('contact@nyleo.fr', 'Nyleo Conception')
-            ->subject("Confirmation de règlement")
-            ->view('emails.successpay-mail');
+            ->subject("Vous avez reçu un paiement !")
+            ->view('emails.successpay-to-admin-mail');
     }
 }
