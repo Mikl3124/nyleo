@@ -38,6 +38,8 @@
         </div>
         <h1 class="text-danger">Désolé...</h1>
 
-        <p>Le paiement n'a pas fonctionné, le serveur a renvoyé cette erreur <span class="text-danger">"{{ $e->getMessage() }}"</span> </p>
+        <p>Le paiement n'a pas fonctionné, le serveur a renvoyé cette erreur "{{ $e->getMessage() }}"</span> </p>
+        <a href="https://clients.nyleo.fr/paiement">Essayer à nouveau</a>
+        
     </div>
 </div>
