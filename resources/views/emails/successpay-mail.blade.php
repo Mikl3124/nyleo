@@ -341,7 +341,7 @@
             <table role="presentation" class="main">
               <tr style="text-align:center">
                 <td width="100%">
-                    <img style="height:50px" src="https:/nyleo.fr/wp-content/uploads/2015/02/Logo-nyleoxhdpi.png" alt="Nyleo Conception">
+                    <img style="height:50px" src="https://nyleo.s3.eu-west-3.amazonaws.com/Logo-nyleoxhdpi.png" alt="Nyleo Conception">
                 </td>
             </tr>
               <!-- START MAIN CONTENT AREA -->
