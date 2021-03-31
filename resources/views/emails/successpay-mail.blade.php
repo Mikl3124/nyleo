@@ -350,23 +350,7 @@
                     <tr>
                       <td>
                         <p>Bonjour,</p>
-                        <p>Nyleo Conception a bien reçu votre règlement de {{ $amount / 100 }} €</p>
-                        <p>Merci.</p>
-                        <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
-                          <tbody>
-                            <tr>
-                              <td align="left">
-                                <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                                  <tbody>
-                                    <tr>
-                                      <td> <a href="https://nyleo.fr" target="_blank">Aller sur nyleo.fr</a> </td>
-                                    </tr>
-                                  </tbody>
-                                </table>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
+                        <p>Nous vous confirmons que Nyleo Conception a bien reçu votre règlement de {{ $amount / 100 }} €</p>
                       </td>
                     </tr>
                   </table>
