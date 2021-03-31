@@ -169,12 +169,10 @@
           color: #ff6600;
           cursor: pointer;
           display: inline-block;
-          font-size: 14px;
-          font-weight: bold;
+          font-size: 14.4px;
           margin: 0;
-          padding: 12px 25px;
+          padding: 6px 12px;
           text-decoration: none;
-          text-transform: capitalize;
       }
 
       .btn-primary table td {
@@ -354,6 +352,7 @@
                       <td>
                         <p>Bonjour,</p>
                         <p>Nyleo Conception a bien reçu votre règlement de {{ $amount / 100 }} €</p>
+                        <p>Merci.</p>
                         <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
                           <tbody>
                             <tr>
@@ -361,7 +360,7 @@
                                 <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                                   <tbody>
                                     <tr>
-                                      <td> <a href="https://nyleo.fr" target="_blank">Aller sur Nyleo</a> </td>
+                                      <td> <a href="https://nyleo.fr" target="_blank">Aller sur nyleo.fr</a> </td>
                                     </tr>
                                   </tbody>
                                 </table>
@@ -369,7 +368,6 @@
                             </tr>
                           </tbody>
                         </table>
-                        <p>Merci de bien vouloir valider celui-ci</p>
                       </td>
                     </tr>
                   </table>
