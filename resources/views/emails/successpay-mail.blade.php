@@ -3,7 +3,7 @@
   <head>
     <meta name="viewport" content="width=device-width" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Un nouveau projet a été posté</title>
+    <title>Confirmation de règlement</title>
     <style>
       /* -------------------------------------
           GLOBAL RESETS
@@ -141,7 +141,7 @@
       }
 
       a {
-        color: ##ff6600;
+        color: #ff6600;
         text-decoration: underline;
       }
 
@@ -163,10 +163,10 @@
       }
         .btn a {
           background-color: #ffffff;
-          border: solid 1px ##ff6600;
+          border: solid 1px #ff6600;
           border-radius: 5px;
           box-sizing: border-box;
-          color: ##ff6600;
+          color: #ff6600;
           cursor: pointer;
           display: inline-block;
           font-size: 14px;
@@ -178,12 +178,12 @@
       }
 
       .btn-primary table td {
-        background-color: ##ff6600;
+        background-color: #ff6600;
       }
 
       .btn-primary a {
-        background-color: ##ff6600;
-        border-color: ##ff6600;
+        background-color: #ff6600;
+        border-color: #ff6600;
         color: #ffffff;
       }
 
@@ -333,7 +333,7 @@
     </style>
   </head>
   <body class="">
-    <span class="preheader">Un nouveau projet a été posté sur iziplans</span>
+    <span class="preheader">Confirmation de règlement</span>
     <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="body">
       <tr>
         <td>&nbsp;</td>
@@ -343,7 +343,7 @@
             <table role="presentation" class="main">
               <tr style="text-align:center">
                 <td width="100%">
-                    <img style="height:50px" src="https:///nyleo.fr/wp-content/uploads/2015/02/Logo-nyleoxhdpi.png" alt="logo nyleo">
+                    <img style="height:50px" src="https:/nyleo.fr/wp-content/uploads/2015/02/Logo-nyleoxhdpi.png" alt="Nyleo Conception">
                 </td>
             </tr>
               <!-- START MAIN CONTENT AREA -->
@@ -353,8 +353,23 @@
                     <tr>
                       <td>
                         <p>Bonjour,</p>
-                        <p>Nyleo Conception a bien reçu votre règlement de: {{ $amount / 100}} €</p>
-                        <p>A bientôt. </p>
+                        <p>Nyleo Conception a bien reçu votre règlement de {{ $amount / 100 }} €</p>
+                        <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
+                          <tbody>
+                            <tr>
+                              <td align="left">
+                                <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                                  <tbody>
+                                    <tr>
+                                      <td> <a href="https://nyleo.fr" target="_blank">Aller sur Nyleo</a> </td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <p>Merci de bien vouloir valider celui-ci</p>
                       </td>
                     </tr>
                   </table>
@@ -370,7 +385,7 @@
               <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                 <tr>
                   <td class="content-block powered-by">
-                    Nyleo Conception, plans pour la construction
+                    nyleo conception, plans pour la construction
                   </td>
                 </tr>
               </table>
