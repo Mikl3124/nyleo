@@ -70,7 +70,7 @@
                         data-key="{{ config('services.stripe.key') }}"
                         data-amount="{{ $amount }}"
                         data-name="Paiement Sécurisé"
-                        data-description="Règlement en faveur de Nyleo Conception"
+                        data-description="Règlement en faveur de Nyleo"
                         {{--data-image="/128x128.png"--}}
                         data-image="https://nyleo.s3.eu-west-3.amazonaws.com/logo_nyleo_128.png"
                         data-locale="auto"
