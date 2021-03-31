@@ -331,7 +331,6 @@
     </style>
   </head>
   <body class="">
-    <span class="preheader">Confirmation de règlement</span>
     <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="body">
       <tr>
         <td>&nbsp;</td>
