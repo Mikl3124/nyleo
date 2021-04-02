@@ -32,7 +32,7 @@
 </head>
 
 <body>
-<div class="container mt-5">
+<div class="container-donate mt-5">
     <div class="content mt-5">
         <div class="image">
             <img src="https://nyleo.s3.eu-west-3.amazonaws.com/logo_nyleo_128.png" />
