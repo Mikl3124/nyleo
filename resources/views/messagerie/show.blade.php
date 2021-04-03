@@ -8,29 +8,29 @@
     <div class="col-sm-12 col-md-8">
         <div class="card" >
             <div class="card-header">
-                <h4>Conversation avec Nyleo Conception</h4>
+                <h4>Conversation avec Nyleo Conception </h4>
             </div>
 
                 <div class="card-body scroll" id="messagesBox">
                     @if (isset($messages) && $messages->count())
                         @foreach ($messages as $message)
                             <div class="row mt-3">
-                                <div class="col-md-10 {{ $message->from_id != $user->id ? 'offset-md-2 text-right' : ''}}">
+                                <div class="col-md-10 {{ $message->to_id === $user->id ? 'offset-md-2 text-right' : ''}}">
                                     {{-- ------------- Si le contenu du message est vide (fichier à télécharger seulement) ---------------- --}}
                                     @if ($message->content === null)
                                         @isset($message->file_message)
-                                            <p class="mb-0"><strong>{{ $message->from_id != $user->id ? 'Moi' : 'Nyleo Conception'}}</strong><span class="message_date"> Le {{ Carbon\Carbon::parse($message->created_at)->isoFormat('Do MMMM YYYY à h:mm') }}</span> <br></p>
-                                            <p class="{{ $message->from_id != $user->id ? 'my_message' : 'his_message'}}">
+                                            <p class="mb-0"><strong>{{ $message->to_id === $user->id ? 'Moi' : 'Nyleo Conception'}}</strong><span class="message_date"> Le {{ Carbon\Carbon::parse($message->created_at)->locale('fr')->isoFormat('dddd, Do MMMM, H:mm') }}</span> <br></p>
+                                            <p class="{{ $message->to_id === $user->id ? 'my_message' : 'his_message'}}">
                                                 <a href="{{ route('admin.messagerie.download', $message)}}"><i class="fas fa-download"></i> {{ $message->filename }}</a>
                                             </p>
                                         @endisset
                                     {{-- ------------- Si le contenu du message n'est pas vide ---------------- --}}
                                     @else
-                                        <p class="mb-0"><strong>{{ $message->from_id != $user->id ? 'Moi' : 'Nyleo Conception'}}</strong><span class="message_date"> Le {{ Carbon\Carbon::parse($message->created_at)->isoFormat('Do MMMM YYYY à h:mm') }}</span><br></p>
-                                        <p class="{{ $message->from_id != $user->id ? 'my_message' : 'his_message'}}">{!! nl2br(e($message->content)) !!}</p>
-                                        @if ($message->content != null)
+                                        <p class="mb-0"><strong>{{ $message->to_id === $user->id ? 'Moi' : 'Nyleo Conception'}}</strong><span class="message_date"> Le {{ Carbon\Carbon::parse($message->created_at)->isoFormat('Do MMMM YYYY à H:mm') }}</span><br></p>
+                                        <p class="{{ $message->to_id === $user->id ? 'my_message' : 'his_message'}}">{!! nl2br(e($message->content)) !!}</p>
+                                        @if ($message->content === null)
                                             @isset($message->file_message)
-                                                <p class="{{ $message->from_id != $user->id ? 'my_message' : 'his_message'}}">
+                                                <p class="{{ $message->to_id === $user->id ? 'my_message' : 'his_message'}}">
                                                     <a href="{{ route('admin.messagerie.download', $message)}}"><i class="fas fa-download"></i> {{ $message->filename }}</a>
                                                 </p>
                                             @endisset

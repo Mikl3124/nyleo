@@ -52,20 +52,6 @@
                         <!-- Authentication Links -->
                         @guest
                         @else
-                            {{-- Notifications --}}
-                            @unless (auth()->user()->unreadNotifications->isEmpty())
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link text-danger" href="#" id="account_dd" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        {{ auth()->user()->unreadNotifications->count() }} <i class="fas fa-comments"></i>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        @foreach (auth()->user()->unreadNotifications as $notification)
-                                           {{--  <a class="dropdown-item" href="{{ route('message.showMessageNotification', ['message' => $notification->data['messageId'], 'notification' => $notification->id] ) }}"> <strong>{{ $notification->data['email'] }}</strong> vous a envoyé un message</a> --}}
-                                        @endforeach
-
-                                    </div>
-                                </li>
-                            @endunless
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="account_dd" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                   MENU

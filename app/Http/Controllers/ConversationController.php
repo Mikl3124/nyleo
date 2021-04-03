@@ -56,6 +56,7 @@ class ConversationController extends Controller
         $message->content = $request->content;
         $message->from_id = Auth::user()->id;
         $message->to_id = $to->id;
+        $message->created_at = Carbon::now('Europe/Paris');
 
         if ($files = $request->file('file_message')) {
 
@@ -90,7 +91,7 @@ class ConversationController extends Controller
 
 
         // Notification
-        $message->to->notify(new MessageNotification($message, auth()->user()));
+        //$message->to->notify(new MessageNotification($message, auth()->user()));
 
 
         $this->dispatch(new NewMessageJob($to->id, $message->content, $message->from_id));

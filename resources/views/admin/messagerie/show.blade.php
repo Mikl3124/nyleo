@@ -14,15 +14,15 @@
                             {{-- ------------- Si le contenu du message est vide (fichier à télécharger seulement) ---------------- --}}
                             @if ($message->content === null)
                                 @isset($message->file_message)
-                                    <p class="mb-0"><strong>{{ $message->from_id != $user->id ? 'Moi' : $user->firstname}}</strong><span class="message_date"> Le {{ Carbon\Carbon::parse($message->created_at)->isoFormat('Do MMMM YYYY à h:mm') }}</span> <br></p>
-                                    <p class="{{ $message->from_id != $user->id ? 'my_message' : 'his_message'}}">
+                                    <p class="mb-0"><strong>{{ $message->from_id != $user->id ? 'Moi' : $user->firstname}}</strong><span class="message_date"> Le {{ Carbon\Carbon::parse($message->created_at)->isoFormat('Do MMMM YYYY à H:mm') }}</span> <br></p>
+                                    <p class="{{ $message->from_id != $user->id ? 'my_message' : 'His_message'}}">
                                         @if ($message->read_at != NULL && $message->from_id != $user->id) <small><i class='fas fa-check text-success'></i></small> @endif
                                         <a href="{{ route('admin.messagerie.download', $message)}}"><i class="fas fa-download"></i> {{ $message->filename  }}</a>
                                     </p>
                                 @endisset
                             {{-- ------------- Si le contenu du message n'est pas vide ---------------- --}}
                             @else
-                                <p class="mb-0"><strong>{{ $message->from_id != $user->id ? 'Moi' : $user->firstname}}</strong><span class="message_date"> Le {{ Carbon\Carbon::parse($message->created_at)->isoFormat('Do MMMM YYYY à h:mm') }}</span> <br></p>
+                                <p class="mb-0"><strong>{{ $message->from_id != $user->id ? 'Moi' : $user->firstname}}</strong><span class="message_date"> Le {{ Carbon\Carbon::parse($message->created_at)->isoFormat('Do MMMM YYYY à H:mm') }}</span> <br></p>
                                 <p class="{{ $message->from_id != $user->id ? 'my_message' : 'his_message'}}">@if ($message->read_at != NULL && $message->from_id != $user->id) <small><i class='fas fa-check text-success'></i></small> @endif {!! nl2br(e($message->content)) !!}  </p>
                                 {{-- ------------- Si le message contient une pièce jointe ---------------- --}}
                                 @isset($message->file_message)
