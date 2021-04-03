@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Validator;
+use Carbon\Carbon;
 use App\Model\File;
 use App\Model\User;
 use App\Model\Quote;
@@ -61,6 +62,7 @@ class AdminController extends Controller
     $message->content = $request->content;
     $message->from_id = Auth::user()->id;
     $message->to_id = $request->to;
+    $message->created_at = Carbon::now('Europe/Paris');
 
     if ($files = $request->file('file_message')) {
 
