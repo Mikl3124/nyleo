@@ -23,6 +23,7 @@ class AdminController extends Controller
   {
     $user = User::find($user);
     $quote = Quote::where('user_id', $user->id)->first();
+    $options = null;
     if ($quote) {
       $options = Option::where('quote_id', $quote->id)->get();
     }
