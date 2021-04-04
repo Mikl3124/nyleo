@@ -132,6 +132,7 @@ class UserController extends Controller
       $user->phone = $request->phone;
 
       if ($user->save()) {
+
         if ($user->step < 1) {
           $user->step = 1;
         }

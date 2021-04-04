@@ -3,7 +3,7 @@
   <head>
     <meta name="viewport" content="width=device-width" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>{{ $user->firstname }} a complété l'étape 1</title>
+    <title>{{ $user->firstname }} a validé son devis</title>
     <style>
       /* -------------------------------------
           GLOBAL RESETS
@@ -332,7 +332,7 @@
     </style>
   </head>
   <body class="">
-    <span class="preheader">Vos informations ont bien été enregistré</span>
+    <span class="preheader">Validation de devis</span>
     <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="body">
       <tr>
         <td>&nbsp;</td>
@@ -342,7 +342,7 @@
             <table role="presentation" class="main">
               <tr style="text-align:center">
                 <td width="100%">
-                    <img style="height:50px" src="https://nyleo.s3.eu-west-3.amazonaws.com/Logo-nyleoxhdpi.png" alt="logo nyleo">
+                    <img style="height:50px" src="https://nyleo.fr/wp-content/uploads/2015/02/Logo-nyleoxhdpi.png" alt="logo nyleo">
                 </td>
             </tr>
               <!-- START MAIN CONTENT AREA -->
@@ -351,7 +351,7 @@
                   <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                     <tr>
                       <td>
-                        <p>{{ $user->firstname }} a complété l'étape 1</p>
+                        <p>{{ $user->firstname }} a validé son devis</p>
  
                         <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
                           <tbody>
@@ -384,7 +384,7 @@
               <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                 <tr>
                   <td class="content-block powered-by">
-                    iziplans, vos plans facilement
+                    nyleo conception, plans pour la construction
                   </td>
                 </tr>
               </table>

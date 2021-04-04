@@ -2,20 +2,17 @@
 
 namespace App\Model;
 
-use App\Model\Avantprojet;
 use Illuminate\Database\Eloquent\Model;
 
-class Projet extends Model
+class Paiement extends Model
 {
-    protected $guarded = [];
-
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function avantprojet()
+    public function quote()
     {
-        return $this->belongsTo(Avantprojet::class);
+        return $this->belongsTo(User::class);
     }
 }

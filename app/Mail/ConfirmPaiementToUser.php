@@ -1,0 +1,38 @@
+<?php
+
+namespace App\Mail;
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Mail\Mailable;
+use Illuminate\Queue\SerializesModels;
+
+class ConfirmPaiementToUser extends Mailable
+{
+    use Queueable, SerializesModels;
+
+    public $paiement;
+
+    /**
+     * Create a new message instance.
+     *
+     * @return void
+     */
+    public function __construct($paiement)
+    {
+        $this->paiement = $paiement;
+    }
+
+    /**
+     * Build the message.
+     *
+     * @return $this
+     */
+    public function build()
+    {
+        $paiement = $this->paiement;
+        return $this->from('contact@nyleo.fr', "Nyleo Conception")
+            ->subject("Confirmation de paiement")
+            ->view('emails.confirm-paiement-to-user');
+    }
+}

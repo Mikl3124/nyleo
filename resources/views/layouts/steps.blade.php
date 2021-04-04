@@ -34,9 +34,9 @@
         </div>
         <div class="text-center w-100">
                 @if ($step > 3)
-                        <a href="http://" class="btn-success btn-lg btn-block mb-2"><i class="fas fa-check"></i>  Avant-Projet</a>
+                        <a href="{{ route('avantprojet.show', Auth::user()) }}" class="btn-success btn-lg btn-block mb-2"><i class="fas fa-check"></i>  Avant-Projet</a>
                 @else
-                        <a href="http://" class="btn btn-secondary btn-block btn-lg disabled mb-2">Etape 4: Avant-Projet</a>
+                        <a href="{{ route('avantprojet.show', Auth::user()) }}" class="btn btn-secondary btn-block btn-lg disabled mb-2">Etape 4: Avant-Projet</a>
                 @endif
         </div>
         <div class="col-md-12 text-center w-100">

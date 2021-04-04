@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use App\Model\File;
 use App\Model\User;
 use App\Model\Quote;
+use App\Model\Option;
 use App\Model\Message;
 use App\Jobs\NewMessageJob;
 use Illuminate\Http\Request;
@@ -21,7 +22,12 @@ class AdminController extends Controller
   public function showClient($user)
   {
     $user = User::find($user);
-    return view('admin.clients.show', compact('user'));
+    $quote = Quote::where('user_id', $user->id)->first();
+    if ($quote) {
+      $options = Option::where('quote_id', $quote->id)->get();
+    }
+
+    return view('admin.clients.show', compact('user', 'quote', 'options'));
   }
 
   public function showMessage($user)

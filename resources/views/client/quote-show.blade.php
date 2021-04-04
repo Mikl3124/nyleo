@@ -13,13 +13,13 @@
             <a target="_blank" href="https://nyleo.fr/cgv/">Consulter nos CGV</a>
         </div>
         <div class="text-center mt-5">
-            <a class="btn btn-secondary" href="{{ route('message.show') }}">Demander des informations complémentaires</a>
+            <a class="btn btn-secondary mb-2" href="{{ route('message.show') }}">Demander des informations complémentaires</a>
             @if ($quote->accepted == 0)
-              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#paymentModalCenter">
-                Accepter le devis
+              <button type="button" class="btn btn-primary mb-2" data-toggle="modal" data-target="#paymentModalCenter">
+                Accepter le devis ({{ $quote->amount}}€)
               </button>
             @else
-              <button type="button" class="btn btn-primary disabled">
+              <button type="button" class="btn btn-primary disabled mb-2">
                 Vous avez déjà accepté le devis
               </button>
             @endif
@@ -31,12 +31,39 @@
     </div>
   </div>
 
-{{--   ----------- Modal -------------- --}}
+  {{--   ----------- Modal Paiement-------------- --}}
     <div class="modal fade" id="paymentModalCenter" tabindex="-1" role="dialog" aria-labelledby="paymentModalCenterTitle" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
+             {{--   ----------- Si le devis contient des options-------------- --}}
+          @if ($options->isnotempty())
+            <form action="{{ route('pay-with-options', $quote->id) }}" method="post">
+              @csrf
+              <div class="modal-header">
+                <h5 class="modal-title" id="paymentModalLongTitle">Souhaitez-vous souscrire aux options?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                @foreach ($options as $option)
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="{{ $option->amount }}" id="flexCheckDefault" multiple="multiple" name="options[]"checked>
+                    <label class="form-check-label" for="flexCheckDefault">
+                    {{ $option->description }} (+{{ $option->amount }}€)
+                    </label>
+                  </div>
+                @endforeach
+              </div>
+              <div class="text-center">
+                <button class="btn btn-success" type="submit">Règler l'acompte</button>
+              </div>
+            </form>
+        </div>
+          {{--   ----------- Si le devis ne contient pas des options-------------- --}}
+          @else
           <div class="modal-header">
-          <h5 class="modal-title" id="paymentModalLongTitle">Règlement de {{ $display_amount }}€ (30% du devis)</h5>
+            <h5 class="modal-title" id="paymentModalLongTitle">Règlement de {{ $display_amount }}€ (30% du devis)</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -46,9 +73,8 @@
               <div id="card-element">
               <!-- Elements will create input elements here -->
               </div>
-
                     <!-- We'll put the error messages in this element -->
-              <div id="card-errors" role="alert"></div>
+              <div id="card-errors" class="mb-3" role="alert"></div>
               <div class="text-center">
                   <button type="button" class="btn btn-secondary mt-3" data-dismiss="modal">Retour</button>
                   <button id="submit" class="btn btn-success mt-3" data-secret="<?= $intent->client_secret ?>">
@@ -57,8 +83,10 @@
               </div>
             </form>
           </div>
+              
+          @endif
+          
       </div>
-
 
 @endsection
 

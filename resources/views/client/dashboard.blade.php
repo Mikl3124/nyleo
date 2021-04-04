@@ -39,7 +39,7 @@
               <p><a class="step-complete" href="{{ route('projet.show', Auth::user()) }}"> <i class="fas fa-check"></i> Fiche projet</a></p>
               <p><a class="step-complete" href="{{ route('quote.show', Auth::user()) }} "> <i class="fas fa-check"></i> Votre Devis</a></p>
               @if($projet->as_avantProjet !== 0)
-                <p><i class="fas fa-arrow-right"></i> Prochaine étape: <a href="">Valider votre avant-projet</a></p>
+                <p><i class="fas fa-arrow-right"></i> Prochaine étape: <a href="{{ route('avantprojet.show', Auth::user()) }}">Valider votre avant-projet</a></p>
               @else
                 <p><i class="fas fa-arrow-right"></i> <em>L'avant projet n'est pas encore disponible, vous serez notifié par email, dès qu'il sera disponible</em></p>
               @endif

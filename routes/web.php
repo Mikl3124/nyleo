@@ -29,6 +29,7 @@ Route::post('admin/message-store', 'AdminController@storeMessage')->name('admin.
 Route::get('admin/messagerie-download/{message}', 'AdminController@download')->name('admin.messagerie.download');
 Route::get('admin/documents/{id}', 'AdminController@showDocuments')->name('admin.documents.show');
 Route::get('admin/upload/{id}', 'AdminController@showUploadPage')->name('admin.upload.page');
+Route::post('/avantprojet-create)', 'ProjetController@avantprojetStore')->name('admin.avant-projet.store');
 
 //User
 Route::get('/profil/show/)', 'UserController@clientShow')->name('client.show');
@@ -42,8 +43,17 @@ Route::post('/projet-create)', 'ProjetController@projetStore')->name('projet.sto
 Route::post('/projet-update)', 'ProjetController@projetUpdate')->name('projet.update');
 Route::get('/projet/show/{id})', 'ProjetController@projetShow')->name('projet.show');
 Route::get('/projet/edit/{id})', 'ProjetController@projetEdit')->name('projet.edit');
-Route::get('/avant-projet/create/{id})', 'ProjetController@avantProjetCreate')->name('avantProjet.create');
+Route::get('/avant-projet/create/{id})', 'ProjetController@avantProjetCreate')->name('avant-projet.create');
 Route::post('admin/avantProjet-store/', 'ProjetController@avantProjetStore')->name('admin.avantProjet.store');
+
+
+
+//Avant Projet
+Route::get('/avantprojet/show/{id})', 'ProjetController@avantprojetShow')->name('avantprojet.show');
+Route::get('/avantprojet/delete/{id})', 'ProjetController@deleteAvantProjet')->name('avant-projet.delete');
+Route::post('/payment-avant-projet/{quote}', 'PaiementController@payAvantProjet')->name('pay-avantprojet');
+Route::get('/payment-success-avant-projet/{id}', 'PaiementController@successPayAvantProjet')->name('success-paiement-avantprojet');
+
 
 
 //Quote
@@ -68,8 +78,9 @@ Route::get('showMessageNotification/{message}/{notification}', 'ConversationCont
 
 //Stripe
 Route::get('stripe', 'PaiementController@index')->name('payment.index');
-Route::get('/payment-success/{quote}', 'PaiementController@success');
+Route::post('/payment-with-options/{quote}', 'PaiementController@with_options')->name('pay-with-options');
 Route::get('/payment-failed', 'PaiementController@failed');
+Route::get('/payment-success/{id}', 'PaiementController@success')->name('success-paiement');
 
 Route::group(['middleware' => ['web']], function () {
     Route::get('paiement', 'DonateController@index');
