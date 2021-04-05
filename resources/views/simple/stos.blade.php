@@ -1,38 +1,4 @@
-<?php
 
-//Cette fonction génère, sauvegarde et retourne un token
-//Vous pouvez lui passer en paramètre optionnel un token pour différencier les formulaires
-function generer_token($token = '')
-{
-  session_start();
-  $token = uniqid(rand(), true);
-  $_SESSION[$token . '_token'] = $token;
-  $_SESSION[$token . '_token_time'] = time();
-  return $token;
-}
-
-
-//**************************************************************************//
-//**************************************************************************//
-//**************************************************************************//
-
-
-//Cette fonction vérifie le token
-//Vous passez en argument le temps de validité (en secondes)
-//Le referer attendu (adresse absolue, rappelez-vous :D)
-//Le token optionnel si vous en avez défini un lors de la création du token
-function verifier_token($temps, $referer, $token = '')
-{
-  session_start();
-  if (isset($_SESSION[$token . '_token']) && isset($_SESSION[$token . '_token_time']) && isset($_POST['token']))
-    if ($_SESSION[$token . '_token'] == $_POST['token'])
-      if ($_SESSION[$token . '_token_time'] >= (time() - $temps))
-        if ($_SERVER['HTTP_REFERER'] == $referer)
-          return true;
-  return false;
-}
-
-?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -60,8 +26,8 @@ function verifier_token($temps, $referer, $token = '')
         ci-dessous.</p>
     </div>
     <div class="text-center mb-3">
-      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
-        Launch demo modal
+      <button type="button" class="btn btn-success" data-toggle="modal" data-target="#exampleModalCenter">
+        Paiement sécurisé
       </button>
     </div>
 
@@ -94,13 +60,13 @@ function verifier_token($temps, $referer, $token = '')
             <div class="input-group-prepend">
               <span class="input-group-text">€</span>
             </div>
-            <input type="number" step="0.01" name="total" class="form-control">
+            <input type="number" step="0.01" name="total" class="form-control" required>
             <div class="input-group-append">
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary">Payer</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Retour</button>
+            <button type="submit" class="btn btn-success">Payer</button>
           </div>
         </form>
 
