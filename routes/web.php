@@ -78,22 +78,6 @@ Route::get('showMessageNotification/{message}/{notification}', 'ConversationCont
 
 //Stripe
 Route::get('stripe', 'PaiementController@index')->name('payment.index');
-Route::post('/payment-with-options/{quote}', 'PaiementController@with_options')->name('pay-with-options');
+Route::post('/payment-with-options', 'PaiementController@with_options')->name('pay-with-options');
 Route::get('/payment-failed', 'PaiementController@failed');
-Route::get('/payment-success/', 'PaiementController@successPay')->name('success-paiement');
-
-//SIMPLE
-//Route::get('paiement', 'DonateController@index');
-Route::post('/paiement', 'DonateController@pay');
-Route::get('/devis/', 'DonateController@index');
-Route::get('/paiement', 'DonateController@index');
-Route::post('/client-create-simple', 'UserController@storeSimple')->name('client.store.simple');
-Route::post('/quote-store-simple/', 'QuoteController@storeQuoteSimple')->name('quote.store.simple');
-
-Route::get('/stos', function () {
-    return view('client.simple.avantprojet.stos');
-});
-
-Route::get('/lataste', function () {
-    return view('client.simple.avantprojet.lataste');
-});
+Route::get('/payment-success/{quote}', 'PaiementController@success')->name('success-paiement');

@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Validator;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Redirect;
 
 class PaiementController extends Controller
 {
@@ -90,7 +91,8 @@ class PaiementController extends Controller
 
         Mail::to($user->email)
             ->send(new ConfirmPaiementToUser($paiement->amount));
-        return redirect()->route('home', compact('step'))->with('success', "Votre règlement de {{ $paiement->amount }}€ a bien été enregistré");
+
+        return Redirect::back()->with('success', "Votre règlement de {{ $paiement->amount }}€ a bien été enregistré");
     }
 
     public function payAvantProjet(Request $request, $quote)

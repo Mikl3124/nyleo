@@ -1,10 +1,7 @@
 @extends('layouts.app')
 @section('content')
   <div class="container-fluid row">
-    <div class="col-sm-12 col-md-2">
-      @include('layouts.steps')
-    </div>
-    <div class="col-sm-12 col-md-8">
+    <div class="col-sm-12 col-md-12">
       <div class="container">
         <h4 class="text-center">Votre devis</h4>
         <iframe src="{{ Storage::disk('s3')->url($quote->url) }}" width="100%" height="600px"></iframe>
@@ -13,7 +10,6 @@
             <a target="_blank" href="https://nyleo.fr/cgv/">Consulter nos CGV</a>
         </div>
         <div class="text-center mt-5">
-            <a class="btn btn-secondary mb-2" href="{{ route('message.show') }}">Demander des informations complémentaires</a>
             @if ($quote->accepted == 0)
               <button type="button" class="btn btn-primary mb-2" data-toggle="modal" data-target="#paymentModalCenter">
                 Accepter le devis ({{ $quote->amount}}€)
@@ -25,9 +21,6 @@
             @endif
         </div>
       </div>
-    </div>
-    <div class="col-sm-12 col-md-2">
-        @include('layouts.vertical-navbar')
     </div>
   </div>
 
