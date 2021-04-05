@@ -85,4 +85,4 @@ Route::get('/payment-success/', 'PaiementController@successPay')->name('success-
 //simple
 Route::post('/paiement', 'DonateController@pay');
 
-Route::get('/projets/{name}', 'Donatecontroller@redirect');
+Route::get('/projets/{name}', 'DonateController@redirect');
