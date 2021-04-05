@@ -32,7 +32,7 @@
 
 
     <div class="text-center">
-      <iframe allowfullscreen="true" style="border:none;width:100%;height:600px;" src="//e.issuu.com/embed.html?d=plans_pour_pc_watermark&pageLayout=singlePage&u=mickaeldelpech"></iframe>
+      <iframe allowfullscreen="true" style="border:none;width:100%;height:600px;" src="//e.issuu.com/embed.html?d=plans_pour_pc_v_2&pageLayout=singlePage&u=mickaeldelpech"></iframe>
     </div>
   </div>  
 
