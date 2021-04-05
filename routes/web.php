@@ -85,8 +85,4 @@ Route::get('/payment-success/', 'PaiementController@successPay')->name('success-
 //simple
 Route::post('/paiement', 'DonateController@pay');
 
-Route::get('/test', function () {
-    return view('simple.test');
-});
-
 Route::get('/projets/{name}', 'Donatecontroller@redirect');
