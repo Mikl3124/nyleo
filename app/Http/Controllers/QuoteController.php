@@ -9,6 +9,7 @@ use App\Model\Quote;
 use App\Model\Option;
 use App\Model\Projet;
 use Stripe\PaymentIntent;
+use App\Model\Simplequote;
 use Illuminate\Support\Arr;
 use App\Jobs\NewQuoteCreate;
 use Illuminate\Http\Request;
@@ -127,6 +128,77 @@ class QuoteController extends Controller
 
       return view('admin.clients.show', compact('user'));
     }
+    return redirect()->back()->withErrors('Devis déjà présent');
+  }
+
+  public function storeQuoteSimple(Request $request)
+  {
+
+    $simplequote = new Simplequote;
+    $user = User::find($request->userId);
+    $simplequote->amount = $request->amount;
+    $simplequote->user_id = $user->id;
+
+    if ($files = $request->file('quoteFile')) {
+
+      $filenamewithextension = $request->file('quoteFile')->getClientOriginalName();
+
+      //get filename without extension
+      $filename = pathinfo($filenamewithextension, PATHINFO_FILENAME);
+
+      //get file extension
+      $extension = $request->file('quoteFile')->getClientOriginalExtension();
+
+      //filename to store
+      //$path = 'documents/' . $user->lastname. '_' . $user->firstname . '_' . time();
+
+      $filenametostore = $filename . '_' . time() . '.' . $extension;
+
+
+      $filename = $files->storeAs(
+        'documents',
+        $filenametostore
+      );
+      File::create([
+        'user_id' => $user->id,
+        'url' => Storage::disk('s3')->url('documents/' . $filenametostore),
+        'filename' => $filenamewithextension
+      ]);
+      //Store $filenametostore in the database
+      $simplequote->url = $filename;
+      $simplequote->filename = $filenamewithextension;
+    }
+
+    if ($simplequote->save()) {
+      if ($request->option1[0] != null) {
+        $option = new Option;
+        $option->amount = $request->option1[0];
+        $option->description = $request->option1[1];
+        $option->quote_id = $simplequote->id;
+        $option->save();
+      }
+      if ($request->option2[0] != null) {
+        $option = new Option;
+        $option->amount = $request->option2[0];
+        $option->description = $request->option2[1];
+        $option->quote_id = $simplequote->id;
+        $option->save();
+      }
+
+      if ($request->option3[0] != null) {
+        $option = new Option;
+        $option->amount = $request->option3[0];
+        $option->description = $request->option3[1];
+        $option->quote_id = $simplequote->id;
+        $option->save();
+      }
+
+      // Notification
+      $this->dispatch(new NewQuoteCreate($user));
+
+      return view('admin.clients.show', compact('user'));
+    }
+
     return redirect()->back()->withErrors('Devis déjà présent');
   }
 

@@ -41,7 +41,13 @@ class User extends Authenticatable
         return $this->hasOne(Projet::class);
     }
 
+
     public function quotes()
+    {
+        return $this->hasOne(Projet::class);
+    }
+
+    public function simplequotes()
     {
         return $this->hasOne(Projet::class);
     }

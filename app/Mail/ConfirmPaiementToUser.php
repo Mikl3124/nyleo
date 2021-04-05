@@ -11,16 +11,13 @@ class ConfirmPaiementToUser extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $paiement;
-
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($paiement)
+    public function __construct()
     {
-        $this->paiement = $paiement;
     }
 
     /**
@@ -30,7 +27,6 @@ class ConfirmPaiementToUser extends Mailable
      */
     public function build()
     {
-        $paiement = $this->paiement;
         return $this->from('contact@nyleo.fr', "Nyleo Conception")
             ->subject("Confirmation de paiement")
             ->view('emails.confirm-paiement-to-user');

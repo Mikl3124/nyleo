@@ -80,11 +80,20 @@ Route::get('showMessageNotification/{message}/{notification}', 'ConversationCont
 Route::get('stripe', 'PaiementController@index')->name('payment.index');
 Route::post('/payment-with-options/{quote}', 'PaiementController@with_options')->name('pay-with-options');
 Route::get('/payment-failed', 'PaiementController@failed');
-Route::get('/payment-success/{id}', 'PaiementController@success')->name('success-paiement');
+Route::get('/payment-success/', 'PaiementController@successPay')->name('success-paiement');
 
-Route::group(['middleware' => ['web']], function () {
-    Route::get('paiement', 'DonateController@index');
-    Route::post('paiement', 'DonateController@submit');
+//SIMPLE
+//Route::get('paiement', 'DonateController@index');
+Route::post('/paiement', 'DonateController@pay');
+Route::get('/devis/', 'DonateController@index');
+Route::get('/paiement', 'DonateController@index');
+Route::post('/client-create-simple', 'UserController@storeSimple')->name('client.store.simple');
+Route::post('/quote-store-simple/', 'QuoteController@storeQuoteSimple')->name('quote.store.simple');
+
+Route::get('/stos', function () {
+    return view('client.simple.avantprojet.stos');
 });
 
-Route::get('/paiement', 'DonateController@index');
+Route::get('/lataste', function () {
+    return view('client.simple.avantprojet.lataste');
+});

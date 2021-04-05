@@ -2,55 +2,65 @@
 
 namespace App\Http\Controllers;
 
+
 use Stripe\Charge;
 use Stripe\Stripe;
+use App\Model\Quote;
 use Stripe\Customer;
-use App\Mail\SuccessPay;
+use App\Model\Option;
+use App\Model\Paiement;
+use Stripe\PaymentIntent;
+use App\Mail\QuoteAccepted;
+use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
-use App\Mail\SuccessPayToAdmin;
+use App\Mail\ConfirmPaiementToUser;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\Validator;
+use Illuminate\Support\Facades\Session;
 
 class DonateController extends Controller
 {
+  /**
+   * success response method.
+   *
+   * @return \Illuminate\Http\Response
+   */
 
-  public function index(Request $request)
+  public function pay(Request $request)
   {
-    return view('payment.donate', [
-      'amount' => $request->amount * 100,
-      'description' => $request->description
+    $total = $request->total * 100;
+    $customer = "Nyleo Conception";
+
+    Stripe::setApiKey(env("STRIPE_SECRET"));
+    $intent = PaymentIntent::create([
+      'amount' => $total,
+      'currency' => 'eur',
+      // Verify your integration in this guide by including this parameter
+      'metadata' => ['integration_check' => 'accept_a_payment'],
     ]);
+
+    $clientSecret = Arr::get($intent, 'client_secret');
+
+    return view(
+      'payment.donate',
+      [
+        'clientSecret' => $clientSecret,
+        'intent' => $intent,
+        'total' => $total,
+        'customer' => $customer,
+        'quote' => 1
+      ]
+    );
   }
 
-  public function submit(Request $request)
+  public function success()
   {
-    try {
-      $this->doPayment($request->stripeToken, $request->stripeEmail, $request->amount);
-    } catch (\Exception $e) {
-      return view('payment.error', compact('e'));
-    }
-    //send email to customer
-    Mail::to($request->stripeEmail)
-      ->send(new SuccessPay($request->amount));
-    //send email to admin
-    Mail::to(env("MAIL_ADMIN"))
-      ->send(new SuccessPayToAdmin($request->amount, $request->stripeEmail));
-
     return view('payment.success');
   }
 
-  protected function doPayment($token, $email, $amount)
+  public function index()
   {
-    Stripe::setApiKey(config('services.stripe.secret'));
-
-    $customer = Customer::create(array(
-      'email' => $email,
-      'card'  => $token
-    ));
-
-    $charge = Charge::create(array(
-      'customer' => $customer->id,
-      'amount'   => $amount,
-      'currency' => 'eur'
-    ));
+    return view('payment.success');
   }
 }

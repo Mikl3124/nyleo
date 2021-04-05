@@ -147,4 +147,16 @@ class PaiementController extends Controller
             ->send(new ConfirmPaiementToUser($total));
         return redirect()->route('home', compact('step'))->with('success', "Votre règlement de {{ $total }}€ a bien été enregistré");
     }
+
+    public function successPay()
+    {
+        $user = "coco@gmail.com";
+
+        Mail::to(env("MAIL_ADMIN"))
+            ->send(new QuoteAccepted($user));
+
+        Mail::to('coco@gmail.com')
+            ->send(new ConfirmPaiementToUser());
+        return back()->with('success', "Votre règlement a bien été enregistré");
+    }
 }

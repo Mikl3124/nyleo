@@ -46,6 +46,38 @@ class UserController extends Controller
       $user->role = 'client';
       $user->save();
       //Send mail to new client
+      // $this->dispatch(new MailWelcomeMessageToUser($user));
+      return Redirect::back();
+    }
+  }
+
+  public function storeSimple(Request $request)
+  {
+    $user = new User;
+    $value = $request->all();
+
+    $rules = [
+      'email' => 'required',
+      'lastname' => 'required',
+      'firstname' => 'required',
+    ];
+
+
+    $validator = Validator::make($value, $rules, []);
+
+    if ($validator->fails()) {
+      return Redirect::back()
+        ->withErrors($validator)
+        ->withInput();
+    } else {
+      $user->email = $request['email'];
+      $user->password = Hash::make('nyleo');
+      $user->lastname = $request->lastname;
+      $user->firstname = $request->firstname;
+      $user->role = 'client';
+
+      $user->save();
+      //Send mail to new client
       $this->dispatch(new MailWelcomeMessageToUser($user));
       return Redirect::back();
     }

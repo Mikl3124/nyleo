@@ -32,7 +32,7 @@ class QuoteAccepted extends Mailable
     {
         $user = $this->user;
         return $this->from('contact@nyleo.fr', "Nyleo Conception")
-            ->subject($user->firstname)
+            ->subject('Votre paiement à Nyleo Conception')
             ->view('emails.quote-accepted');
     }
 }

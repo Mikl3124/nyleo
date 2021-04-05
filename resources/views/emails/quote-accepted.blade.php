@@ -3,7 +3,7 @@
   <head>
     <meta name="viewport" content="width=device-width" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>{{ $user->firstname }} a validé son devis</title>
+    <title>Un client a validé son devis</title>
     <style>
       /* -------------------------------------
           GLOBAL RESETS
@@ -351,7 +351,7 @@
                   <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                     <tr>
                       <td>
-                        <p>{{ $user->firstname }} a validé son devis</p>
+                        <p>Un client a validé son devis</p>
  
                         <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
                           <tbody>

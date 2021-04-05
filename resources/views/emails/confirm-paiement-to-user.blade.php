@@ -351,7 +351,7 @@
                     <tr>
                       <td>
                         <p>Bonjour</p>
-                        <p>Nous vous confirmons la bonne réception de votre paiement de {{ number_format(($paiement), 2, '.', '') }}€</p>
+                        <p>Nous vous confirmons la bonne réception de votre paiement}€</p>
  
                         <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
                           <tbody>

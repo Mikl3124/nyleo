@@ -32,15 +32,18 @@
     </head>
 <body>
 <div class="container mt-5">
-    <div class="content">
+    <div class="jumbotron">
+         <div class="content">
         <div class="image">
             <img src="https://nyleo.s3.eu-west-3.amazonaws.com/logo_nyleo_128.png" />
         </div>
         <h1>Merci!</h1>
 
-        <p>Le paiement a bien été réceptionné, un email de confirmation vous a été envoyé. </p>
+        <p>Le paiement a bien été réceptionné</p>
         <div class="text-center">
           <a href="https://nyleo.fr" class="btn-nyleo">Aller sur nyleo.fr</a>
         </div>
     </div>
+</div>
+   
 </div>
