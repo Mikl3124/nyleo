@@ -34,29 +34,7 @@
     <div class="text-center">
       <iframe allowfullscreen="true" style="border:none;width:100%;height:600px;" src="//e.issuu.com/embed.html?d=plans_pour_pc_watermark&pageLayout=singlePage&u=mickaeldelpech"></iframe>
     </div>
-  </div>
-
-          <form action="http://nyleo.test/paiement" method="post">
-        <input type="hidden" name="_token" value="{{ csrf_token() }}" />
-        <meta name="csrf-token" content="{{ csrf_token() }}">
-        <div class="form-group">
-            <input type="text" class="form-control" name="customer" placeholder="Votre nom" required>
-        </div>
-        <label for="amount">Saisissez le montant</label>
-          <div class="input-group mb-3">
-            <div class="input-group-prepend">
-              <span class="input-group-text">€</span>
-            </div>
-            <input type="number" step="0.01" name="total" class="form-control" required>
-            <div class="input-group-append">
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Retour</button>
-            <button type="submit" class="btn btn-success">Payer</button>
-          </div>
-        </form>
-  
+  </div>  
 
 </body>
 
