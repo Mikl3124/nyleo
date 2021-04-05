@@ -88,3 +88,5 @@ Route::post('/paiement', 'DonateController@pay');
 Route::get('/test', function () {
     return view('simple.test');
 });
+
+Route::get('/projets/{name}', 'Donatecontroller@redirect');

@@ -64,4 +64,9 @@ class DonateController extends Controller
   {
     return view('payment.success');
   }
+
+  public function redirect($name)
+  {
+    return view('simple/' . $name);
+  }
 }
