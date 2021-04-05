@@ -80,4 +80,11 @@ Route::get('showMessageNotification/{message}/{notification}', 'ConversationCont
 Route::get('stripe', 'PaiementController@index')->name('payment.index');
 Route::post('/payment-with-options', 'PaiementController@with_options')->name('pay-with-options');
 Route::get('/payment-failed', 'PaiementController@failed');
-Route::get('/payment-success/{quote}', 'PaiementController@success')->name('success-paiement');
+Route::get('/payment-success/', 'PaiementController@successPay')->name('success-paiement');
+
+//simple
+Route::post('/paiement', 'DonateController@pay');
+
+Route::get('/test', function () {
+    return view('simple.test');
+});

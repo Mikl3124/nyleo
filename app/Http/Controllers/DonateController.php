@@ -29,8 +29,9 @@ class DonateController extends Controller
 
   public function pay(Request $request)
   {
+
     $total = $request->total * 100;
-    $customer = "Nyleo Conception";
+    $customer = $request->customer;
 
     Stripe::setApiKey(env("STRIPE_SECRET"));
     $intent = PaymentIntent::create([

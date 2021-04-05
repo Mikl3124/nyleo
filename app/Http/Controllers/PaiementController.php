@@ -159,6 +159,6 @@ class PaiementController extends Controller
 
         Mail::to('coco@gmail.com')
             ->send(new ConfirmPaiementToUser());
-        return back()->with('success', "Votre règlement a bien été enregistré");
+        return view('payment.success');
     }
 }
