@@ -49,7 +49,7 @@
         </button>
       </div>
       <div class="modal-body">
-        <form action="http://nyleo.test/paiement" method="post" autocomplete="off">
+        <form action="{{ route('payment.simple')}}" method="post" autocomplete="off">
           @csrf
         <div class="form-group">
             <input type="text" class="form-control" name="customer" placeholder="Votre nom" required>
