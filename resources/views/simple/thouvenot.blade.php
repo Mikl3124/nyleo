@@ -54,7 +54,7 @@
         <div class="form-group">
             <input type="text" class="form-control" name="customer" placeholder="Votre nom" required>
         </div>
-        <label for="amount">Saisissez le montant</label>
+        <label for="amount">Saisissez le montant que vous souhaitez payer</label>
           <div class="input-group mb-3">
             <div class="input-group-prepend">
               <span class="input-group-text">€</span>
