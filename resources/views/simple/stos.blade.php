@@ -34,7 +34,7 @@
     <div class="text-center">
       <iframe allowfullscreen="true" style="border:none;width:100%;height:600px;" src="//e.issuu.com/embed.html?d=plans_pour_pc_v_2&pageLayout=singlePage&u=mickaeldelpech"></iframe>
     </div>
-  </div>  
+  </div>
 
 </body>
 
@@ -49,9 +49,8 @@
         </button>
       </div>
       <div class="modal-body">
-        <form action="http://nyleo.test/paiement" method="post">
-        <input type="hidden" name="_token" value="{{ csrf_token() }}" />
-        <meta name="csrf-token" content="{{ csrf_token() }}">
+        <form action="http://nyleo.test/paiement" method="post" autocomplete="off">
+          @csrf
         <div class="form-group">
             <input type="text" class="form-control" name="customer" placeholder="Votre nom" required>
         </div>
