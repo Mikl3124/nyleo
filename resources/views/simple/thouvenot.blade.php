@@ -9,13 +9,13 @@
   <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-  <title>M et Mme STOS</title>
+  <title>M et Mme Thouvenot</title>
 </head>
 
 <body>
   <div class="container">
     <div class="text-center mb-3">
-      <h1 class="text-center mt-5 mb-5">M et Mme STOS</h1>
+      <h1 class="text-center mt-5 mb-5">M et Mme Thouvenot</h1>
     </div>
     <div>
       <p class="ml-2">Nyleo Conception, a mis à disposition vos plans d'avant-projet, pour consultation.</p>
