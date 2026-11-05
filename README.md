@@ -1,79 +1,54 @@
-<p align="center"><img src="https://res.cloudinary.com/dtfbvvkyp/image/upload/v1566331377/laravel-logolockup-cmyk-red.svg" width="400"></p>
+# Nyleo
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/d/total.svg" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/v/stable.svg" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
-</p>
+Application de gestion pour **Nyleo** (nyleo.fr) : plans de déclaration préalable et de permis de construire en Dordogne et en Gironde.
 
-## About Laravel
+- **Back-office** (`/admin`, Filament) : clients, dossiers, catalogue de prestations, devis, factures, factures d'acompte, avoirs, encaissements (virement, chèque), paramètres de l'entreprise, tableau de bord.
+- **Espace client** (`/espace`) : connexion par lien envoyé par e-mail (sans mot de passe), avancement du dossier, signature du devis en ligne, validation des plans, envoi de photos, infos CERFA, téléchargement des documents et factures.
+- **Site** (`/`) : page de présentation avec formulaire de demande de devis (crée le client et le dossier).
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Le parcours automatisé
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+1. Devis créé depuis le catalogue → « Envoyer au client » : numéro définitif, e-mail avec PDF et lien de signature.
+2. Le client signe (nom + case « Bon pour accord » ; date, heure, IP et empreinte SHA-256 enregistrées). Si un acompte est prévu, la facture d'acompte part toute seule.
+3. Le client envoie photos et infos CERFA depuis son espace.
+4. Tu ajoutes les plans dans le dossier → « Envoyer pour validation ».
+5. Le client valide → la facture finale (acomptes déduits) est émise et envoyée automatiquement.
+6. Tu encaisses (virement / chèque) → le client reçoit une confirmation.
+7. « Déposé en mairie » → date de décision tacite calculée (DP 1 mois, PC maison 2 mois, autres 3 mois, +1 mois ABF), client prévenu, récépissé dans son espace.
+8. Pièces demandées par la mairie, décision : le client est prévenu à chaque étape.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Chaque jour à 9 h (`nyleo:reminders`) : relance des factures impayées et des devis non signés, devis expirés, alertes de délais.
 
-## Learning Laravel
+Règles de facturation : numérotation continue (format `D202611-134`, `F202611-117`, `AV202611-1`, compteurs réglables pour continuer la suite d'Indy), une facture émise est figée et son PDF archivé ; on la corrige uniquement par un avoir.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Installation locale
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```sh
+composer install
+cp .env.example .env && php artisan key:generate
+php artisan migrate --seed
+php artisan db:seed --class=DemoSeeder   # facultatif : données fictives, compte demo@nyleo.fr / demo-nyleo
+php artisan make:filament-user           # ton compte admin
+php artisan serve
+php artisan test
+```
 
-## Laravel Sponsors
+## Mise en ligne avec Laravel Forge
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[British Software Development](https://www.britishsoftware.co)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- [UserInsights](https://userinsights.com)
-- [Fragrantica](https://www.fragrantica.com)
-- [SOFTonSOFA](https://softonsofa.com/)
-- [User10](https://user10.com)
-- [Soumettre.fr](https://soumettre.fr/)
-- [CodeBrisk](https://codebrisk.com)
-- [1Forge](https://1forge.com)
-- [TECPRESSO](https://tecpresso.co.jp/)
-- [Runtime Converter](http://runtimeconverter.com/)
-- [WebL'Agence](https://weblagence.com/)
-- [Invoice Ninja](https://www.invoiceninja.com)
-- [iMi digital](https://www.imi-digital.de/)
-- [Earthlink](https://www.earthlink.ro/)
-- [Steadfast Collective](https://steadfastcollective.com/)
-- [We Are The Robots Inc.](https://watr.mx/)
-- [Understand.io](https://www.understand.io/)
-- [Abdel Elrafa](https://abdelelrafa.com)
-- [Hyper Host](https://hyper.host)
-- [Appoly](https://www.appoly.co.uk)
-- [OP.GG](https://op.gg)
-- [云软科技](http://www.yunruan.ltd/)
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+1. Site `nyleo.fr`, PHP 8.3+, base MySQL, dépôt `Mikl3124/nyleo`, branche `master`.
+2. Variables d'environnement : `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://nyleo.fr`, `APP_LOCALE=fr`, base MySQL, `QUEUE_CONNECTION=database`, et un service d'envoi d'e-mails (`MAIL_MAILER`, `MAIL_HOST`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS=contact@nyleo.fr`, `MAIL_FROM_NAME=Nyleo`), `NYLEO_ADMIN_EMAIL`.
+3. Script de déploiement :
+   ```sh
+   cd $FORGE_SITE_PATH
+   git pull origin $FORGE_SITE_BRANCH
+   $FORGE_COMPOSER install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+   $FORGE_PHP artisan migrate --force
+   $FORGE_PHP artisan storage:link || true
+   $FORGE_PHP artisan optimize
+   $FORGE_PHP artisan filament:optimize
+   $FORGE_PHP artisan queue:restart
+   ```
+4. Daemon (worker) : `php artisan queue:work --sleep=3 --tries=3` (les e-mails partent en file d'attente).
+5. Planificateur : `php artisan schedule:run` chaque minute.
+6. Certificat SSL Let's Encrypt, puis `php artisan db:seed --force` (catalogue de base) et `php artisan make:filament-user`.
+7. Sauvegardes quotidiennes de la base et du dossier `storage/app` (plans, photos, PDF archivés : à conserver 10 ans pour les factures).
