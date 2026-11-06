@@ -21,6 +21,17 @@ enum InvoiceStatus: string
         };
     }
 
+    /** Libellé court pour la liste des factures (le libellé complet reste au survol). */
+    public function shortLabel(): string
+    {
+        return match ($this) {
+            self::Emise => 'En attente',
+            self::PartiellementPayee => 'Payée en partie',
+            self::Annulee => 'Annulée',
+            default => $this->label(),
+        };
+    }
+
     public function color(): string
     {
         return match ($this) {

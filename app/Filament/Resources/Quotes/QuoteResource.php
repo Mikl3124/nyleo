@@ -28,6 +28,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\HtmlString;
+use Illuminate\Support\Str;
 use UnitEnum;
 
 class QuoteResource extends Resource
@@ -97,20 +98,31 @@ class QuoteResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->modifyQueryUsing(fn (Builder $query) => TrackingSummary::withAggregates($query))
             ->columns([
+                // Liste compacte : toutes les colonnes tiennent sur un écran d'ordinateur, sans défiler.
+                // L'objet passe sous le client, la date de signature sous la date ; le texte complet s'affiche au survol.
                 TextColumn::make('number')->label('N°')->placeholder('Brouillon')->searchable()->sortable(),
-                TextColumn::make('client.last_name')->label('Client')->formatStateUsing(fn ($record) => $record->client?->display_name)->searchable(),
-                TextColumn::make('subject')->label('Objet')->limit(40)->toggleable(),
+                TextColumn::make('client.last_name')->label('Client')->formatStateUsing(fn ($record) => $record->client?->display_name)
+                    // La recherche porte sur le client et sur l'objet, puisque l'objet est affiché ici.
+                    ->searchable(query: fn (Builder $query, string $search) => $query->where(fn (Builder $q) => $q
+                        ->where('subject', 'like', "%{$search}%")
+                        ->orWhereHas('client', fn (Builder $c) => $c->where('last_name', 'like', "%{$search}%")
+                            ->orWhere('first_name', 'like', "%{$search}%")
+                            ->orWhere('company_name', 'like', "%{$search}%"))))
+                    ->description(fn (Quote $r) => $r->subject ? Str::limit($r->subject, 32) : null)
+                    ->tooltip(fn (Quote $r) => mb_strlen((string) $r->subject) > 32 ? $r->subject : null),
+                TextColumn::make('subject')->label('Objet')->limit(40)->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('total_ttc')->label('Montant')->formatStateUsing(fn ($state) => money($state))->sortable(),
                 TextColumn::make('status')->label('Statut')->badge()
                     ->formatStateUsing(fn (QuoteStatus $state) => $state->label())->color(fn (QuoteStatus $state) => $state->color()),
-                TextColumn::make('issue_date')->label('Date')->date('d/m/Y')->sortable(),
-                TextColumn::make('signed_at')->label('Signé le')->dateTime('d/m/Y H:i')->toggleable(),
+                TextColumn::make('issue_date')->label('Date')->date('d/m/y')->sortable()->placeholder('—')
+                    ->description(fn (Quote $r) => $r->signed_at ? 'Signé le '.$r->signed_at->timezone(config('app.timezone'))->format('d/m') : null),
+                TextColumn::make('signed_at')->label('Signé le')->dateTime('d/m/Y H:i')->sortable()->toggleable(isToggledHiddenByDefault: true),
                 TrackingSummary::column(),
             ])
             ->filters([
                 SelectFilter::make('status')->label('Statut')->options(QuoteStatus::options()),
             ])
-            ->recordActions([EditAction::make()->label('Ouvrir')])
+            ->recordActions([EditAction::make()->label('Ouvrir')->iconButton()->tooltip('Ouvrir')])
             ->toolbarActions([DeleteActions::bulk()]);
     }
 

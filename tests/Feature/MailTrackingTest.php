@@ -158,7 +158,9 @@ class MailTrackingTest extends TestCase
         $this->actingAs(User::factory()->create(), 'web');
         $plain = fn ($response) => str_replace(["\u{00A0}", "\u{202F}", '&nbsp;'], ' ', $response->assertOk()->getContent());
         $when = str_replace("\u{00A0}", ' ', $when);
-        $this->assertStringContainsString('Vu le '.$when, $plain($this->get('/admin/quotes')));
+        // Liste compacte : badge court « Vu 06/11 », la phrase complète est au survol.
+        $day = ClientActivity::latest('id')->first()->created_at->timezone(config('app.timezone'))->format('d/m');
+        $this->assertStringContainsString('Vu '.$day, $plain($this->get('/admin/quotes')));
         $page = $plain($this->get("/admin/quotes/{$quote->id}/edit"));
         $this->assertStringContainsString('Suivi client', $page);
         $this->assertStringContainsString("PDF « Devis-{$quote->number}.pdf » téléchargé", $page);
