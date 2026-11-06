@@ -51,6 +51,6 @@ class RequestController extends Controller
         Admin::notify(new AdminAlert('Nouvelle demande de devis', "{$client->display_name} ({$data['phone']}) — {$dossier->title}",
             route('filament.admin.resources.dossiers.view', $dossier)));
 
-        return redirect()->route('home')->with('status', 'Merci ! Votre demande est bien reçue. Je vous rappelle sous 48 h ouvrées.')->withFragment('contact');
+        return back()->with('status', 'Merci ! Votre demande est bien reçue. Je vous rappelle sous 48 h ouvrées.')->withFragment('demande');
     }
 }

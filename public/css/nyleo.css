@@ -1,22 +1,32 @@
-:root{--teal:#0f766e;--teal-d:#115e59;--teal-l:#f0fdfa;--ink:#111827;--muted:#4b5563;--line:#d1d5db;--warn:#b45309;--warn-l:#fffbeb;--ok:#15803d;--ok-l:#f0fdf4;--bg:#f8fafc;--danger:#b91c1c}
+@font-face{font-family:"Fraunces";src:url(../fonts/site/fraunces-latin-600-normal.woff2) format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:"Inter";src:url(../fonts/site/inter-latin-400-normal.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Inter";src:url(../fonts/site/inter-latin-600-normal.woff2) format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:"Inter";src:url(../fonts/site/inter-latin-700-normal.woff2) format("woff2");font-weight:700 800;font-display:swap}
+@font-face{font-family:"JetBrains Mono";src:url(../fonts/site/jetbrains-mono-latin-500-normal.woff2) format("woff2");font-weight:500;font-display:swap}
+/* Espace client : mêmes couleurs que le site (encre, papier, vert), gros caractères */
+:root{--teal:#1b2629;--teal-d:#4f6f1f;--teal-l:#eef5df;--ink:#1b2629;--muted:#47555a;--line:#d8d1c1;--warn:#a1520b;--warn-l:#fdf6e7;--ok:#4f6f1f;--ok-l:#eef5df;--bg:#f5f2ea;--danger:#a3271a;--green:#94c13d;--blue:#1e3447}
 *{box-sizing:border-box}
+button,input,select,textarea{font-family:inherit}
 html{font-size:18px}
-body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55}
+body{margin:0;font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55}
 a{color:var(--teal-d)}
 .wrap{max-width:880px;margin:0 auto;padding:0 18px}
-header.top{background:#fff;border-bottom:1px solid var(--line)}
+header.top{background:var(--bg);border-bottom:1px solid var(--line)}
 header.top .wrap{display:flex;align-items:center;justify-content:space-between;min-height:68px;gap:12px}
-.logo{font-weight:800;font-size:1.5rem;color:var(--teal);text-decoration:none;letter-spacing:.5px}
-.logo small{display:block;font-weight:500;font-size:.7rem;color:var(--muted);letter-spacing:0}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink)}
+.logo svg{width:40px;height:40px;flex:none}
+.logo b{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:1.45rem;display:block;line-height:1}
+.logo small{display:block;font-family:"JetBrains Mono",monospace;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:5px}
 main{padding:28px 0 60px}
-h1{font-size:1.7rem;line-height:1.25;margin:0 0 8px}
+h1,h2{font-family:"Fraunces",Georgia,serif;font-weight:600;letter-spacing:-.01em}
+h1{font-size:1.9rem;line-height:1.2;margin:0 0 8px}
 h2{font-size:1.3rem;margin:0 0 14px}
-.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;margin-bottom:20px}
+.card{background:#fffdf8;border:1px solid var(--line);border-radius:14px;padding:22px;margin-bottom:20px}
 .card.action{border:2px solid var(--warn);background:var(--warn-l)}
 .card.done{border-color:#86efac;background:var(--ok-l)}
 .muted{color:var(--muted)}
 .btn{display:inline-block;background:var(--teal);color:#fff;border:0;border-radius:12px;padding:16px 26px;font-size:1.05rem;font-weight:700;text-decoration:none;cursor:pointer;min-height:56px;text-align:center}
-.btn:hover{background:var(--teal-d)}
+.btn:hover{background:#0f1719}
 .btn.secondary{background:#fff;color:var(--teal-d);border:2px solid var(--teal)}
 .btn.small{padding:10px 16px;min-height:auto;font-size:.95rem}
 .btn.block{display:block;width:100%}
@@ -25,13 +35,13 @@ h2{font-size:1.3rem;margin:0 0 14px}
 .errors{background:#fef2f2;border:2px solid #fca5a5;color:#7f1d1d;border-radius:12px;padding:16px 18px;margin-bottom:20px}
 label{display:block;font-weight:700;margin:14px 0 6px}
 input[type=text],input[type=email],input[type=tel],input[type=date],select,textarea{width:100%;font-size:1.05rem;padding:14px;border:2px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
-input:focus,select:focus,textarea:focus{outline:3px solid #99f6e4;border-color:var(--teal)}
+input:focus,select:focus,textarea:focus{outline:3px solid rgba(148,193,61,.5);border-color:var(--teal-d)}
 .check{display:flex;gap:14px;align-items:flex-start;font-weight:600;margin:18px 0;cursor:pointer}
 .check input{width:30px;height:30px;flex:none;margin-top:2px}
 .steps{list-style:none;margin:0;padding:0}
 .steps li{display:flex;gap:16px;align-items:center;padding:10px 0;font-size:1.05rem}
 .steps .dot{width:38px;height:38px;border-radius:50%;border:3px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:800;flex:none;background:#fff;color:var(--muted)}
-.steps li.done .dot{background:var(--teal);border-color:var(--teal);color:#fff}
+.steps li.done .dot{background:var(--green);border-color:var(--green);color:#15200a}
 .steps li.current .dot{border-color:var(--warn);color:var(--warn);box-shadow:0 0 0 5px #fde68a}
 .steps li.current{font-weight:800}
 .steps li.todo{color:var(--muted)}
@@ -43,12 +53,12 @@ input:focus,select:focus,textarea:focus{outline:3px solid #99f6e4;border-color:v
 table.q{width:100%;border-collapse:collapse;margin:10px 0}
 table.q td,table.q th{padding:12px 8px;border-bottom:1px solid #e5e7eb;text-align:left;vertical-align:top}
 table.q .r{text-align:right;white-space:nowrap}
-table.q tr.total td{font-weight:800;font-size:1.15rem;border-top:2px solid var(--teal);border-bottom:0}
+table.q tr.total td{font-weight:800;font-size:1.15rem;border-top:2px solid var(--green);border-bottom:0}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
 .pay{background:var(--teal-l);border-radius:10px;padding:14px 16px;margin-top:10px}
-footer.bottom{border-top:1px solid var(--line);padding:24px 0;color:var(--muted);font-size:.85rem;background:#fff}
+footer.bottom{border-top:1px solid var(--line);padding:28px 0;color:var(--muted);font-size:.9rem;background:#fffdf8}
 details summary{cursor:pointer;font-weight:700;color:var(--teal-d);padding:6px 0}
-.hero{background:linear-gradient(135deg,#0f766e,#134e4a);color:#fff;padding:56px 0 48px}
+.hero{background:var(--blue);color:#fff;padding:48px 0 40px;background-image:linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.07) 1px,transparent 1px);background-size:40px 40px}
 .hero h1{font-size:2.1rem;color:#fff}.hero p{font-size:1.15rem;max-width:640px;opacity:.95}
 .features{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 .features .card h3{margin:0 0 6px;font-size:1.1rem}
