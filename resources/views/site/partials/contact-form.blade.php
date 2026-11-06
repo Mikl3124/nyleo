@@ -39,7 +39,8 @@
         <p>Commencez à taper le nom de la commune.</p>
         <label for="site_city">Commune du terrain</label>
         <input id="site_city" type="text" name="site_city" value="{{ $townValue }}" required list="communes-list" autocomplete="off" placeholder="Ex. Ribérac">
-        <datalist id="communes-list">@foreach (\App\Support\Geo::communes()->sortBy('name') as $c)<option value="{{ $c['name'] }} ({{ $c['cp'][0] ?? '' }})"></option>@endforeach</datalist>
+        {{-- Liste des communes chargée au premier clic dans le champ (1 000 communes : la page reste légère). --}}
+        <datalist id="communes-list" data-src="{{ route('site.communes') }}"></datalist>
         <input type="hidden" name="site_postal_code" id="site_postal_code" value="{{ old('site_postal_code') }}">
         <label for="description">Quelques mots sur le projet <small>(facultatif)</small></label>
         <textarea id="description" name="description" rows="4" placeholder="Ex. Véranda de 15 m² à l'arrière de la maison, côté jardin.">{{ old('description') }}</textarea>
@@ -70,6 +71,16 @@
     function syncCp() { var m = /\((\d{5})\)\s*$/.exec(city.value); if (m) { cp.value = m[1]; } }
     city.addEventListener('input', function () { cp.value = ''; syncCp(); }); // une commune retapée efface l'ancien code postal
     city.addEventListener('change', syncCp); syncCp();
+    var list = f.querySelector('#communes-list');
+    function loadTowns() {
+        if (list.dataset.loaded) return; list.dataset.loaded = 1;
+        fetch(list.dataset.src).then(function (r) { return r.json(); }).then(function (names) {
+            var frag = document.createDocumentFragment();
+            names.forEach(function (n) { var o = document.createElement('option'); o.value = n; frag.appendChild(o); });
+            list.appendChild(frag);
+        }).catch(function () { delete list.dataset.loaded; });
+    }
+    city.addEventListener('focus', loadTowns); city.addEventListener('pointerenter', loadTowns);
     f.addEventListener('submit', function () { syncCp(); city.value = city.value.replace(/\s*\(\d{5}\)\s*$/, ''); });
     if (f.querySelector('.errors') || f.querySelector('.flash:not([data-info])')) return; // après une erreur ou un envoi, tout reste visible
     var steps = [].slice.call(f.querySelectorAll('[data-step]')), nav = [].slice.call(f.querySelectorAll('.steps-nav li'));

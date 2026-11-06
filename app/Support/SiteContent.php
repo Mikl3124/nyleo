@@ -46,14 +46,14 @@ class SiteContent
         ],
     ];
 
-    /** Projets courants : clé (icône), titre, démarche, phrase courte, type pour le simulateur. */
+    /** Projets courants : clé (icône), titre, démarche, phrase courte, type pour le simulateur, guide (ProjectGuides). */
     public const PROJECTS = [
-        ['veranda', 'Véranda', 'DP ou PC', "Accolée à la maison, la surface créée décide de la démarche.", 'extension'],
-        ['extension', 'Extension, garage accolé', 'DP ou PC', "Accolée à la maison : jusqu'à 40 m² en déclaration préalable en zone urbaine d'un PLU.", 'extension'],
-        ['maison', 'Maison individuelle', 'PC', 'Plans complets du permis, notice et insertion paysagère.', 'maison'],
-        ['piscine', 'Piscine', 'DP', 'Bassin de plus de 10 m² et jusqu\'à 100 m², non couvert ou abri bas.', 'piscine'],
-        ['pergola', 'Pergola, carport', 'DP ou PC', "De 5 à 20 m², déclaration préalable. Au-delà, permis de construire.", 'construction'],
-        ['facade', 'Façade, ouvertures, toiture', 'DP', 'Fenêtres, enduit, couverture, panneaux solaires.', 'aspect'],
+        ['veranda', 'Véranda', 'DP ou PC', "Accolée à la maison, la surface créée décide de la démarche.", 'extension', 'veranda'],
+        ['extension', 'Extension, garage accolé', 'DP ou PC', "Accolée à la maison : jusqu'à 40 m² en déclaration préalable en zone urbaine d'un PLU.", 'extension', 'extension-maison'],
+        ['maison', 'Maison individuelle', 'PC', 'Plans complets du permis, notice et insertion paysagère.', 'maison', 'maison-individuelle'],
+        ['piscine', 'Piscine', 'DP', 'Bassin de plus de 10 m² et jusqu\'à 100 m², non couvert ou abri bas.', 'piscine', 'piscine'],
+        ['pergola', 'Pergola, carport', 'DP ou PC', "De 5 à 20 m², déclaration préalable. Au-delà, permis de construire.", 'construction', 'abri-de-jardin-carport-pergola'],
+        ['facade', 'Façade, ouvertures, toiture', 'DP', 'Fenêtres, enduit, couverture, panneaux solaires.', 'aspect', 'facade-fenetres-toiture'],
     ];
 
     /** Couloirs « vous / moi » pour chaque étape. */

@@ -2,6 +2,7 @@
 @section('title', 'Permis de construire de maison individuelle en Dordogne et Gironde')
 @section('description', "Plans de permis de construire (PCMI1 à PCMI8, CERFA 13406) pour maison individuelle, extension ou garage, déposés en votre nom en Dordogne et en Gironde.")
 @php($fmt = $price ? number_format($price, 0, ',', ' ').' €' : null)
+@include('site.partials.service-ld', ['name' => 'Dossier de permis de construire', 'description' => "Plans et dossier complet de permis de construire de maison individuelle (PCMI1 à PCMI8, CERFA 13406), déposé en mairie au nom du client et suivi jusqu'à la décision.", 'price' => $price])
 @section('content')
 @include('site.partials.page-hero', [
     'crumbs' => 'Permis de construire', 'kicker' => 'CERFA n° 13406 · Dordogne et Gironde',

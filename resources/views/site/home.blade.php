@@ -54,7 +54,7 @@
                 <span class="eyebrow">Vos projets</span>
                 <h2>Ce que je dessine chaque semaine</h2>
             </div>
-            <a class="link-arrow" href="{{ route('site.pricing') }}">Voir les tarifs @include('site.partials.icon', ['name' => 'arrow'])</a>
+            <a class="link-arrow" href="{{ route('site.projects') }}">Tous les projets @include('site.partials.icon', ['name' => 'arrow'])</a>
         </div>
         @include('site.partials.project-cards')
     </div>

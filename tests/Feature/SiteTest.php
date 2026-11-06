@@ -34,6 +34,46 @@ class SiteTest extends TestCase
         $this->get('/sitemap.xml')->assertOk()->assertHeader('Content-Type', 'application/xml')->assertSee(route('site.pc'));
     }
 
+    public function test_project_guides_render_and_are_linked_everywhere(): void
+    {
+        CatalogItem::create(['category' => 'DP', 'label' => 'DP véranda', 'unit_price' => 400, 'position' => 1]);
+        CatalogItem::create(['category' => 'PC', 'label' => 'PC maison', 'unit_price' => 1500, 'position' => 2]);
+
+        $this->get('/projets')->assertOk()->assertSee('Piscine')->assertSee(route('site.project', 'changement-de-destination'));
+        foreach (array_keys(\App\Support\ProjectGuides::GUIDES) as $slug) {
+            $this->get('/projets/'.$slug)->assertOk()
+                ->assertSee('"@type":"FAQPage"', false)
+                ->assertSee('"@type":"BreadcrumbList"', false)
+                ->assertSee('"@type":"Service"', false)
+                ->assertDontSee('architecte</b> Mickaël', false);
+        }
+        $this->get('/projets/veranda')->assertSee('<title>Véranda : déclaration préalable ou permis de construire ? | Nyleo</title>', false)
+            ->assertSee('"minPrice":400', false)->assertSee('"minPrice":1500', false)
+            ->assertSee('value="extension" checked', false);
+        $this->get('/projets/piscine')->assertSee('value="piscine" checked', false)->assertSee('?demarche=DP', false);
+        $this->get('/projets/une-idee')->assertNotFound();
+
+        // Maillage : accueil, pages villes, pied de page et plan du site mènent aux guides.
+        $this->get('/')->assertSee(route('site.project', 'veranda'));
+        $this->get('/secteurs/dordogne/perigueux')->assertSee(route('site.project', 'piscine'));
+        $this->get('/mentions-legales')->assertSee(route('site.project', 'cloture-portail'));
+        $this->get('/sitemap.xml')->assertSee(route('site.projects'))->assertSee(route('site.project', 'panneaux-solaires'));
+    }
+
+    public function test_site_wide_structured_data_and_light_pages(): void
+    {
+        $home = $this->get('/')->assertOk();
+        $home->assertSee('"@type":"WebSite"', false)->assertSee('"@type":"ProfessionalService"', false)
+            ->assertSee('<meta name="twitter:card" content="summary_large_image">', false)
+            ->assertSee('<meta property="og:image:width" content="1200">', false);
+        // La liste des 1 000 communes n'est plus dans la page : elle est chargée à la demande.
+        $home->assertDontSee('<option value="Abjat-sur-Bandiat (24300)">', false)->assertSee(route('site.communes'));
+        $this->assertLessThan(170000, strlen($home->getContent()));
+        $this->getJson('/communes.json')->assertOk()->assertJsonFragment(['Sourzac (24400)'])->assertHeader('X-Robots-Tag', 'noindex');
+        $this->get('/qui-suis-je')->assertSee('"@type":"Person"', false);
+        $this->get('/permis-de-construire')->assertSee('"@type":"Service"', false);
+    }
+
     public function test_brand_is_always_written_with_a_capital_n(): void
     {
         \App\Models\CompanySetting::current()->update(['trade_name' => 'nyleo']);

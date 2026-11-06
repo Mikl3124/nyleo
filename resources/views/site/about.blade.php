@@ -5,6 +5,19 @@
     $base = \App\Support\Geo::base();
     $c = \App\Models\CompanySetting::current();
 @endphp
+@push('head')
+<script type="application/ld+json">{!! json_encode(array_filter([
+    '@@context' => 'https://schema.org',
+    '@type' => 'Person',
+    '@id' => url('/qui-suis-je').'#mickael',
+    'name' => 'Mickaël Delpech',
+    'jobTitle' => 'Dessinateur en bâtiment',
+    'worksFor' => ['@id' => url('/').'#entreprise'],
+    'workLocation' => ['@type' => 'Place', 'name' => $base['name'].', Dordogne'],
+    'knowsAbout' => ['Déclaration préalable de travaux', 'Permis de construire', "Règles d'urbanisme en Dordogne et en Gironde"],
+    'url' => url('/qui-suis-je'),
+]), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>
+@endpush
 @section('content')
 @include('site.partials.page-hero', [
     'crumbs' => 'Qui suis-je', 'kicker' => 'Votre interlocuteur',

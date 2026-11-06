@@ -9,7 +9,7 @@
             <legend>Votre projet</legend>
             <div class="chips">
                 @foreach ([['extension', 'Véranda, extension, garage accolé', 'veranda'], ['construction', 'Abri, carport, garage séparé, pergola', 'carport'], ['piscine', 'Piscine', 'piscine'], ['maison', 'Maison neuve', 'maison'], ['aspect', 'Façade, fenêtres, solaire', 'facade'], ['cloture', 'Clôture, portail', 'cloture']] as [$v, $l, $i])
-                    <label><input type="radio" name="sim_type" value="{{ $v }}" @checked($loop->first)><span>@include('site.partials.icon', ['name' => $i, 'sw' => 2.2]) {{ $l }}</span></label>
+                    <label><input type="radio" name="sim_type" value="{{ $v }}" @checked($v === ($preset ?? 'extension'))><span>@include('site.partials.icon', ['name' => $i, 'sw' => 2.2]) {{ $l }}</span></label>
                 @endforeach
             </div>
         </fieldset>
