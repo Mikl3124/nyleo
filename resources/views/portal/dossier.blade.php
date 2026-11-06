@@ -8,12 +8,25 @@
     $unpaid = $dossier->invoices->filter(fn ($i) => in_array($i->status->value, ['emise', 'partiellement_payee']));
     $needsInfo = in_array($dossier->status->value, ['devis_signe', 'pieces_attendues', 'plans_en_cours'])
         && (! $client->birth_date || ! $client->birth_place || ! $dossier->cadastre_number || ! $dossier->site_address);
+    $wantsPhotos = in_array($dossier->status->value, ['devis_signe', 'pieces_attendues'])
+        && ! $dossier->documents->contains(fn ($d) => $d->uploaded_by === 'client');
+    $canUpload = in_array($dossier->status->value, ['devis_signe', 'pieces_attendues', 'plans_en_cours', 'plans_a_valider']);
+    // Une seule action ocre par écran : la première chose à faire.
+    $cta = $pendingQuote ? 'quote' : ($plansToValidate->isNotEmpty() ? 'plans' : ($unpaid->isNotEmpty() ? 'pay' : ($wantsPhotos ? 'photos' : ($needsInfo ? 'info' : null))));
     $keys = array_keys($steps);
     $currentIndex = array_search($current, $keys);
 @endphp
 
 <h1>{{ $dossier->title }}</h1>
 <p class="muted" style="margin-top:0">{{ $dossier->procedure->label() }} — dossier {{ $dossier->reference }}@if ($dossier->siteAddress()) — {{ $dossier->siteAddress() }}@endif</p>
+
+@unless ($cta)
+    {{-- Rien à faire pour le client : on le rassure en une phrase. Sinon, les cartes « À faire » parlent d'elles-mêmes. --}}
+    <div class="now" role="status">
+        <span class="now-label">En ce moment</span>
+        <p>{{ $dossier->clientStatusMessage() }}</p>
+    </div>
+@endunless
 
 @if ($dossier->client_message)
     <div class="card"><strong>Message de {{ $company->displayName() }} :</strong><br>{!! nl2br(e($dossier->client_message)) !!}</div>
@@ -24,7 +37,7 @@
     <div class="card action">
         <h2>À faire : signer votre devis</h2>
         <p>Devis {{ $pendingQuote->number }} — <strong>{{ money($pendingQuote->total_ttc) }}</strong></p>
-        <a class="btn cta" href="{{ route('portal.quotes.show', $pendingQuote) }}">Lire et signer le devis</a>
+        <a class="btn cta block" href="{{ route('portal.quotes.show', $pendingQuote) }}">Lire et signer le devis</a>
     </div>
 @endif
 
@@ -32,10 +45,10 @@
     <div class="card action">
         <h2>À faire : vérifier vos plans</h2>
         <p>Les plans <strong>{{ $plan->displayName() }}</strong> sont prêts. Ouvrez-les, puis dites-moi s'ils vous conviennent.</p>
-        <p><a class="btn secondary" href="{{ route('portal.documents.download', $plan) }}" target="_blank">Ouvrir les plans</a></p>
+        <p><a class="btn secondary block" href="{{ route('portal.documents.download', $plan) }}" target="_blank">1. Ouvrir les plans</a></p>
         <form method="post" action="{{ route('portal.documents.validate', $plan) }}" onsubmit="return confirm('Confirmez-vous que les plans vous conviennent ?')">
             @csrf
-            <button class="btn cta block" type="submit">✓ Je valide les plans</button>
+            <button class="btn {{ $cta === 'plans' ? 'cta' : '' }} block" type="submit">2. ✓ Je valide les plans</button>
         </form>
         <details style="margin-top:14px">
             <summary>Je souhaite une modification</summary>
@@ -105,20 +118,21 @@
             <input id="phone" type="tel" name="phone" value="{{ old('phone', $client->phone) }}">
             <label for="message">Un message, une précision sur le projet ?</label>
             <textarea id="message" name="message" rows="3">{{ old('message') }}</textarea>
-            <p><button class="btn" type="submit">Enregistrer</button></p>
+            <p><button class="btn {{ $cta === 'info' ? 'cta' : '' }} block" type="submit">Enregistrer mes informations</button></p>
         </form>
     </div>
 @endif
 
-@if (in_array($dossier->status->value, ['devis_signe', 'pieces_attendues', 'plans_en_cours', 'plans_a_valider']))
-    <div class="card">
-        <h2>Envoyer des photos ou documents</h2>
-        <p class="muted">Photos de la maison et du terrain sous plusieurs angles, plan cadastral, croquis… Vous pouvez en choisir plusieurs à la fois.</p>
-        <form method="post" action="{{ route('portal.dossiers.upload', $dossier) }}" enctype="multipart/form-data">
-            @csrf
-            <input type="file" name="files[]" multiple accept="image/*,.pdf" required style="padding:12px 0">
-            <p><button class="btn" type="submit">Envoyer mes fichiers</button></p>
-        </form>
+@if ($canUpload && $cta && $cta !== 'photos')
+    {{-- Une autre action passe avant : l'envoi de fichiers reste disponible, replié. --}}
+    <details class="card fold">
+        <summary>Envoyer d'autres photos ou documents</summary>
+        @include('portal.partials.upload', ['primary' => false])
+    </details>
+@elseif ($canUpload)
+    <div class="card {{ $wantsPhotos ? 'action' : '' }}">
+        <h2>{{ $wantsPhotos ? 'À faire : envoyer vos photos' : 'Envoyer des photos ou documents' }}</h2>
+        @include('portal.partials.upload', ['primary' => $cta === 'photos'])
     </div>
 @endif
 
@@ -139,7 +153,6 @@
             </li>
         @endforeach
     </ol>
-    <p class="muted" style="margin-bottom:0">Statut actuel : <strong>{{ $dossier->status->label() }}</strong></p>
 </div>
 
 {{-- Documents --}}
@@ -175,4 +188,14 @@
         </ul>
     </div>
 @endif
+<script>
+document.querySelectorAll('form.upload').forEach(function (f) {
+    var input = f.querySelector('.file-input'), out = f.querySelector('.file-count');
+    input.addEventListener('change', function () {
+        var n = input.files.length;
+        out.hidden = n === 0;
+        out.textContent = n === 1 ? '1 fichier choisi : ' + input.files[0].name : n + ' fichiers choisis';
+    });
+});
+</script>
 @endsection

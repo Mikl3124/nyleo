@@ -135,6 +135,38 @@ class Dossier extends Model
         };
     }
 
+    /** Ce que le client doit faire sur ce dossier (liste « Mes dossiers »), ou null s'il n'a rien à faire. */
+    public function clientTodo(): ?string
+    {
+        return match (true) {
+            $this->quotes()->where('status', 'envoye')->get()->contains(fn (Quote $q) => $q->isSignable()) => 'Devis à signer',
+            $this->documents()->where('requires_validation', true)->whereNull('validated_at')->whereNull('change_requested_at')->exists() => 'Plans à vérifier',
+            $this->invoices()->whereNotNull('number')->where('type', '!=', 'avoir')->whereIn('status', ['emise', 'partiellement_payee'])->exists() => 'Facture à régler',
+            default => null,
+        };
+    }
+
+    /** Phrase affichée au client en tête de son dossier : où on en est et ce qui va se passer, sans jargon. */
+    public function clientStatusMessage(): string
+    {
+        return match ($this->status) {
+            DossierStatus::Nouveau => 'J\'ai bien reçu votre demande. Je vous appelle pour en parler, puis je vous envoie le devis.',
+            DossierStatus::DevisEnvoye => 'Votre devis est prêt. Dès qu\'il est signé, je commence votre dossier.',
+            DossierStatus::DevisSigne, DossierStatus::PiecesAttendues => 'Merci pour votre confiance ! Envoyez-moi les photos de la maison et du terrain : je commence les plans dès que j\'ai tout.',
+            DossierStatus::PlansEnCours => 'Je dessine vos plans. Vous recevrez un e-mail dès qu\'ils sont prêts à vérifier. Rien à faire de votre côté.',
+            DossierStatus::PlansAValider => 'Vos plans sont prêts : il ne reste qu\'à les vérifier.',
+            DossierStatus::PlansValides => $this->invoices()->whereIn('status', ['emise', 'partiellement_payee'])->exists()
+                ? 'Plans validés, merci ! Je dépose votre dossier en mairie dès réception du règlement.'
+                : 'Plans validés, merci ! Je dépose votre dossier en mairie dans les prochains jours.',
+            DossierStatus::Depose, DossierStatus::EnInstruction => 'Votre dossier est entre les mains de la mairie. Rien à faire de votre côté'
+                .($this->decision_due_date ? ' : la réponse est attendue au plus tard le '.$this->decision_due_date->format('d/m/Y').'.' : '.'),
+            DossierStatus::Incomplet => 'La mairie a demandé des compléments. Je m\'en occupe et je vous contacte si j\'ai besoin de vous.',
+            DossierStatus::Accorde => 'Bonne nouvelle : votre projet est accordé ! Pensez à afficher l\'autorisation sur le terrain, visible depuis la rue, pendant toute la durée des travaux.',
+            DossierStatus::Refuse => 'La mairie a refusé le projet. Je vous appelle pour voir ensemble les solutions possibles.',
+            DossierStatus::Abandonne => 'Ce dossier est clos.',
+        };
+    }
+
     public function signedQuote(): ?Quote
     {
         return $this->quotes()->where('status', 'signe')->latest('signed_at')->first();

@@ -15,7 +15,10 @@ class DossierController extends Controller
     public function index(Request $request)
     {
         $client = $request->user('client');
-        $dossiers = $client->dossiers()->latest()->get();
+        // Les dossiers qui attendent le client d'abord.
+        $dossiers = $client->dossiers()->latest()->get()
+            ->each(fn ($d) => $d->setAttribute('client_todo', $d->clientTodo()))
+            ->sortBy(fn ($d) => $d->client_todo ? 0 : 1)->values();
 
         if ($dossiers->count() === 1) {
             return redirect()->route('portal.dossiers.show', $dossiers->first());

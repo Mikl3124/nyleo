@@ -112,3 +112,21 @@ footer.bottom{border-top:1px solid var(--line);padding:28px 0;color:var(--ink-2)
 .error-actions{display:flex;flex-wrap:wrap;gap:12px}
 .error-help{max-width:640px;margin:0 auto;text-align:center;color:var(--ink-2)}
 @media (max-width:700px){.error-card{padding:24px 20px 20px}.error-actions .btn{width:100%}}
+
+/* « En ce moment » : une phrase en tête du dossier pour savoir où on en est et qui a la main */
+.now{border-left:6px solid var(--ochre);background:var(--paper);border-radius:var(--r);padding:14px 18px;margin:18px 0 22px;box-shadow:var(--shadow)}
+.now.calm{border-left-color:var(--blue)}
+.now-label{display:block;font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.now p{margin:4px 0 0;font-weight:700;font-size:1.05rem}
+
+/* Envoi de fichiers : un gros bouton en français au lieu du sélecteur du navigateur */
+.upload{position:relative}
+.file-input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+.file-input:focus-visible + .file-pick{outline:3px solid var(--ink);outline-offset:3px}
+.file-pick{margin:6px 0 0;font-weight:700}
+.file-count{margin:10px 0 0;font-weight:700;color:var(--ok-d)}
+
+/* Liste des dossiers : le dossier qui attend le client est signalé */
+.todo-tag{display:inline-block;background:var(--ochre-l);border:1px solid var(--ochre);color:var(--ochre-t);border-radius:999px;padding:2px 12px;font-size:.85rem;font-weight:700;margin-bottom:8px}
+.card.fold summary{cursor:pointer;font-weight:700;color:var(--blue);min-height:32px}
+.card.fold[open] summary{margin-bottom:6px}
