@@ -156,8 +156,6 @@ section.tight{padding-block:64px}
 .map-region .dep{stroke-width:1.1}
 .map-region .dep.home{fill:#d6e0f5;stroke-width:1.8}
 .map-region .neigh{stroke-width:.8}
-.map-region .ring{stroke-width:1;stroke-dasharray:4 4;opacity:.7}
-.map-region .ring-label{font-size:7px;font-weight:500;opacity:1}
 .map-region .dep-label{font-size:8.5px;opacity:.6;font-stretch:110%;paint-order:stroke;stroke:#fff;stroke-width:2.4px;stroke-linejoin:round}
 .map-region .town-label{font-size:7.4px;stroke-width:2.2px}
 .map-region .town{stroke-width:1.1}
@@ -168,8 +166,6 @@ section.tight{padding-block:64px}
 .map .mesh a path{fill:#c9d6f2;transition:fill .15s}
 .map .mesh a:hover path,.map .mesh a:focus path{fill:var(--ochre)}
 .map .mesh path.on{fill:var(--blue)}
-.map .ring{fill:none;stroke:var(--blue);stroke-width:.6;stroke-dasharray:2 2.5;opacity:.55}
-.map .ring-label{font-family:var(--mono);font-size:4.2px;fill:var(--blue);opacity:.8}
 .map .hit{fill:transparent}
 .map .base-pulse,.map .base-dot{pointer-events:none}
 .map .town{fill:var(--tf,var(--paper));stroke:var(--ts,var(--blue));stroke-width:.9}

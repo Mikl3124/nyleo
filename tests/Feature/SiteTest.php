@@ -103,7 +103,7 @@ class SiteTest extends TestCase
         $this->assertGreaterThan(700, substr_count($sitemap, '<loc>'));
         $this->assertStringContainsString(route('site.pc.area', 'haute-vienne'), $sitemap);
         // La carte du rayon d'action montre les huit départements, et chacun mène à sa page.
-        $home = $this->get('/')->assertSee('Carte du rayon d', false)->assertDontSee('communes avec leur page')->assertDontSee('Cercles :')->getContent();
+        $home = $this->get('/')->assertSee('Carte du rayon d', false)->assertDontSee('communes avec leur page')->assertDontSee('Cercles :')->assertDontSee('class="ring"', false)->getContent();
         foreach (\App\Support\Geo::departmentSlugs() as $d) {
             $this->assertStringContainsString('href="'.route('site.pc.area', $d).'"', $home);
         }
