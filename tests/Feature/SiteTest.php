@@ -42,17 +42,41 @@ class SiteTest extends TestCase
         $this->get('/espace/connexion')->assertOk()->assertSee('<b>Nyleo</b>', false);
     }
 
+    public function test_town_pages_use_the_public_data_of_their_commune(): void
+    {
+        // Périgueux : PLUi, monuments historiques, sites patrimoniaux remarquables, PPRI.
+        $this->get('/secteurs/dordogne/perigueux')->assertOk()
+            ->assertSee('plan local d&#039;urbanisme intercommunal (PLUi) de la communauté d&#039;agglomération Le Grand Périgueux', false)
+            ->assertSee('Cathédrale Saint-Front')
+            ->assertSee('site patrimonial remarquable')
+            ->assertSee('PPRI AGGLOMERATION DE PERIGUEUX')
+            ->assertSee('23 rue du Président-Wilson')
+            ->assertSee('"@type":"FAQPage"', false)
+            ->assertSee('"@type":"BreadcrumbList"', false)
+            ->assertSee('"@type":"Service"', false);
+        // Sans PLU, le seuil des 40 m² ne s'applique pas.
+        $this->get('/secteurs/gironde/hourtin')->assertOk()->assertSee('règlement national d&#039;urbanisme (RNU)', false)->assertSee('reste à 20 m²');
+        $this->get('/secteurs/dordogne/eyraud-crempse-maurens')->assertSee('carte communale, approuvée en')->assertSee('Mairie d&#039;Eyraud', false);
+        // Littoral, PPRT, feux de forêt.
+        $this->get('/secteurs/gironde/la-teste-de-buch')->assertSee('submersion marine')->assertSee('risques technologiques')->assertSee('Feux de forêt');
+        // Communes patrimoniales de moins de 1 000 habitants : leur propre page.
+        $this->get('/secteurs/dordogne/domme')->assertOk()->assertSee('site patrimonial remarquable');
+        $this->get('/secteurs/dordogne')->assertSee('PLU intercommunal')->assertSee('Sites patrimoniaux remarquables')->assertSee('"@type":"FAQPage"', false);
+        $this->get('/sitemap.xml')->assertSee('<lastmod>', false)->assertSee(route('site.town', ['dordogne', 'domme']));
+    }
+
     public function test_town_search_leads_to_the_town_page_or_to_the_quote_form(): void
     {
         $this->get('/secteurs/recherche?q=perigueux')->assertRedirect(route('site.town', ['dordogne', 'perigueux']));
         $this->get('/secteurs/recherche?q=SOURZAC')->assertRedirect(route('site.town', ['dordogne', 'sourzac']));
         $this->get('/secteurs/recherche?q=abjat sur bandiat')->assertRedirect(route('site.contact', ['commune' => 'Abjat-sur-Bandiat (24300)']));
-        $this->get('/secteurs/recherche?q=st emilion')->assertRedirect(route('site.contact', ['commune' => 'Saint-Émilion (33330)']));
+        $this->get('/secteurs/recherche?q=st emilion')->assertRedirect(route('site.town', ['gironde', 'saint-emilion']));
+        $this->get('/secteurs/recherche?q=st laurent des combes')->assertRedirect(route('site.contact', ['commune' => 'Saint-Laurent-des-Combes (33330)']));
         $this->get('/secteurs/recherche?q=xyz')->assertRedirect(route('site.areas'));
         $this->get('/secteurs/recherche?q=villenave d ornon')->assertRedirect(route('site.town', ['gironde', 'villenave-d-ornon']));
         $this->get('/secteurs/recherche?q=saint-jean-d-illac')->assertRedirect(route('site.town', ['gironde', 'saint-jean-d-illac']));
         // Même nom dans les deux départements : le département de la page ou le code postal tranchent.
-        $this->get('/secteurs/recherche?q=Quinsac&dep=gironde')->assertRedirect(route('site.contact', ['commune' => 'Quinsac (33360)']));
+        $this->get('/secteurs/recherche?q=Quinsac&dep=gironde')->assertRedirect(route('site.town', ['gironde', 'quinsac']));
         $this->get('/secteurs/recherche?q=Quinsac (24530)')->assertRedirect(route('site.contact', ['commune' => 'Quinsac (24530)']));
         $this->get('/secteurs/recherche?q=Quinsac')->assertRedirect(route('site.contact', ['commune' => 'Quinsac']));
         // Une commune de Dordogne cherchée depuis la page Gironde est quand même trouvée.

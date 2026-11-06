@@ -40,6 +40,7 @@
     <script type="application/ld+json">{!! json_encode(array_filter([
         '@@context' => 'https://schema.org',
         '@type' => 'ProfessionalService',
+        '@id' => url('/').'#entreprise',
         'name' => $company->displayName(),
         'description' => $description,
         'url' => url('/'),

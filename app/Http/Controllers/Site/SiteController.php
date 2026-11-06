@@ -137,7 +137,7 @@ class SiteController extends Controller
             ->merge(collect(array_keys(SiteContent::DEPARTMENTS))->map(fn ($d) => route('site.area', $d)))
             ->merge(Geo::pages()->map(fn ($c) => Geo::url($c)));
 
-        return response()->view('site.sitemap', ['urls' => $urls])->header('Content-Type', 'application/xml');
+        return response()->view('site.sitemap', ['urls' => $urls, 'townUpdated' => \App\Support\TownFacts::updated(), 'townPrefix' => route('site.areas').'/'])->header('Content-Type', 'application/xml');
     }
 
     /** Prix « à partir de » par catégorie, d'après le catalogue. */
