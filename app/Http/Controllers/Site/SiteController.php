@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Site;
 use App\Http\Controllers\Controller;
 use App\Models\CatalogItem;
 use App\Support\Geo;
+use App\Support\ProjectGuides;
 use App\Support\SiteContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -30,6 +31,19 @@ class SiteController extends Controller
         $prices = $this->startingPrices();
 
         return view('site.pc', ['price' => $prices['PC'] ?? null, 'prices' => $prices]);
+    }
+
+    public function projects()
+    {
+        return view('site.projects', ['prices' => $this->startingPrices()]);
+    }
+
+    public function project(string $project)
+    {
+        $guide = ProjectGuides::find($project);
+        abort_unless($guide, 404);
+
+        return view('site.project', ['guide' => $guide, 'prices' => $this->startingPrices()]);
     }
 
     public function areas()
@@ -130,10 +144,19 @@ class SiteController extends Controller
         ]);
     }
 
+    /** Communes des deux départements pour l'autocomplétion du formulaire de devis. */
+    public function communes()
+    {
+        $names = Geo::communes()->sortBy('name')->map(fn ($c) => $c['name'].' ('.($c['cp'][0] ?? '').')')->values();
+
+        return response()->json($names, 200, ['Cache-Control' => 'public, max-age=86400', 'X-Robots-Tag' => 'noindex'], JSON_UNESCAPED_UNICODE);
+    }
+
     public function sitemap(): Response
     {
-        $urls = collect(['home', 'site.dp', 'site.pc', 'site.pricing', 'site.areas', 'site.about', 'site.faq', 'site.contact', 'legal', 'privacy'])
+        $urls = collect(['home', 'site.dp', 'site.pc', 'site.projects', 'site.pricing', 'site.areas', 'site.about', 'site.faq', 'site.contact', 'legal', 'privacy'])
             ->map(fn ($r) => route($r))
+            ->merge(ProjectGuides::all()->map(fn ($g) => route('site.project', $g['slug'])))
             ->merge(collect(array_keys(SiteContent::DEPARTMENTS))->map(fn ($d) => route('site.area', $d)))
             ->merge(Geo::pages()->map(fn ($c) => Geo::url($c)));
 

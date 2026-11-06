@@ -2,6 +2,7 @@
 @section('title', 'Déclaration préalable de travaux en Dordogne et Gironde')
 @section('description', "Dossier de déclaration préalable complet (DP1 à DP8, CERFA 13703) pour véranda, pergola, carport, piscine, clôture ou façade, déposé en votre nom en Dordogne et en Gironde.")
 @php($fmt = $price ? number_format($price, 0, ',', ' ').' €' : null)
+@include('site.partials.service-ld', ['name' => 'Dossier de déclaration préalable', 'description' => "Plans et dossier complet de déclaration préalable (DP1 à DP8, CERFA 13703), déposé en mairie au nom du client et suivi jusqu'à la décision.", 'price' => $price])
 @section('content')
 @include('site.partials.page-hero', [
     'crumbs' => 'Déclaration préalable', 'kicker' => 'CERFA n° 13703 · Dordogne et Gironde',
