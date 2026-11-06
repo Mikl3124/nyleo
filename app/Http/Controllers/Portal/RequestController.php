@@ -43,19 +43,30 @@ class RequestController extends Controller
             'last_name' => $data['last_name'], 'first_name' => $data['first_name'] ?? null, 'phone' => $data['phone'], 'source' => 'site',
         ]);
 
-        $dossier = Dossier::create([
-            'client_id' => $client->id,
-            'title' => (DossierResource::NATURES[$data['nature'] ?? ''] ?? 'Projet').' — '.$data['site_city'],
-            'procedure' => $data['procedure'],
-            'nature' => $data['nature'] ?? null,
-            'site_city' => $data['site_city'],
-            'site_postal_code' => $data['site_postal_code'] ?? null,
-            'description' => $data['description'] ?? null,
-        ]);
-        $dossier->log('demande_site', 'Demande reçue depuis le site nyleo.fr');
+        // Formulaire envoyé deux fois (double clic, retour arrière) : on garde le même dossier.
+        $dossier = $client->dossiers()
+            ->where('procedure', $data['procedure'])->where('site_city', $data['site_city'])
+            ->where('created_at', '>=', now()->subHour())
+            ->whereHas('events', fn ($query) => $query->where('type', 'demande_site'))
+            ->latest()->first();
 
-        Admin::notify(new AdminAlert('Nouvelle demande de devis', "{$client->display_name} ({$data['phone']}) — {$dossier->title}",
-            route('filament.admin.resources.dossiers.view', $dossier)));
+        if (! $dossier) {
+            $dossier = Dossier::create([
+                'client_id' => $client->id,
+                'title' => (DossierResource::NATURES[$data['nature'] ?? ''] ?? 'Projet').' — '.$data['site_city'],
+                'procedure' => $data['procedure'],
+                'nature' => $data['nature'] ?? null,
+                'site_city' => $data['site_city'],
+                'site_postal_code' => $data['site_postal_code'] ?? null,
+                'description' => $data['description'] ?? null,
+            ]);
+            $dossier->log('demande_site', 'Demande reçue depuis le site nyleo.fr');
+
+            Admin::notify(new AdminAlert('Nouvelle demande de devis', "{$client->display_name} ({$data['phone']}) — {$dossier->title}",
+                route('filament.admin.resources.dossiers.view', $dossier)));
+        } elseif (filled($data['description'] ?? null) && $data['description'] !== $dossier->description) {
+            $dossier->update(['description' => trim($dossier->description."\n\n".$data['description'])]);
+        }
 
         // Écran de confirmation dédié : le récapitulatif reste affiché si la personne recharge la page.
         session()->put('demande_recue', [
