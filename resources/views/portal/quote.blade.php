@@ -35,7 +35,7 @@
             <label for="signer_name">Votre nom et prénom</label>
             <input id="signer_name" type="text" name="signer_name" value="{{ old('signer_name', trim($client->first_name.' '.$client->last_name)) }}" required>
             <label class="check"><input type="checkbox" name="accept" value="1" required> <span>Bon pour accord : j'accepte ce devis de {{ money($quote->total_ttc) }} et ses conditions.</span></label>
-            <button class="btn block" type="submit">Je signe le devis</button>
+            <button class="btn cta block" type="submit">Je signe le devis</button>
             <p class="muted" style="font-size:.85rem">Votre signature est enregistrée avec la date, l'heure et l'adresse de connexion. Une copie signée reste disponible dans votre espace.</p>
         </form>
     </div>

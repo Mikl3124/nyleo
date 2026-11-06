@@ -30,6 +30,9 @@ class TodoDossiers extends TableWidget
             }))
             ->defaultSort('updated_at')
             ->paginated([5, 10, 25])
+            ->emptyStateHeading('Rien à faire pour le moment')
+            ->emptyStateDescription('Les dossiers qui attendent une action de votre part apparaîtront ici.')
+            ->emptyStateIcon('heroicon-o-check-circle')
             ->columns([
                 TextColumn::make('reference')->label('Réf.'),
                 TextColumn::make('title')->label('Projet')->description(fn (Dossier $r) => $r->client?->display_name),
