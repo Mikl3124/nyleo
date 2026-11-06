@@ -111,7 +111,7 @@ class Dossier extends Model
     {
         return match ($this->status) {
             DossierStatus::Nouveau => 'Rappeler le client et faire le devis',
-            DossierStatus::DevisSigne, DossierStatus::PiecesAttendues => 'Récupérer les pièces et démarrer les plans',
+            DossierStatus::DevisSigne, DossierStatus::PiecesAttendues => 'Démarrer les plans',
             DossierStatus::PlansEnCours => 'Finir les plans et les envoyer au client',
             DossierStatus::PlansValides => 'Déposer en mairie (vérifier le paiement)',
             DossierStatus::Incomplet => 'Fournir les pièces à la mairie'.($this->incomplete_deadline ? ' avant le '.$this->incomplete_deadline->format('d/m/Y') : ''),
@@ -152,8 +152,7 @@ class Dossier extends Model
         return match ($this->status) {
             DossierStatus::Nouveau => 'J\'ai bien reçu votre demande. Je vous appelle pour en parler, puis je vous envoie le devis.',
             DossierStatus::DevisEnvoye => 'Votre devis est prêt. Dès qu\'il est signé, je commence votre dossier.',
-            DossierStatus::DevisSigne, DossierStatus::PiecesAttendues => 'Merci pour votre confiance ! Envoyez-moi les photos de la maison et du terrain : je commence les plans dès que j\'ai tout.',
-            DossierStatus::PlansEnCours => 'Je dessine vos plans. Vous recevrez un e-mail dès qu\'ils sont prêts à vérifier. Rien à faire de votre côté.',
+            DossierStatus::DevisSigne, DossierStatus::PiecesAttendues, DossierStatus::PlansEnCours => 'Je dessine vos plans. Vous recevrez un e-mail dès qu\'ils sont prêts à vérifier. Rien à faire de votre côté.',
             DossierStatus::PlansAValider => 'Vos plans sont prêts : il ne reste qu\'à les vérifier.',
             DossierStatus::PlansValides => $this->invoices()->whereIn('status', ['emise', 'partiellement_payee'])->exists()
                 ? 'Plans validés, merci ! Je dépose votre dossier en mairie dès réception du règlement.'
