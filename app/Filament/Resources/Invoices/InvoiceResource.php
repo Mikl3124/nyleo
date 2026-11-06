@@ -23,6 +23,8 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use App\Filament\Resources\Clients\ClientResource;
+use App\Filament\Resources\Quotes\QuoteResource;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -71,6 +73,9 @@ class InvoiceResource extends Resource
                 Select::make('client_id')->label('Client')->relationship('client', 'last_name')
                     ->getOptionLabelFromRecordUsing(fn ($record) => $record->full_name)
                     ->searchable(['last_name', 'first_name', 'company_name', 'email'])->preload()->required()->live()
+                    ->editOptionForm(fn (Schema $schema) => ClientResource::form($schema))
+                    ->editOptionModalHeading('Modifier le client')
+                    ->helperText(fn (Get $get) => QuoteResource::clientSummary($get('client_id')))
                     ->afterStateUpdated(fn (Set $set) => $set('dossier_id', null)),
                 Select::make('dossier_id')->label('Dossier')
                     ->options(fn (Get $get) => Dossier::where('client_id', $get('client_id'))->get()

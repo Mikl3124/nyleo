@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Quotes;
 use App\Enums\QuoteStatus;
 use App\Filament\Resources\Clients\ClientResource;
 use App\Filament\Support\LineItems;
+use App\Models\Client;
 use App\Models\Dossier;
 use App\Models\Quote;
 use BackedEnum;
@@ -15,6 +16,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\View;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
@@ -22,6 +24,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\HtmlString;
 use UnitEnum;
 
 class QuoteResource extends Resource
@@ -54,24 +57,34 @@ class QuoteResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
+        // Sur la fiche d'un devis : aperçu tel que le client le verra, formulaire seulement en mode « Modifier ».
+        $editing = fn ($livewire) => ! $livewire instanceof Pages\EditQuote || $livewire->editing;
+
         return $schema->components([
-            Section::make()->columns(2)->schema([
+            Section::make()->columns(['default' => 1, 'md' => 3])->schema([
                 Select::make('client_id')->label('Client')->relationship('client', 'last_name')
                     ->getOptionLabelFromRecordUsing(fn ($record) => $record->full_name)
                     ->searchable(['last_name', 'first_name', 'company_name', 'email'])->preload()->required()->live()
                     ->createOptionForm(fn (Schema $schema) => ClientResource::form($schema))
+                    ->editOptionForm(fn (Schema $schema) => ClientResource::form($schema))
+                    ->editOptionModalHeading('Modifier le client')
+                    ->helperText(fn (Get $get) => static::clientSummary($get('client_id')))
                     ->afterStateUpdated(fn (Set $set) => $set('dossier_id', null)),
                 Select::make('dossier_id')->label('Dossier')
                     ->options(fn (Get $get) => Dossier::where('client_id', $get('client_id'))->get()
                         ->mapWithKeys(fn ($d) => [$d->id => $d->reference.' — '.$d->title]))
+                    ->placeholder('Nouveau dossier (créé automatiquement)')
                     ->helperText('Laisser vide pour créer le dossier automatiquement.'),
-                TextInput::make('subject')->label('Objet')->placeholder('Ex. Déclaration préalable — véranda')->columnSpanFull(),
-                TextInput::make('deposit_percent')->label('Acompte demandé à la signature')->numeric()->suffix('%')->default(0)
-                    ->helperText('0 = pas d\'acompte. Sinon, une facture d\'acompte part automatiquement à la signature.'),
-                Placeholder::make('total_preview')->label('Total')->content(fn (Get $get) => LineItems::total($get)),
-            ]),
-            LineItems::repeater(),
-            Textarea::make('notes')->label('Conditions particulières (affichées sur le devis)')->rows(3)->columnSpanFull(),
+                Placeholder::make('total_preview')->label('Total')
+                    ->content(fn (Get $get) => new HtmlString('<span style="font-size:1.75rem;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums">'.e(LineItems::total($get)).'</span>')),
+                TextInput::make('subject')->label('Objet')->placeholder('Repris de la prestation choisie, modifiable')->columnSpan(['md' => 2]),
+                TextInput::make('deposit_percent')->label('Acompte à la signature')->numeric()->suffix('%')->default(0)
+                    ->helperText('0 = sans acompte. Sinon, la facture d\'acompte part toute seule à la signature.'),
+            ])->columnSpanFull()->visible($editing),
+            LineItems::repeater()->visible($editing),
+            Textarea::make('notes')->label('Conditions particulières (affichées sur le devis)')->rows(3)->columnSpanFull()->visible($editing),
+            View::make('filament.quote-preview')->columnSpanFull()
+                ->visible(fn ($livewire) => ! $editing($livewire)),
         ])->disabled(fn (?Quote $record) => $record && ! $record->isEditable());
     }
 
@@ -102,6 +115,26 @@ class QuoteResource extends Resource
             'create' => Pages\CreateQuote::route('/create'),
             'edit' => Pages\EditQuote::route('/{record}/edit'),
         ];
+    }
+
+    /** « e-mail · téléphone · commune » sous le client, pour vérifier d'un coup d'œil. */
+    public static function clientSummary(mixed $clientId): ?string
+    {
+        $client = $clientId ? Client::find($clientId) : null;
+        if (! $client) {
+            return null;
+        }
+        $parts = array_filter([$client->email, $client->phone, trim($client->postal_code.' '.$client->city)]);
+
+        return $parts ? implode(' · ', $parts) : 'Coordonnées à compléter (crayon à droite)';
+    }
+
+    /** Objet vide : on reprend l'intitulé de la première prestation (sans le prix). */
+    public static function fillSubjectFromLines(Quote $quote): void
+    {
+        if (blank($quote->subject) && ($label = $quote->lines()->orderBy('position')->value('label'))) {
+            $quote->forceFill(['subject' => $label])->saveQuietly();
+        }
     }
 
     /** Crée le dossier à la volée si le devis n'y est pas rattaché. */
