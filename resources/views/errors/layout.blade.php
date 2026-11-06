@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="{{ url('css/nyleo.css') }}?v={{ is_file($css) ? filemtime($css) : 1 }}">
 </head>
 <body>
-<div class="band"><div class="wrap"><span class="label">Plans &amp; permis · Dordogne · Gironde</span>@if ($tel)<span>Une question ? <a href="tel:{{ $tel }}">{{ $phone }}</a></span>@endif</div></div>
+<div class="band"><div class="wrap"><span class="label">Plans &amp; permis · Sud-Ouest</span>@if ($tel)<span>Une question ? <a href="tel:{{ $tel }}">{{ $phone }}</a></span>@endif</div></div>
 <header class="top">
     <div class="wrap">
         <a class="logo" href="{{ url('/') }}">@include('site.partials.logo')<span><b>Nyleo</b><small>Plans &amp; permis · Sud-Ouest</small></span></a>
