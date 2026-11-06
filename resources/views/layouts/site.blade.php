@@ -3,8 +3,8 @@
     $tel = $company->phone ? preg_replace('/\s+/', '', $company->phone) : null;
     // Les sections sont déjà échappées par Blade : on les décode une fois pour ne pas afficher « d&#039;Ornon ».
     $title = html_entity_decode(trim($__env->yieldContent('title')), ENT_QUOTES | ENT_HTML5);
-    $fullTitle = $title ? $title.' | '.$company->displayName() : $company->displayName().' — Plans de permis de construire et déclaration préalable en Dordogne et Gironde';
-    $description = html_entity_decode(trim($__env->yieldContent('description')), ENT_QUOTES | ENT_HTML5) ?: "Plans et dossiers de déclaration préalable et de permis de construire en Dordogne et en Gironde : dessin, CERFA, dépôt en mairie en votre nom et suivi jusqu'à la décision. Devis gratuit.";
+    $fullTitle = $title ? $title.' | '.$company->displayName() : $company->displayName().' — Plans de permis de construire et déclaration préalable en Dordogne et départements voisins';
+    $description = html_entity_decode(trim($__env->yieldContent('description')), ENT_QUOTES | ENT_HTML5) ?: "Plans et dossiers de déclaration préalable et de permis de construire en Dordogne et dans les départements voisins : dessin, CERFA, dépôt en mairie en votre nom et suivi jusqu'à la décision. Devis gratuit.";
     $nav = [
         'site.dp' => 'Déclaration préalable',
         'site.pc' => 'Permis de construire',
@@ -32,7 +32,7 @@
     <meta property="og:image" content="{{ asset('img/og-nyleo.png').'?v=3' }}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="{{ $company->displayName() }}, plans de permis de construire et de déclaration préalable en Dordogne et Gironde">
+    <meta property="og:image:alt" content="{{ $company->displayName() }}, plans de permis de construire et de déclaration préalable en Dordogne et départements voisins">
     <meta property="og:site_name" content="{{ $company->displayName() }}">
     <meta name="twitter:card" content="summary_large_image">
     @if (trim($__env->yieldContent('robots')))<meta name="robots" content="{{ trim($__env->yieldContent('robots')) }}">@endif
@@ -49,7 +49,7 @@
             '@id' => url('/').'#entreprise',
             'name' => $company->displayName(),
             'legalName' => $company->company_name ?: null,
-            'description' => "Plans et dossiers de déclaration préalable et de permis de construire en Dordogne et en Gironde : dessin, CERFA, dépôt en mairie et suivi jusqu'à la décision.",
+            'description' => "Plans et dossiers de déclaration préalable et de permis de construire en Dordogne et dans les départements voisins : dessin, CERFA, dépôt en mairie et suivi jusqu'à la décision.",
             'url' => url('/'),
             'telephone' => $company->phone,
             'email' => $company->email,
@@ -57,7 +57,7 @@
             'image' => asset('img/og-nyleo.png').'?v=3',
             'founder' => ['@id' => url('/qui-suis-je').'#mickael'],
             'address' => $company->city ? array_filter(['@type' => 'PostalAddress', 'streetAddress' => $company->address, 'postalCode' => $company->postal_code, 'addressLocality' => $company->city, 'addressCountry' => 'FR']) : ['@type' => 'PostalAddress', 'addressLocality' => $base['name'], 'postalCode' => $base['cp'][0] ?? null, 'addressRegion' => 'Dordogne', 'addressCountry' => 'FR'],
-            'areaServed' => [['@type' => 'AdministrativeArea', 'name' => 'Dordogne'], ['@type' => 'AdministrativeArea', 'name' => 'Gironde']],
+            'areaServed' => collect(\App\Support\SiteContent::DEPARTMENTS)->map(fn ($d) => ['@type' => 'AdministrativeArea', 'name' => $d['name']])->values()->all(),
             'knowsAbout' => ['Déclaration préalable de travaux', 'Permis de construire', "Plan local d'urbanisme", 'Plans de maison'],
             'hasOfferCatalog' => ['@type' => 'OfferCatalog', 'name' => "Dossiers d'urbanisme", 'itemListElement' => [
                 ['@type' => 'Offer', 'itemOffered' => ['@type' => 'Service', 'name' => 'Dossier de déclaration préalable', 'url' => route('site.dp')]],
@@ -72,7 +72,7 @@
 <a class="skip" href="#contenu">Aller au contenu</a>
 <div class="topbar">
     <div class="wrap">
-        <div class="dots"><span>Bureau à {{ $base['name'] }}, Dordogne</span><span>Dordogne et Gironde</span><span>Devis gratuit sous 48 h</span></div>
+        <div class="dots"><span>Bureau à {{ $base['name'] }}, Dordogne</span><span>Dordogne et départements voisins</span><span>Devis gratuit sous 48 h</span></div>
         @if ($tel)<a href="tel:{{ $tel }}">{{ $company->phone }}</a>@endif
     </div>
 </div>
@@ -80,7 +80,7 @@
     <div class="wrap">
         <a class="brand" href="{{ route('home') }}" aria-label="{{ $company->displayName() }}, accueil">
             @include('site.partials.logo')
-            <span><b>{{ $company->displayName() }}</b><small>Plans &amp; permis · 24 · 33</small></span>
+            <span><b>{{ $company->displayName() }}</b><small>Plans &amp; permis · Sud-Ouest</small></span>
         </a>
         <nav class="nav" aria-label="Menu principal">
             @foreach ($nav as $r => $l)<a href="{{ route($r) }}" @if (request()->routeIs($r) || ($r === 'site.areas' && request()->routeIs('site.area', 'site.town')) || ($r === 'site.projects' && request()->routeIs('site.project'))) aria-current="page" @endif>{{ $l }}</a>@endforeach
@@ -109,8 +109,8 @@
     <div class="wrap">
         <div class="foot-grid">
             <div>
-                <a class="brand" href="{{ route('home') }}">@include('site.partials.logo')<span><b>{{ $company->displayName() }}</b><small>Plans &amp; permis · 24 · 33</small></span></a>
-                <p style="margin-top:18px;max-width:24em">Plans et dossiers de déclaration préalable et de permis de construire, dessinés depuis {{ $base['name'] }}, en Dordogne, pour les particuliers de Dordogne et de Gironde.</p>
+                <a class="brand" href="{{ route('home') }}">@include('site.partials.logo')<span><b>{{ $company->displayName() }}</b><small>Plans &amp; permis · Sud-Ouest</small></span></a>
+                <p style="margin-top:18px;max-width:24em">Plans et dossiers de déclaration préalable et de permis de construire, dessinés depuis {{ $base['name'] }}, en Dordogne, pour les particuliers de Dordogne et des départements voisins.</p>
                 @if ($tel)<p><a href="tel:{{ $tel }}" style="font-family:var(--display);font-stretch:115%;font-weight:800;font-size:1.4rem;color:#fff">{{ $company->phone }}</a></p>@endif
             </div>
             <div>
@@ -127,12 +127,12 @@
                 </ul>
             </div>
             <div>
-                <h4>Dordogne</h4>
-                <div class="foot-towns">@foreach (\App\Support\Geo::pages('dordogne')->take(10) as $t)<a href="{{ \App\Support\Geo::url($t) }}">{{ $t['name'] }}</a>@endforeach<a href="{{ route('site.area', 'dordogne') }}"><b>Toutes</b></a></div>
+                <h4>Départements</h4>
+                <div class="foot-towns">@foreach (\App\Support\Geo::departmentSlugs() as $d)<a href="{{ route('site.area', $d) }}">{{ \App\Support\SiteContent::DEPARTMENTS[$d]['name'] }}</a>@endforeach</div>
             </div>
             <div>
-                <h4>Gironde</h4>
-                <div class="foot-towns">@foreach (\App\Support\Geo::pages('gironde')->take(10) as $t)<a href="{{ \App\Support\Geo::url($t) }}">{{ $t['name'] }}</a>@endforeach<a href="{{ route('site.area', 'gironde') }}"><b>Toutes</b></a></div>
+                <h4>Grandes villes</h4>
+                <div class="foot-towns">@foreach (\App\Support\Geo::pages()->take(14)->sortBy('name') as $t)<a href="{{ \App\Support\Geo::url($t) }}">{{ $t['name'] }}</a>@endforeach<a href="{{ route('site.areas') }}"><b>Toutes</b></a></div>
             </div>
         </div>
         <div class="foot-bottom">

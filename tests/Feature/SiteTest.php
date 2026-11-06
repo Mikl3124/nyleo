@@ -19,7 +19,8 @@ class SiteTest extends TestCase
         }
 
         $this->get('/tarifs')->assertRedirect('/contact')->assertStatus(301);
-        $this->get('/secteurs/lot')->assertNotFound();
+        $this->get('/secteurs/landes')->assertNotFound();
+        $this->get('/secteurs/lot')->assertOk()->assertSee('dans le Lot');
         $this->get('/secteurs/dordogne/perigueux')->assertOk()->assertSee('à Périgueux')->assertSee('sud-ouest de Périgueux');
         $this->get('/secteurs/dordogne/une-commune-inconnue')->assertNotFound();
         $this->get('/secteurs/gironde/le-bouscat')->assertOk()->assertSee('au Bouscat')->assertDontSee('à Le Bouscat');
@@ -90,6 +91,25 @@ class SiteTest extends TestCase
         $this->get('/sitemap.xml')->assertDontSee('/tarifs');
     }
 
+    public function test_neighbouring_departments_have_their_pages(): void
+    {
+        foreach (['charente' => ['Charente', 'angouleme'], 'charente-maritime' => ['Charente-Maritime', 'la-rochelle'], 'haute-vienne' => ['Haute-Vienne', 'limoges'], 'correze' => ['Corrèze', 'brive-la-gaillarde'], 'lot' => ['Lot', 'cahors'], 'lot-et-garonne' => ['Lot-et-Garonne', 'agen']] as $slug => [$name, $town]) {
+            $this->get('/secteurs/'.$slug)->assertOk()->assertSee($name)->assertSee('"@type":"FAQPage"', false);
+            $this->get('/secteurs/'.$slug.'/'.$town)->assertOk()->assertSee('"@type":"Service"', false)->assertDontSee('€');
+        }
+        $this->get('/secteurs/lot')->assertSee('Plans et permis <span class="hl">dans le Lot</span>', false)->assertSee('Intervenez-vous dans tout le Lot');
+        $this->get('/secteurs/recherche?q=Brive')->assertRedirect(route('site.town', ['correze', 'brive-la-gaillarde']));
+        $sitemap = $this->get('/sitemap.xml')->assertOk()->getContent();
+        $this->assertGreaterThan(700, substr_count($sitemap, '<loc>'));
+        $this->assertStringContainsString(route('site.area', 'haute-vienne'), $sitemap);
+        // La carte du rayon d'action montre les huit départements, et chacun mène à sa page.
+        $home = $this->get('/')->assertSee('Carte du rayon d', false)->getContent();
+        foreach (\App\Support\Geo::departmentSlugs() as $d) {
+            $this->assertStringContainsString('href="'.route('site.area', $d).'"', $home);
+        }
+        $this->getJson('/communes.json?dep=lot')->assertOk()->assertJsonFragment(['Cahors (46000)'])->assertJsonMissing(['Sourzac (24400)']);
+    }
+
     public function test_brand_is_always_written_with_a_capital_n(): void
     {
         \App\Models\CompanySetting::current()->update(['trade_name' => 'nyleo']);
@@ -127,7 +147,7 @@ class SiteTest extends TestCase
         $this->get('/secteurs/recherche?q=SOURZAC')->assertRedirect(route('site.town', ['dordogne', 'sourzac']));
         $this->get('/secteurs/recherche?q=abjat sur bandiat')->assertRedirect(route('site.contact', ['commune' => 'Abjat-sur-Bandiat (24300)']));
         $this->get('/secteurs/recherche?q=st emilion')->assertRedirect(route('site.town', ['gironde', 'saint-emilion']));
-        $this->get('/secteurs/recherche?q=st laurent des combes')->assertRedirect(route('site.contact', ['commune' => 'Saint-Laurent-des-Combes (33330)']));
+        $this->get('/secteurs/recherche?q=st laurent des combes&dep=gironde')->assertRedirect(route('site.contact', ['commune' => 'Saint-Laurent-des-Combes (33330)']));
         $this->get('/secteurs/recherche?q=xyz')->assertRedirect(route('site.areas'));
         $this->get('/secteurs/recherche?q=villenave d ornon')->assertRedirect(route('site.town', ['gironde', 'villenave-d-ornon']));
         $this->get('/secteurs/recherche?q=saint-jean-d-illac')->assertRedirect(route('site.town', ['gironde', 'saint-jean-d-illac']));

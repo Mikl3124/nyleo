@@ -10,9 +10,9 @@
 <section class="hero">
     <div class="wrap">
         <div>
-            <span class="eyebrow">Dessinateur en Dordogne · Gironde</span>
+            <span class="eyebrow">Dessinateur en Dordogne et alentours</span>
             <h1>Vos plans de permis et de déclaration préalable, <span class="hl">près de chez vous</span>.</h1>
-            <p class="lead">Je dessine vos plans, je remplis le formulaire et je dépose le dossier en mairie à votre place. Depuis {{ $base['name'] }}, pour toute la Dordogne et la Gironde.</p>
+            <p class="lead">Je dessine vos plans, je remplis le formulaire et je dépose le dossier en mairie à votre place. Depuis {{ $base['name'] }}, pour la Dordogne et tous les départements voisins.</p>
             <div class="hero-cta">
                 @if ($tel)<a class="btn cta" href="tel:{{ $tel }}">@include('site.partials.icon', ['name' => 'phone']) <span>Appeler le {{ $c->phone }}</span></a>@endif
                 <a class="btn ghost" href="{{ route('site.contact') }}">Demander un devis gratuit</a>
@@ -25,7 +25,7 @@
         </div>
         <div class="map-card">
             @include('site.partials.map-region')
-            <div class="legend"><span><i style="background:var(--ochre);border:1px solid var(--ink)"></i>Le bureau, à {{ $base['name'] }}</span><span><i style="background:#fff;border:1px solid var(--blue)"></i>{{ Geo::pages()->count() }} communes avec leur page</span><span>Cercles : 25, 50, 100 km</span></div>
+            <div class="legend"><span><i style="background:var(--ochre);border:1px solid var(--ink)"></i>Le bureau, à {{ $base['name'] }}</span><span><i style="background:#fff;border:1px solid var(--blue)"></i>{{ Geo::pages()->count() }} communes avec leur page</span><span>Cercles : 50, 100 et 150 km</span></div>
             <div class="badge-local"><span class="av">M</span><span><b>Mickaël, votre interlocuteur</b><small>Un seul contact, du devis à la décision</small></span></div>
         </div>
     </div>
@@ -99,11 +99,11 @@
         <div class="sec-head row">
             <div>
                 <span class="eyebrow">Secteurs</span>
-                <h2>Toute la Dordogne et toute la Gironde</h2>
-                <p class="lead">Je connais les règlements et les services instructeurs des deux départements. Trouvez votre commune.</p>
+                <h2>La Dordogne et ses six départements voisins</h2>
+                <p class="lead">Je travaille à distance pour toutes leurs communes : choisissez votre département, puis votre commune.</p>
             </div>
         </div>
-        @include('site.partials.dep-cards')
+        @include('site.partials.dep-list')
     </div>
 </section>
 

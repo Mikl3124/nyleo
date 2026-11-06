@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="{{ asset('css/nyleo.css') }}?v={{ filemtime(public_path('css/nyleo.css')) }}">
 </head>
 <body>
-<div class="band"><div class="wrap"><span class="label">Plans &amp; permis · Dordogne · Gironde</span>@if ($company->phone)<span>Une question ? <a href="tel:{{ preg_replace('/\s+/', '', $company->phone) }}">{{ $company->phone }}</a></span>@endif</div></div>
+<div class="band"><div class="wrap"><span class="label">Plans &amp; permis · Dordogne et départements voisins</span>@if ($company->phone)<span>Une question ? <a href="tel:{{ preg_replace('/\s+/', '', $company->phone) }}">{{ $company->phone }}</a></span>@endif</div></div>
 <header class="top">
     <div class="wrap">
         <a class="logo" href="{{ auth('client')->check() ? route('portal.home') : route('home') }}">@include('site.partials.logo')<span><b>{{ $company->displayName() }}</b><small>Mon espace client</small></span></a>

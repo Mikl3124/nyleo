@@ -1,34 +1,38 @@
-{{-- Carte Dordogne + Gironde avec le bureau à Sourzac et des cercles de distance --}}
+{{-- Carte du rayon d'action : la Dordogne au centre, ses départements voisins, le bureau et des cercles de distance --}}
 @php
     $g = \App\Support\Geo::class;
     $region = $g::region();
     $base = $g::base();
-    $labelled = ['Périgueux', 'Bergerac', 'Sarlat-la-Canéda', 'Ribérac', 'Nontron', 'Bordeaux', 'Libourne', 'Arcachon', 'Langon', 'Lesparre-Médoc', 'Blaye'];
+    $deps = collect($g::departmentSlugs())->map(fn ($s) => $g::department($s));
+    // Nom de chaque département, placé à la main là où il ne touche ni une ville ni une frontière.
+    $labelAt = ['dordogne' => [79, -41], 'gironde' => [-16, 39], 'charente' => [21, -96], 'charente-maritime' => [-65, -61], 'haute-vienne' => [130, -110], 'correze' => [159, -45], 'lot' => [141, 36], 'lot-et-garonne' => [23, 80]];
+    $short = ['charente-maritime' => 'Charente-Mar.', 'lot-et-garonne' => 'Lot-et-Gar.'];
+    $labelled = ['Périgueux', 'Bergerac', 'Sarlat-la-Canéda', 'Bordeaux', 'Libourne', 'Arcachon', 'Angoulême', 'Cognac', 'La Rochelle', 'Saintes', 'Limoges', 'Brive-la-Gaillarde', 'Tulle', 'Cahors', 'Figeac', 'Agen', 'Villeneuve-sur-Lot', 'Marmande', 'Ribérac', 'Nontron'];
     $towns = $g::pages();
 @endphp
-<svg class="map" viewBox="{{ $region['viewBox'] }}" role="img" aria-labelledby="map-r-t map-r-d">
-    <title id="map-r-t">Carte de la Dordogne et de la Gironde</title>
-    <desc id="map-r-d">Le bureau est à {{ $base['name'] }}, en Dordogne. Cercles de 25, 50 et 100 km autour.</desc>
+<svg class="map map-region" viewBox="{{ $region['viewBox'] }}" role="img" aria-labelledby="map-r-t map-r-d">
+    <title id="map-r-t">Carte du rayon d'action : la Dordogne et ses départements voisins</title>
+    <desc id="map-r-d">Le bureau est à {{ $base['name'] }}, en Dordogne. J'interviens {{ $g::inDep('dordogne') }} et dans les départements voisins : {{ $deps->pluck('name')->except(0)->implode(', ') }}. Cercles de 50, 100 et 150 km autour du bureau.</desc>
     @foreach ($region['neighbours'] as $p)<path class="neigh" d="{{ $p }}"/>@endforeach
-    <a href="{{ route('site.area', 'dordogne') }}" aria-label="Dordogne"><path class="dep" d="{{ $g::department('dordogne')['outline'] }}"/></a>
-    <a href="{{ route('site.area', 'gironde') }}" aria-label="Gironde"><path class="dep alt" d="{{ $g::department('gironde')['outline'] }}"/></a>
-    <text class="dep-label" x="62" y="40" text-anchor="middle">Dordogne</text>
-    <text class="dep-label" x="-62" y="66" text-anchor="middle">Gironde</text>
-    @foreach ([25, 50, 100] as $r)
+    @foreach ($deps as $d)
+        <a href="{{ route('site.area', $d['slug']) }}" aria-label="{{ $d['name'] }}"><path class="dep{{ $d['slug'] === 'dordogne' ? ' home' : ' alt' }}" d="{{ $region['outlines'][$d['slug']] ?? $d['outline'] }}"/></a>
+    @endforeach
+    @foreach ([50, 100, 150] as $r)
         <circle class="ring" cx="{{ $base['x'] }}" cy="{{ $base['y'] }}" r="{{ $r }}"/>
-        <text class="ring-label" x="{{ $base['x'] + 2 }}" y="{{ $base['y'] - $r - 1.5 }}">{{ $r }} km</text>
+        <text class="ring-label" x="{{ $base['x'] + 2.5 }}" y="{{ $base['y'] - $r - 2 }}">{{ $r }} km</text>
     @endforeach
-    {{-- Les points restent cliquables à la souris, mais hors du parcours clavier : la liste complète est sur les pages départements. --}}
-    <g aria-hidden="true">
-    {{-- Un point = un <use> du modèle ci-dessous : la carte de l'accueil pèse deux fois moins. --}}
-    {{-- Styles en ligne : les sélecteurs de site.css n'atteignent pas les copies faites par <use>, seules les variables s'y transmettent. --}}
-    <defs><g id="pt"><circle r="3.5" fill="transparent"/><circle r="1.15" style="fill:var(--tf,var(--paper));stroke:var(--ts,var(--blue));stroke-width:.9"/></g><g id="pt-l"><circle r="3.5" fill="transparent"/><circle r="2.1" style="fill:var(--tf,var(--paper));stroke:var(--ts,var(--blue));stroke-width:.9"/></g></defs>
-    @foreach ($towns as $t)<a href="{{ parse_url($g::url($t), PHP_URL_PATH) }}" tabindex="-1"><use href="#pt{{ in_array($t['name'], $labelled, true) ? '-l' : '' }}" x="{{ $t['x'] }}" y="{{ $t['y'] }}"/></a>@endforeach
-    </g>
+    @foreach ($deps as $d)
+        @php([$lx, $ly] = $labelAt[$d['slug']] ?? [$g::communes($d['slug'])->avg('x'), $g::communes($d['slug'])->avg('y')])
+        <text class="dep-label" x="{{ $lx }}" y="{{ $ly }}" text-anchor="middle">{{ $short[$d['slug']] ?? $d['name'] }}</text>
+    @endforeach
     @foreach ($towns->filter(fn ($t) => in_array($t['name'], $labelled, true)) as $t)
-        <text class="town-label" x="{{ $t['x'] > 75 ? $t['x'] - 3.2 : $t['x'] + 3.2 }}" y="{{ $t['y'] + 1.8 }}" text-anchor="{{ $t['x'] > 75 ? 'end' : 'start' }}">{{ $t['name'] }}</text>
+        <a href="{{ parse_url($g::url($t), PHP_URL_PATH) }}" tabindex="-1" aria-hidden="true"><circle class="town" cx="{{ $t['x'] }}" cy="{{ $t['y'] }}" r="2.3"/></a>
     @endforeach
-    <circle class="base-pulse" cx="{{ $base['x'] }}" cy="{{ $base['y'] }}" r="5"/>
-    <circle class="base-dot" cx="{{ $base['x'] }}" cy="{{ $base['y'] }}" r="3.2"/>
-    <text class="town-label" x="{{ $base['x'] - 3 }}" y="{{ $base['y'] + 10 }}" text-anchor="middle" style="font-size:6px">{{ $base['name'] }} · le bureau</text>
+    @foreach ($towns->filter(fn ($t) => in_array($t['name'], $labelled, true)) as $t)
+        @php($left = in_array($t['name'], ['Arcachon', 'La Rochelle', 'Cognac', 'Marmande', 'Libourne', 'Ribérac'], true))
+        <text class="town-label" x="{{ $left ? $t['x'] - 3.6 : $t['x'] + 3.6 }}" y="{{ $t['y'] + 2.2 }}" text-anchor="{{ $left ? 'end' : 'start' }}">{{ $t['name'] }}</text>
+    @endforeach
+    <circle class="base-pulse" cx="{{ $base['x'] }}" cy="{{ $base['y'] }}" r="7"/>
+    <circle class="base-dot" cx="{{ $base['x'] }}" cy="{{ $base['y'] }}" r="4.2"/>
+    <text class="town-label base-label" x="{{ $base['x'] }}" y="{{ $base['y'] + 12 }}" text-anchor="middle">{{ $base['name'] }} · le bureau</text>
 </svg>

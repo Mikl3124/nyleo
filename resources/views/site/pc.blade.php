@@ -1,10 +1,10 @@
 @extends('layouts.site')
-@section('title', 'Permis de construire de maison individuelle en Dordogne et Gironde')
-@section('description', "Plans de permis de construire (PCMI1 à PCMI8, CERFA 13406) pour maison individuelle, extension ou garage, déposés en votre nom en Dordogne et en Gironde.")
+@section('title', 'Permis de construire de maison individuelle en Dordogne et départements voisins')
+@section('description', "Plans de permis de construire (PCMI1 à PCMI8, CERFA 13406) pour maison individuelle, extension ou garage, déposés en votre nom en Dordogne et dans les départements voisins.")
 @include('site.partials.service-ld', ['name' => 'Dossier de permis de construire', 'description' => "Plans et dossier complet de permis de construire de maison individuelle (PCMI1 à PCMI8, CERFA 13406), déposé en mairie au nom du client et suivi jusqu'à la décision."])
 @section('content')
 @include('site.partials.page-hero', [
-    'crumbs' => 'Permis de construire', 'kicker' => 'CERFA n° 13406 · Dordogne et Gironde',
+    'crumbs' => 'Permis de construire', 'kicker' => 'CERFA n° 13406 · Dordogne et départements voisins',
     'h1' => 'Permis de construire : <em>des plans clairs</em>, un dossier prêt à instruire.',
     'lead' => "Maison individuelle, extension ou garage : je dessine les plans du permis, je rédige la notice et je dépose le dossier en mairie en votre nom.",
     'cta' => '<a class="btn cta" href="'.route('site.contact').'?demarche=PC">Demander un devis</a>',

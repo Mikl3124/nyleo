@@ -5,7 +5,7 @@ namespace App\Support;
 use Illuminate\Support\Collection;
 
 /**
- * Communes de Dordogne et de Gironde et tracés des cartes (resources/data/geo.json,
+ * Communes de la Dordogne et de ses départements voisins, et tracés des cartes (resources/data/geo.json,
  * généré par tools/geo/build.py à partir des données ouvertes IGN / Etalab).
  * Les coordonnées sont en kilomètres (projection équirectangulaire centrée sur 45° N).
  */
@@ -20,7 +20,36 @@ class Geo
 
     public static function department(string $slug): ?array
     {
-        return self::data()['departments'][$slug] ?? null;
+        $d = self::data()['departments'][$slug] ?? null;
+
+        return $d ? $d + (SiteContent::DEPARTMENTS[$slug] ?? []) + ['slug' => $slug] : null;
+    }
+
+    /** Slugs des départements couverts, dans l'ordre du site (la Dordogne d'abord). */
+    public static function departmentSlugs(): array
+    {
+        return array_keys(SiteContent::DEPARTMENTS);
+    }
+
+    /** « en Dordogne », « dans le Lot ». */
+    public static function inDep(string $slug): string
+    {
+        return SiteContent::DEPARTMENTS[$slug]['in'] ?? 'en '.(self::data()['departments'][$slug]['name'] ?? $slug);
+    }
+
+    /** « de la Dordogne », « du Lot ». */
+    public static function ofDep(string $slug): string
+    {
+        return SiteContent::DEPARTMENTS[$slug]['of'] ?? 'de '.(self::data()['departments'][$slug]['name'] ?? $slug);
+    }
+
+    /** Liste lisible des départements : « la Dordogne, la Gironde, … et le Lot-et-Garonne ». */
+    public static function departmentNames(): string
+    {
+        $names = array_map(fn ($d) => $d['name'], SiteContent::DEPARTMENTS);
+        $last = array_pop($names);
+
+        return implode(', ', $names).' et '.$last;
     }
 
     /** @return Collection<int, array> */

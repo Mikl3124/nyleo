@@ -159,7 +159,9 @@ for f in fr:
 # Carte du rayon d'action : les départements couverts, et autour ceux qui les bordent.
 AROUND = ('85', '79', '86', '36', '23', '63', '15', '12', '82', '32', '40', '81', '03', '18', '37', '49', '44', '64', '65', '31', '48', '43')
 out['region'] = {'viewBox': vb(bbox(list(dep_outlines.values())), 8),
-                 'neighbours': {k: path(next(f for f in fr if f['properties']['code'] == k)['geometry'], 0.6) for k in AROUND}}
+                 'neighbours': {k: path(next(f for f in fr if f['properties']['code'] == k)['geometry'], 1.4) for k in AROUND},
+                 # Contours allégés pour la carte d'ensemble (les pages départements gardent le tracé fin).
+                 'outlines': {DEPS[code][0]: path(json.load(open(f"{SRC}/departement-{code}-{DEPS[code][0]}.geojson"))['geometry'], 0.7) for code in DEPS}}
 out['france'] = {'viewBox': vb(bbox(list(france.values())), 10), 'paths': france}
 
 # Ville de base (Sourzac)

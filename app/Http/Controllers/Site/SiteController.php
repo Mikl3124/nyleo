@@ -59,7 +59,7 @@ class SiteController extends Controller
     {
         $raw = is_string($request->query('q')) ? mb_substr($request->query('q'), 0, 120) : '';
         $cp = preg_match('/\((\d{5})\)/', $raw, $m) ? $m[1] : null;
-        $dep = in_array($request->query('dep'), ['dordogne', 'gironde'], true) ? $request->query('dep') : null;
+        $dep = in_array($request->query('dep'), Geo::departmentSlugs(), true) ? $request->query('dep') : null;
         $q = self::searchKey(preg_replace('/\(.*$/s', '', $raw));
 
         $lookup = function (?string $dep) use ($q, $cp) {
@@ -78,7 +78,7 @@ class SiteController extends Controller
         }
 
         if (! $commune && $exact->count() > 1) {
-            // Même nom en Dordogne et en Gironde, sans code postal pour les départager : on garde le nom seul.
+            // Même nom dans deux départements, sans code postal pour les départager : on garde le nom seul.
             return redirect()->route('site.contact', ['commune' => $exact->first()['name']])
                 ->with('commune_status', 'J\'interviens '.Geo::a($exact->first()['name']).' : décrivez-moi votre projet ci-dessous.');
         }
@@ -90,7 +90,7 @@ class SiteController extends Controller
                 ->with('commune_status', 'J\'interviens '.Geo::a($commune['name']).' : décrivez-moi votre projet ci-dessous.');
         }
 
-        return redirect()->route('site.areas')->with('status', 'Commune introuvable en Dordogne ou en Gironde. Vérifiez l\'orthographe, ou appelez-moi pour en parler.');
+        return redirect()->route('site.areas')->with('status', 'Commune introuvable dans mes départements. Vérifiez l\'orthographe, ou appelez-moi pour en parler.');
     }
 
     /**
@@ -133,9 +133,10 @@ class SiteController extends Controller
     }
 
     /** Communes des deux départements pour l'autocomplétion du formulaire de devis. */
-    public function communes()
+    public function communes(Request $request)
     {
-        $names = Geo::communes()->sortBy('name')->map(fn ($c) => $c['name'].' ('.($c['cp'][0] ?? '').')')->values();
+        $dep = in_array($request->query('dep'), Geo::departmentSlugs(), true) ? $request->query('dep') : null;
+        $names = Geo::communes($dep)->sortBy('name')->map(fn ($c) => $c['name'].' ('.($c['cp'][0] ?? '').')')->values();
 
         return response()->json($names, 200, ['Cache-Control' => 'public, max-age=86400', 'X-Robots-Tag' => 'noindex'], JSON_UNESCAPED_UNICODE);
     }

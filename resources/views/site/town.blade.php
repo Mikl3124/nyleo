@@ -147,7 +147,7 @@
         <div>
             <span class="eyebrow">Construction</span>
             <h2>Combien de logements sont autorisés {{ $a }} ?</h2>
-            <p>{{ number_format(array_sum($housing), 0, ',', ' ') }} logements ont été autorisés {{ $a }} de {{ array_key_first($housing) }} à {{ array_key_last($housing) }}, maisons et appartements confondus, soit {{ number_format(array_sum($housing) / count($housing), 0, ',', ' ') }} par an en moyenne.@php($rate = TownFacts::housingRate($housing, (int) $town['pop']))@php($depRate = TownFacts::departmentHousingRate($town['dep']))@if ($rate && $depRate) Rapporté à la population, c'est {{ number_format($rate, 1, ',', ' ') }} logement{{ $rate >= 2 ? 's' : '' }} par an pour 1 000 habitants, {{ $rate > $depRate * 1.15 ? 'plus que' : ($rate < $depRate * 0.85 ? 'moins que' : 'autant que') }} la moyenne {{ $town['dep'] === 'gironde' ? 'de la Gironde' : 'de la Dordogne' }} ({{ number_format($depRate, 1, ',', ' ') }}).@endif Ces chiffres ne comptent pas les extensions, piscines ou vérandas, qui représentent l'essentiel des déclarations préalables.</p>
+            <p>{{ number_format(array_sum($housing), 0, ',', ' ') }} logements ont été autorisés {{ $a }} de {{ array_key_first($housing) }} à {{ array_key_last($housing) }}, maisons et appartements confondus, soit {{ number_format(array_sum($housing) / count($housing), 0, ',', ' ') }} par an en moyenne.@php($rate = TownFacts::housingRate($housing, (int) $town['pop']))@php($depRate = TownFacts::departmentHousingRate($town['dep']))@if ($rate && $depRate) Rapporté à la population, c'est {{ number_format($rate, 1, ',', ' ') }} logement{{ $rate >= 2 ? 's' : '' }} par an pour 1 000 habitants, {{ $rate > $depRate * 1.15 ? 'plus que' : ($rate < $depRate * 0.85 ? 'moins que' : 'autant que') }} la moyenne {{ Geo::ofDep($town['dep']) }} ({{ number_format($depRate, 1, ',', ' ') }}).@endif Ces chiffres ne comptent pas les extensions, piscines ou vérandas, qui représentent l'essentiel des déclarations préalables.</p>
             <p class="muted">Source : base Sitadel du ministère de la Transition écologique.</p>
         </div>
         <ul class="bars" aria-label="Logements autorisés par an {{ $a }}">
@@ -182,7 +182,7 @@
 <section class="tight">
     <div class="wrap">
         <h2 style="font-size:1.4rem">J'interviens aussi près {{ $de }}</h2>
-        <ul class="near">@foreach ($near as $n)<li><a href="{{ Geo::url($n) }}">{{ $n['name'] }} <small>{{ Geo::distance($town, $n) }} km</small></a></li>@endforeach<li><a href="{{ route('site.area', $town['dep']) }}">Toute la {{ $dep['name'] }}</a></li></ul>
+        <ul class="near">@foreach ($near as $n)<li><a href="{{ Geo::url($n) }}">{{ $n['name'] }} <small>{{ Geo::distance($town, $n) }} km</small></a></li>@endforeach<li><a href="{{ route('site.area', $town['dep']) }}">{{ Str::ucfirst($dep['all']) }}</a></li></ul>
         @if ($siblings->isNotEmpty())
             <h3 style="font-size:1.1rem;margin-top:28px">Autres communes {{ TownFacts::epciDe($town['epci']) }}</h3>
             <ul class="near">@foreach ($siblings as $n)<li><a href="{{ Geo::url($n) }}">{{ $n['name'] }}</a></li>@endforeach</ul>

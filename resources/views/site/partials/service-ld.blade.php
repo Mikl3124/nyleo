@@ -7,7 +7,7 @@
     'serviceType' => $name,
     'description' => $description,
     'provider' => ['@id' => url('/').'#entreprise'],
-    'areaServed' => [['@type' => 'AdministrativeArea', 'name' => 'Dordogne'], ['@type' => 'AdministrativeArea', 'name' => 'Gironde']],
+    'areaServed' => collect(\App\Support\SiteContent::DEPARTMENTS)->map(fn ($d) => ['@type' => 'AdministrativeArea', 'name' => $d['name']])->values()->all(),
     'url' => url()->current(),
 ]), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>
 @endpush

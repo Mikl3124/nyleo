@@ -1,6 +1,6 @@
 @extends('layouts.site')
 @section('title', 'Demander un devis gratuit')
-@section('description', "Demandez votre devis gratuit pour une déclaration préalable ou un permis de construire en Dordogne ou en Gironde. Rappel sous 48 h ouvrées.")
+@section('description', "Demandez votre devis gratuit pour une déclaration préalable ou un permis de construire en Dordogne et dans les départements voisins. Rappel sous 48 h ouvrées.")
 @section('content')
 @include('site.partials.page-hero', [
     'crumbs' => 'Contact', 'kicker' => 'Devis gratuit · rappel sous 48 h',
