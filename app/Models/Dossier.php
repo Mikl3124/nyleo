@@ -3,7 +3,10 @@
 namespace App\Models;
 
 use App\Enums\DossierStatus;
+use App\Enums\ExternalPaymentStatus;
+use App\Enums\Priority;
 use App\Enums\Procedure;
+use App\Enums\WaitingOn;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -28,6 +31,16 @@ class Dossier extends Model
             'incomplete_deadline' => 'date',
             'decision_due_date' => 'date',
             'decision_date' => 'date',
+            'received_at' => 'date',
+            'follow_up_at' => 'date',
+            'instruction_started_at' => 'date',
+            'incomplete_answered_at' => 'date',
+            'waiting_on' => WaitingOn::class,
+            'priority' => Priority::class,
+            'external_payment_status' => ExternalPaymentStatus::class,
+            'commission_amount' => 'decimal:2',
+            'agreed_price' => 'decimal:2',
+            'commission_paid' => 'boolean',
         ];
     }
 
@@ -78,6 +91,31 @@ class Dossier extends Model
             'visible_to_client' => $visibleToClient,
             'meta' => $meta ?: null,
         ]);
+    }
+
+    /** Prescripteurs habituels (proposés dans la saisie, on peut en taper un autre). */
+    public const PRESCRIBERS = ['Direct', 'AKENA — Thibault', 'AKENA — Rémi', 'AKENA — Cédric', 'Permis-Construire.com'];
+
+    public static function closedStatuses(): array
+    {
+        return [DossierStatus::Accorde->value, DossierStatus::Refuse->value, DossierStatus::Abandonne->value];
+    }
+
+    /** Relance prévue aujourd'hui ou déjà passée. */
+    public function isFollowUpDue(): bool
+    {
+        return $this->follow_up_at !== null && $this->follow_up_at->lte(today());
+    }
+
+    /** Dossiers dont la date de relance est arrivée. */
+    public function scopeFollowUpDue($query)
+    {
+        return $query->whereNotNull('follow_up_at')->whereDate('follow_up_at', '<=', today());
+    }
+
+    public function scopeOpen($query)
+    {
+        return $query->whereNotIn('status', static::closedStatuses());
     }
 
     public function siteAddress(): string

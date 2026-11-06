@@ -129,6 +129,7 @@ class DossierWorkflow
     public static function markCompleted(Dossier $dossier, Carbon $date): void
     {
         $dossier->deposit_date = $date;
+        $dossier->incomplete_answered_at = $date;
         $dossier->status = DossierStatus::EnInstruction;
         $dossier->decision_due_date = $dossier->computeDecisionDueDate();
         $dossier->save();
@@ -158,5 +159,29 @@ class DossierWorkflow
                 : ["La mairie a rendu une décision défavorable le {$date->format('d/m/Y')}.", 'Je vous appelle pour voir ensemble les solutions possibles.'],
             'Voir mon dossier',
         ));
+    }
+
+    /**
+     * Mise à jour du suivi (ce qui remplaçait une ligne du fichier Excel) : prochaine action,
+     * qui doit agir, date de relance, priorité, pièces manquantes, et une note datée au journal.
+     */
+    public static function updateFollowUp(Dossier $dossier, array $data): void
+    {
+        $fields = ['follow_up_action', 'waiting_on', 'waiting_on_details', 'follow_up_at', 'priority', 'missing_pieces'];
+        $dossier->fill(array_intersect_key($data, array_flip($fields)));
+        $changed = $dossier->isDirty();
+        $dossier->save();
+
+        $note = trim((string) ($data['note'] ?? ''));
+        if ($note !== '') {
+            $dossier->log('suivi', $note, (bool) ($data['note_visible'] ?? false));
+        } elseif ($changed) {
+            $parts = array_filter([
+                $dossier->follow_up_action ? 'À faire : '.$dossier->follow_up_action : null,
+                $dossier->waiting_on ? 'En attente de : '.mb_strtolower($dossier->waiting_on->label()) : null,
+                $dossier->follow_up_at ? 'relance le '.$dossier->follow_up_at->format('d/m/Y') : null,
+            ]);
+            $dossier->log('suivi', 'Suivi mis à jour'.($parts ? ' — '.implode(' ; ', $parts) : ''));
+        }
     }
 }

@@ -133,6 +133,11 @@
                 <span>
                     {{ $label }}
                     @if ($key === 'depot' && $dossier->deposit_date)<br><span class="muted" style="font-weight:400">Déposé le {{ $dossier->deposit_date->format('d/m/Y') }}@if ($dossier->deposit_number) — n° {{ $dossier->deposit_number }}@endif</span>@endif
+                    @if ($key === 'instruction' && $current === 'instruction')
+                        @if ($dossier->instruction_started_at)<br><span class="muted" style="font-weight:400">Instruction commencée le {{ $dossier->instruction_started_at->format('d/m/Y') }}</span>@endif
+                        @if ($dossier->incomplete_notified_at && $dossier->status->value === 'incomplet')<br><span class="muted" style="font-weight:400">La mairie a demandé des pièces le {{ $dossier->incomplete_notified_at->format('d/m/Y') }} : je prépare la réponse</span>@endif
+                        @if ($dossier->incomplete_answered_at && $dossier->status->value !== 'incomplet')<br><span class="muted" style="font-weight:400">Pièces complémentaires envoyées à la mairie le {{ $dossier->incomplete_answered_at->format('d/m/Y') }}</span>@endif
+                    @endif
                     @if ($key === 'instruction' && $dossier->decision_due_date && $current === 'instruction')<br><span class="muted" style="font-weight:400">Réponse de la mairie attendue au plus tard le {{ $dossier->decision_due_date->format('d/m/Y') }}</span>@endif
                     @if ($key === 'decision' && $dossier->decision_date)<br><span style="font-weight:400">{{ $dossier->status->label() }} le {{ $dossier->decision_date->format('d/m/Y') }}</span>@endif
                 </span>

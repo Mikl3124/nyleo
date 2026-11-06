@@ -21,6 +21,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
+use Filament\Schemas\Components\Grid;
 use Filament\Support\Icons\Heroicon;
 
 class ViewDossier extends ViewRecord
@@ -39,6 +40,21 @@ class ViewDossier extends ViewRecord
         $dir = 'dossiers/'.$d->id;
 
         return [
+            Action::make('followUp')->label('Mettre à jour le suivi')->icon(Heroicon::OutlinedClipboardDocumentCheck)->color('gray')
+                ->modalHeading('Suivi du dossier')->modalSubmitActionLabel('Enregistrer')
+                ->modalDescription('Prochaine action, relance et attente. La note éventuelle est ajoutée au journal avec la date du jour.')
+                ->fillForm(fn () => $d->only(['follow_up_action', 'waiting_on', 'waiting_on_details', 'follow_up_at', 'priority', 'missing_pieces']))
+                ->schema([
+                    Grid::make(3)->schema(DossierResource::followUpFields()),
+                    Textarea::make('note')->label('Note datée au journal (facultatif)')->rows(2)
+                        ->placeholder('Ex. Appelé le client, il envoie les photos demain'),
+                    ToggleButtons::make('note_visible')->label('Note visible par le client')->boolean()->inline()->default(false),
+                ])
+                ->action(function (array $data) use ($d) {
+                    DossierWorkflow::updateFollowUp($d, $data);
+                    Notification::make()->title('Suivi mis à jour')->success()->send();
+                }),
+
             Action::make('newQuote')->label('Nouveau devis')->icon(Heroicon::OutlinedDocumentPlus)->color('gray')
                 ->visible(fn () => in_array($d->status, [DossierStatus::Nouveau, DossierStatus::DevisEnvoye], true))
                 ->url(fn () => QuoteResource::getUrl('create', ['client' => $d->client_id, 'dossier' => $d->id])),
