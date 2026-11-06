@@ -7,10 +7,12 @@
     $nav = [
         'site.dp' => 'Déclaration préalable',
         'site.pc' => 'Permis de construire',
+        'site.areas' => 'Secteurs',
         'site.pricing' => 'Tarifs',
+        'site.about' => 'Qui suis-je',
         'site.faq' => 'Questions',
-        'site.contact' => 'Contact',
     ];
+    $base = \App\Support\Geo::base();
 @endphp
 <!DOCTYPE html>
 <html lang="fr">
@@ -25,10 +27,14 @@
     <meta property="og:title" content="{{ $fullTitle }}">
     <meta property="og:description" content="{{ $description }}">
     <meta property="og:url" content="{{ url()->current() }}">
-    <meta name="theme-color" content="#1e3447">
+    <meta name="theme-color" content="#1d3f91">
+    <meta property="og:image" content="{{ asset('img/og-nyleo.png') }}">
+    <meta name="geo.region" content="FR-NAQ">
+    <meta name="geo.placename" content="{{ $base['name'] }}">
     <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
-    <link rel="preload" href="{{ asset('fonts/site/inter-latin-400-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="{{ asset('fonts/site/fraunces-latin-600-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
+    <link rel="preload" href="{{ asset('fonts/site/atkinson-hyperlegible-latin-400-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ asset('fonts/site/archivo-var.woff2') }}" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="{{ asset('css/site.css') }}?v={{ filemtime(public_path('css/site.css')) }}">
     <script type="application/ld+json">{!! json_encode(array_filter([
         '@context' => 'https://schema.org',
@@ -38,7 +44,10 @@
         'url' => url('/'),
         'telephone' => $company->phone,
         'email' => $company->email,
-        'address' => $company->city ? ['@type' => 'PostalAddress', 'streetAddress' => $company->address, 'postalCode' => $company->postal_code, 'addressLocality' => $company->city, 'addressCountry' => 'FR'] : null,
+        'logo' => asset('img/logo-nyleo.png'),
+        'image' => asset('img/og-nyleo.png'),
+        'priceRange' => '€€',
+        'address' => $company->city ? ['@type' => 'PostalAddress', 'streetAddress' => $company->address, 'postalCode' => $company->postal_code, 'addressLocality' => $company->city, 'addressCountry' => 'FR'] : ['@type' => 'PostalAddress', 'addressLocality' => $base['name'], 'postalCode' => $base['cp'][0] ?? null, 'addressRegion' => 'Dordogne', 'addressCountry' => 'FR'],
         'areaServed' => [['@type' => 'AdministrativeArea', 'name' => 'Dordogne'], ['@type' => 'AdministrativeArea', 'name' => 'Gironde']],
         'serviceType' => ['Déclaration préalable de travaux', 'Permis de construire', 'Plans de maison'],
     ]), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>
@@ -46,25 +55,32 @@
 </head>
 <body>
 <a class="skip" href="#contenu">Aller au contenu</a>
+<div class="topbar">
+    <div class="wrap">
+        <div class="dots"><span>Bureau à {{ $base['name'] }}, Dordogne</span><span>Dordogne et Gironde</span><span>Devis gratuit sous 48 h</span></div>
+        @if ($tel)<a href="tel:{{ $tel }}">{{ $company->phone }}</a>@endif
+    </div>
+</div>
 <header class="site-head">
     <div class="wrap">
         <a class="brand" href="{{ route('home') }}" aria-label="{{ $company->displayName() }}, accueil">
             @include('site.partials.logo')
-            <span><b>{{ $company->displayName() }}</b><small>Plans · DP · Permis de construire</small></span>
+            <span><b>{{ \Illuminate\Support\Str::lower($company->displayName()) }}</b><small>Plans &amp; permis · 24 · 33</small></span>
         </a>
         <nav class="nav" aria-label="Menu principal">
-            @foreach ($nav as $r => $l)<a href="{{ route($r) }}" @if (request()->routeIs($r)) aria-current="page" @endif>{{ $l }}</a>@endforeach
+            @foreach ($nav as $r => $l)<a href="{{ route($r) }}" @if (request()->routeIs($r) || ($r === 'site.areas' && request()->routeIs('site.area', 'site.town'))) aria-current="page" @endif>{{ $l }}</a>@endforeach
         </nav>
         <div class="head-actions">
-            @if ($tel)<a class="phone" href="tel:{{ $tel }}">@include('site.partials.icon', ['name' => 'phone']) {{ $company->phone }}</a>@endif
-            <a class="btn sm ghost" href="{{ route('portal.login') }}">@include('site.partials.icon', ['name' => 'user']) Espace client</a>
+            @if ($tel)<a class="phone-pill" href="tel:{{ $tel }}"><small>Appelez-moi</small><b>@include('site.partials.icon', ['name' => 'phone']) {{ $company->phone }}</b></a>@endif
+            <a class="btn cta sm" href="{{ route('site.contact') }}">Devis gratuit</a>
         </div>
         <details class="menu">
             <summary>Menu</summary>
             <div class="menu-panel">
                 @foreach ($nav as $r => $l)<a href="{{ route($r) }}">{{ $l }}</a>@endforeach
+                <a href="{{ route('site.contact') }}">Contact</a>
                 <a href="{{ route('portal.login') }}">Espace client</a>
-                @if ($tel)<a class="btn green" href="tel:{{ $tel }}">@include('site.partials.icon', ['name' => 'phone']) Appeler le {{ $company->phone }}</a>@endif
+                @if ($tel)<a class="btn cta" href="tel:{{ $tel }}">@include('site.partials.icon', ['name' => 'phone']) Appeler le {{ $company->phone }}</a>@endif
             </div>
         </details>
     </div>
@@ -78,8 +94,9 @@
     <div class="wrap">
         <div class="foot-grid">
             <div>
-                <a class="brand" href="{{ route('home') }}">@include('site.partials.logo')<span><b>{{ $company->displayName() }}</b><small>Plans · DP · Permis de construire</small></span></a>
-                <p style="margin-top:18px;max-width:22em">Plans et dossiers d'urbanisme pour les particuliers, de la première esquisse à la décision de la mairie.</p>
+                <a class="brand" href="{{ route('home') }}">@include('site.partials.logo')<span><b>{{ \Illuminate\Support\Str::lower($company->displayName()) }}</b><small>Plans &amp; permis · 24 · 33</small></span></a>
+                <p style="margin-top:18px;max-width:24em">Plans et dossiers de déclaration préalable et de permis de construire, dessinés depuis {{ $base['name'] }}, en Dordogne, pour les particuliers de Dordogne et de Gironde.</p>
+                @if ($tel)<p><a href="tel:{{ $tel }}" style="font-family:var(--display);font-stretch:115%;font-weight:800;font-size:1.4rem;color:#fff">{{ $company->phone }}</a></p>@endif
             </div>
             <div>
                 <h4>Prestations</h4>
@@ -88,35 +105,28 @@
                     <li><a href="{{ route('site.pc') }}">Permis de construire</a></li>
                     <li><a href="{{ route('site.pricing') }}">Tarifs</a></li>
                     <li><a href="{{ route('site.faq') }}">Questions fréquentes</a></li>
+                    <li><a href="{{ route('site.about') }}">Qui suis-je</a></li>
                 </ul>
             </div>
             <div>
-                <h4>Secteurs</h4>
-                <ul>
-                    <li><a href="{{ route('site.area', 'dordogne') }}">Dordogne (24)</a></li>
-                    <li><a href="{{ route('site.area', 'gironde') }}">Gironde (33)</a></li>
-                </ul>
+                <h4>Dordogne</h4>
+                <div class="foot-towns">@foreach (\App\Support\Geo::pages('dordogne')->take(10) as $t)<a href="{{ \App\Support\Geo::url($t) }}">{{ $t['name'] }}</a>@endforeach<a href="{{ route('site.area', 'dordogne') }}"><b>Toutes</b></a></div>
             </div>
             <div>
-                <h4>Contact</h4>
-                <ul>
-                    @if ($tel)<li><a href="tel:{{ $tel }}">{{ $company->phone }}</a></li>@endif
-                    @if ($company->email)<li><a href="mailto:{{ $company->email }}">{{ $company->email }}</a></li>@endif
-                    <li><a href="{{ route('site.contact') }}">Demander un devis</a></li>
-                    <li><a href="{{ route('portal.login') }}">Espace client</a></li>
-                </ul>
+                <h4>Gironde</h4>
+                <div class="foot-towns">@foreach (\App\Support\Geo::pages('gironde')->take(10) as $t)<a href="{{ \App\Support\Geo::url($t) }}">{{ $t['name'] }}</a>@endforeach<a href="{{ route('site.area', 'gironde') }}"><b>Toutes</b></a></div>
             </div>
         </div>
         <div class="foot-bottom">
-            <span>© {{ now()->year }} {{ $company->company_name ?: $company->displayName() }}</span>
-            <span><a href="{{ route('legal') }}">Mentions légales</a> · <a href="{{ route('privacy') }}">Confidentialité</a>@if ($company->cgv_url ?? null) · <a href="{{ $company->cgv_url }}">CGV</a>@endif</span>
+            <span>© {{ now()->year }} {{ $company->company_name ?: $company->displayName() }}@if ($company->siret) · SIRET {{ $company->siret }}@endif</span>
+            <span><a href="{{ route('portal.login') }}">Espace client</a> · <a href="{{ route('legal') }}">Mentions légales</a> · <a href="{{ route('privacy') }}">Confidentialité</a>@if ($company->cgv_url) · <a href="{{ $company->cgv_url }}">CGV</a>@endif</span>
         </div>
     </div>
 </footer>
 
 <div class="callbar">
     @if ($tel)<a class="btn" href="tel:{{ $tel }}">@include('site.partials.icon', ['name' => 'phone']) Appeler</a>@endif
-    <a class="btn green" href="{{ route('site.contact') }}">Devis gratuit</a>
+    <a class="btn cta" href="{{ route('site.contact') }}">Devis gratuit</a>
 </div>
 </body>
 </html>

@@ -6,9 +6,9 @@
 @endpush
 @section('content')
 @include('site.partials.page-hero', [
-    'crumb' => 'Questions fréquentes', 'kicker' => 'Vos questions',
-    'h1' => 'Les réponses <em>simples</em> à vos questions',
-    'lead' => "Une question qui n'est pas ici ? Appelez-moi, c'est le plus simple.",
+    'crumbs' => 'Questions fréquentes', 'kicker' => 'Vos questions',
+    'h1' => 'Les réponses <span class="hl">simples</span> à vos questions',
+    'lead' => "Une question qui n'est pas ici ? Appelez-moi, c'est le plus simple.",
 ])
 <section>
     <div class="wrap">

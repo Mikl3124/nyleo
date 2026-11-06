@@ -1,172 +1,147 @@
 @extends('layouts.site')
 @php
     use App\Support\SiteContent;
+    use App\Support\Geo;
     $c = \App\Models\CompanySetting::current();
+    $tel = $c->phone ? preg_replace('/\s+/', '', $c->phone) : null;
+    $base = Geo::base();
     $fmt = fn ($p) => $p ? number_format($p, 0, ',', ' ').' €' : null;
 @endphp
 @section('content')
 <section class="hero">
     <div class="wrap">
         <div>
-            <span class="kicker">Dordogne · Gironde</span>
-            <h1>Vos plans de permis et de déclaration préalable, <em>dessinés et déposés</em> pour vous.</h1>
-            <p class="lead">Véranda, pergola, piscine, extension ou maison : je dessine les plans, je remplis le formulaire CERFA et je dépose votre dossier en mairie. Vous n'avez qu'à signer.</p>
+            <span class="eyebrow">Dessinateur en Dordogne · Gironde</span>
+            <h1>Vos plans de permis et de déclaration préalable, <span class="hl">près de chez vous</span>.</h1>
+            <p class="lead">Je dessine vos plans, je remplis le formulaire et je dépose le dossier en mairie à votre place. Depuis {{ $base['name'] }}, pour toute la Dordogne et la Gironde.</p>
             <div class="hero-cta">
-                <a class="btn green" href="{{ route('site.contact') }}">Demander un devis gratuit @include('site.partials.icon', ['name' => 'arrow'])</a>
-                @if ($c->phone)<a class="btn light" href="tel:{{ preg_replace('/\s+/', '', $c->phone) }}">@include('site.partials.icon', ['name' => 'phone']) {{ $c->phone }}</a>@endif
+                @if ($tel)<a class="btn cta" href="tel:{{ $tel }}">@include('site.partials.icon', ['name' => 'phone']) <span>Appeler le {{ $c->phone }}</span></a>@endif
+                <a class="btn ghost" href="{{ route('site.contact') }}">Demander un devis gratuit</a>
             </div>
-            <ul class="checks">
-                <li>@include('site.partials.icon', ['name' => 'check']) Prix fixe annoncé dans le devis, sans surprise</li>
-                <li>@include('site.partials.icon', ['name' => 'check']) Dossier déposé en votre nom, en ligne ou en mairie</li>
-                <li>@include('site.partials.icon', ['name' => 'check']) Suivi de l'instruction jusqu'à la décision</li>
+            <ul class="proof">
+                <li>@include('site.partials.icon', ['name' => 'check']) Prix fixe dans le devis</li>
+                <li>@include('site.partials.icon', ['name' => 'check']) Vous payez après validation des plans</li>
+                <li>@include('site.partials.icon', ['name' => 'check']) Suivi jusqu'à la décision</li>
             </ul>
         </div>
-        <div class="drawing">@include('site.partials.drawing')</div>
+        <div class="map-card">
+            @include('site.partials.map-region')
+            <div class="legend"><span><i style="background:var(--ochre);border:1px solid var(--ink)"></i>Le bureau, à {{ $base['name'] }}</span><span><i style="background:#fff;border:1px solid var(--blue)"></i>{{ Geo::pages()->count() }} communes avec leur page</span><span>Cercles : 25, 50, 100 km</span></div>
+            <div class="badge-local"><span class="av">M</span><span><b>Mickaël, votre interlocuteur</b><small>Un seul contact, du devis à la décision</small></span></div>
+        </div>
+    </div>
+</section>
+
+@include('site.partials.trust')
+
+<section>
+    <div class="wrap">
+        <div class="sec-head row">
+            <div>
+                <span class="eyebrow">Simulateur</span>
+                <h2>Déclaration préalable ou permis ? Faites le test.</h2>
+                <p class="lead">Indiquez votre projet et la surface : vous voyez tout de suite la démarche, le délai et le prix de départ.</p>
+            </div>
+        </div>
+        @include('site.partials.simulator', ['prices' => $prices])
+    </div>
+</section>
+
+<section class="stone">
+    <div class="wrap">
+        <div class="sec-head row">
+            <div>
+                <span class="eyebrow">Vos projets</span>
+                <h2>Ce que je dessine chaque semaine</h2>
+            </div>
+            <a class="link-arrow" href="{{ route('site.pricing') }}">Voir les tarifs @include('site.partials.icon', ['name' => 'arrow'])</a>
+        </div>
+        @include('site.partials.project-cards')
     </div>
 </section>
 
 <section>
     <div class="wrap">
-        <div class="section-head">
-            <span class="kicker">Deux démarches</span>
-            <h2>Déclaration préalable ou permis de construire : <em>je m'occupe de tout.</em></h2>
-            <p class="lead">Le choix dépend surtout de la surface créée. Au premier appel, je vous dis laquelle s'applique à votre projet.</p>
+        <div class="sec-head">
+            <span class="eyebrow">Qui fait quoi</span>
+            <h2>Vous n'avez presque rien à faire</h2>
+            <p class="lead">Cinq étapes. En orange ce que vous faites, en bleu ce dont je m'occupe.</p>
         </div>
-        <div class="duo">
-            <article class="offer">
-                <span class="code">CERFA 13703</span>
-                <h3>Déclaration préalable</h3>
-                <p class="muted">Pour les petits projets : de 5 à 20 m² en général, jusqu'à 40 m² pour une extension en zone urbaine.</p>
-                <ul>
-                    <li>Véranda, pergola, carport, abri de jardin</li>
-                    <li>Piscine, clôture, portail</li>
-                    <li>Fenêtres, façade, toiture, panneaux solaires</li>
-                </ul>
-                <div class="foot">
-                    <div class="price">@if ($fmt($prices['DP'] ?? null))<small>À partir de</small><b>{{ $fmt($prices['DP']) }}</b>@else<small>Sur devis</small>@endif</div>
-                    <a class="btn ghost" href="{{ route('site.dp') }}">En savoir plus</a>
-                </div>
-            </article>
-            <article class="offer">
-                <span class="code">CERFA 13406</span>
-                <h3>Permis de construire</h3>
-                <p class="muted">Pour une maison neuve, ou une extension ou un garage de plus de 20 m² (40 m² en zone urbaine).</p>
-                <ul>
-                    <li>Maison individuelle de moins de 150 m²</li>
-                    <li>Extension, garage, grande véranda</li>
-                    <li>Au-delà de 150 m², avec un architecte partenaire</li>
-                </ul>
-                <div class="foot">
-                    <div class="price">@if ($fmt($prices['PC'] ?? null))<small>À partir de</small><b>{{ $fmt($prices['PC']) }}</b>@else<small>Sur devis</small>@endif</div>
-                    <a class="btn ghost" href="{{ route('site.pc') }}">En savoir plus</a>
-                </div>
-            </article>
-        </div>
+        @include('site.partials.lanes')
     </div>
 </section>
 
-<section class="alt">
-    <div class="wrap">
-        <div class="section-head">
-            <span class="kicker">Vos projets</span>
-            <h2>Les projets que je dessine le plus souvent</h2>
-        </div>
-        <div class="projects">
-            @foreach (SiteContent::PROJECTS as [$icon, $title, $proc, $line])
-                <div class="project">
-                    @include('site.partials.icon', ['name' => $icon])
-                    <div><h3>{{ $title }}</h3><p>{{ $line }}</p><span class="tag">{{ $proc }}</span></div>
-                </div>
-            @endforeach
-        </div>
-    </div>
-</section>
-
-<section>
-    <div class="wrap">
-        <div class="section-head">
-            <span class="kicker">Comment ça se passe</span>
-            <h2>Cinq étapes, <em>et vous ne vous occupez que de la première.</em></h2>
-        </div>
-        <ol class="steps">
-            @foreach (SiteContent::STEPS as [$t, $d])<li><h3>{{ $t }}</h3><p>{{ $d }}</p></li>@endforeach
-        </ol>
-    </div>
-</section>
-
-<section class="alt">
+<section class="stone">
     <div class="wrap split">
         <div>
-            <span class="kicker">Le dossier complet</span>
-            <h2>Toutes les pièces demandées par la mairie, <em>prêtes à déposer.</em></h2>
-            <p class="lead">Un dossier incomplet, c'est un mois de perdu. Chaque pièce est dessinée selon la nomenclature officielle et vérifiée avant le dépôt.</p>
-            <p><a class="btn ghost" href="{{ route('site.pricing') }}">Voir le détail des tarifs</a></p>
+            <span class="eyebrow">Le dossier</span>
+            <h2>Toutes les pièces demandées, dessinées pour vous</h2>
+            <p class="lead">Un dossier incomplet, c'est un mois de perdu. Chaque planche porte son code officiel et elle est vérifiée avant le dépôt.</p>
+            <div class="duo" style="grid-template-columns:1fr 1fr;gap:14px;margin-top:26px">
+                <div class="box"><span class="muted">Déclaration préalable</span><div class="price"><small>à partir de</small><b>{{ $fmt($prices['DP'] ?? null) ?? 'Sur devis' }}</b></div><a class="link-arrow" href="{{ route('site.dp') }}" style="margin-top:8px">Détails @include('site.partials.icon', ['name' => 'arrow'])</a></div>
+                <div class="box"><span class="muted">Permis de construire</span><div class="price"><small>à partir de</small><b>{{ $fmt($prices['PC'] ?? null) ?? 'Sur devis' }}</b></div><a class="link-arrow" href="{{ route('site.pc') }}" style="margin-top:8px">Détails @include('site.partials.icon', ['name' => 'arrow'])</a></div>
+            </div>
         </div>
-        <div class="plates">
-            @foreach (SiteContent::DP_PIECES as [$code, $name, $hint])
-                <div class="plate"><b>{{ $code }}</b><span>{{ $name }}</span><small>{{ $hint }}</small></div>
-            @endforeach
-        </div>
+        @include('site.partials.plates', ['pieces' => SiteContent::DP_PIECES])
     </div>
 </section>
 
 <section>
     <div class="wrap">
-        <div class="section-head">
-            <span class="kicker">Délais d'instruction</span>
-            <h2>Combien de temps pour avoir la réponse ?</h2>
+        <div class="sec-head">
+            <span class="eyebrow">Délais</span>
+            <h2>Combien de temps avant la réponse ?</h2>
+            <p class="lead">Le délai court à partir du dossier complet. Sans réponse à la fin du délai, l'accord est en principe tacite. Je surveille ces dates pour vous.</p>
         </div>
-        <table class="delays">
-            <thead><tr><th>Démarche</th><th>Délai légal</th><th>Près d'un monument historique</th></tr></thead>
-            <tbody>
-                <tr><td>Déclaration préalable</td><td><b>1 mois</b></td><td>2 mois</td></tr>
-                <tr><td>Permis de construire, maison individuelle ou extension</td><td><b>2 mois</b></td><td>3 mois</td></tr>
-                <tr><td>Autres permis de construire</td><td><b>3 mois</b></td><td>4 mois</td></tr>
-            </tbody>
-        </table>
-        <p class="note">Le délai court à partir du moment où le dossier est complet. Sans réponse de la mairie à la fin du délai, l'accord est en principe tacite. Je surveille ces dates pour vous.</p>
+        @include('site.partials.timeline')
     </div>
 </section>
 
-<section class="alt">
+<section class="stone">
     <div class="wrap">
-        <div class="section-head">
-            <span class="kicker">Secteurs</span>
-            <h2>En Dordogne et en Gironde</h2>
-            <p class="lead">Je connais les règlements locaux et les services instructeurs des deux départements. Tout se fait à distance, par téléphone et en ligne.</p>
+        <div class="sec-head row">
+            <div>
+                <span class="eyebrow">Secteurs</span>
+                <h2>Toute la Dordogne et toute la Gironde</h2>
+                <p class="lead">Je connais les règlements et les services instructeurs des deux départements. Trouvez votre commune.</p>
+            </div>
         </div>
-        <div class="areas">
-            @foreach (SiteContent::DEPARTMENTS as $slug => $dep)
-                <article class="area">
-                    <span class="num" aria-hidden="true">{{ $dep['code'] }}</span>
-                    <h3 style="font-size:1.6rem">{{ $dep['name'] }}</h3>
-                    <ul class="towns">@foreach (array_slice($dep['towns'], 0, 10) as $t)<li>{{ $t }}</li>@endforeach<li>et alentours</li></ul>
-                    <a class="btn ghost sm" href="{{ route('site.area', $slug) }}">Mon intervention en {{ $dep['name'] }}</a>
-                </article>
-            @endforeach
-        </div>
+        @include('site.partials.dep-cards')
     </div>
 </section>
 
 <section>
-    <div class="wrap">
-        <div class="section-head">
-            <span class="kicker">Questions fréquentes</span>
-            <h2>Vous vous demandez peut-être…</h2>
+    <div class="wrap about">
+        @include('site.partials.portrait')
+        <div>
+            <span class="eyebrow">Qui suis-je</span>
+            <h2>Un dessinateur du coin, joignable en direct</h2>
+            <p class="lead">Je m'appelle Mickaël. Mon bureau est à {{ $base['name'] }}, près de Mussidan, entre Périgueux et Libourne. Vous m'appelez, vous me parlez de votre projet, et c'est moi qui dessine et qui dépose votre dossier.</p>
+            <div class="values">
+                <div><b>Un seul interlocuteur</b><span>Pas de standard ni de plateforme : vous parlez à la personne qui dessine.</span></div>
+                <div><b>Des plans soignés</b><span>Clairs pour la mairie, compréhensibles pour vous.</span></div>
+                <div><b>Des prix fixes</b><span>Le prix du devis est le prix final, sauf option demandée.</span></div>
+                <div><b>Simple pour tous</b><span>Pas de mot de passe, de gros boutons, et le téléphone pour le reste.</span></div>
+            </div>
+            <p style="margin-top:24px"><a class="link-arrow" href="{{ route('site.about') }}">En savoir plus @include('site.partials.icon', ['name' => 'arrow'])</a></p>
         </div>
-        <div class="faq">
-            @foreach (array_slice(SiteContent::FAQ, 0, 4) as [$q, $a])<details><summary>{{ $q }}</summary><p>{{ $a }}</p></details>@endforeach
-        </div>
-        <p style="margin-top:22px"><a href="{{ route('site.faq') }}">Toutes les questions @include('site.partials.icon', ['name' => 'arrow'])</a></p>
     </div>
 </section>
 
-<section class="alt" id="contact">
+<section class="stone">
+    <div class="wrap">
+        <div class="sec-head"><span class="eyebrow">Questions fréquentes</span><h2>Vous vous demandez peut-être…</h2></div>
+        <div class="faq">@foreach (array_slice(SiteContent::FAQ, 0, 5) as [$q, $a])<details><summary>{{ $q }}</summary><p>{{ $a }}</p></details>@endforeach</div>
+        <p style="margin-top:22px"><a class="link-arrow" href="{{ route('site.faq') }}">Toutes les questions @include('site.partials.icon', ['name' => 'arrow'])</a></p>
+    </div>
+</section>
+
+<section id="contact">
     <div class="wrap contact">
         <div>
-            <span class="kicker">Devis gratuit</span>
+            <span class="eyebrow">Devis gratuit</span>
             <h2>Parlez-moi de votre projet</h2>
-            <p class="lead">Remplissez ce formulaire ou appelez-moi directement. Je vous rappelle pour en parler, puis je vous envoie un devis clair.</p>
+            <p class="lead">Trois questions, et je vous rappelle pour en parler. Vous préférez le téléphone ? Appelez directement.</p>
             @include('site.partials.contact-info')
         </div>
         @include('site.partials.contact-form')

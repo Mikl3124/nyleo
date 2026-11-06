@@ -7,8 +7,8 @@
 @endphp
 @section('content')
 @include('site.partials.page-hero', [
-    'crumb' => 'Tarifs', 'kicker' => 'Prix fixes',
-    'h1' => 'Des tarifs <em>clairs</em>, annoncés avant de commencer.',
+    'crumbs' => 'Tarifs', 'kicker' => 'Prix fixes',
+    'h1' => 'Des tarifs <span class="hl">clairs</span>, annoncés avant de commencer.',
     'lead' => "Chaque projet est différent : le prix exact figure dans votre devis gratuit. Voici les tarifs de départ, dossier complet, dépôt et suivi compris.",
 ])
 <section>

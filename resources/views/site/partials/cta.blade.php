@@ -1,14 +1,18 @@
 @php($c = \App\Models\CompanySetting::current())
 <section class="tight">
     <div class="wrap">
-        <div class="cta">
+        <div class="cta-band">
             <div>
-                <h2>Un projet ? Parlons-en simplement.</h2>
-                <p>Devis gratuit, prix fixe, sans engagement. Je vous dis tout de suite quelle démarche s'applique.</p>
+                <span class="eyebrow" style="color:var(--ochre)">Devis gratuit · réponse sous 48 h</span>
+                <h2>Parlons de votre projet</h2>
+                <p>Un appel suffit pour savoir quelle démarche s'applique et combien ça coûte. Sans engagement.</p>
             </div>
-            <div class="actions">
-                @if ($c->phone)<a class="btn green" href="tel:{{ preg_replace('/\s+/', '', $c->phone) }}">@include('site.partials.icon', ['name' => 'phone']) {{ $c->phone }}</a>@endif
-                <a class="btn light" href="{{ route('site.contact') }}">Demander un devis</a>
+            <div>
+                @if ($c->phone)<a class="big-phone" href="tel:{{ preg_replace('/\s+/', '', $c->phone) }}">{{ $c->phone }}</a>@endif
+                <div class="btn-stack">
+                    @if ($c->phone)<a class="btn cta" href="tel:{{ preg_replace('/\s+/', '', $c->phone) }}">@include('site.partials.icon', ['name' => 'phone']) Appeler</a>@endif
+                    <a class="btn light" href="{{ route('site.contact') }}">Demander un devis</a>
+                </div>
             </div>
         </div>
     </div>
