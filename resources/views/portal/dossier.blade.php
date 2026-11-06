@@ -24,7 +24,7 @@
     <div class="card action">
         <h2>À faire : signer votre devis</h2>
         <p>Devis {{ $pendingQuote->number }} — <strong>{{ money($pendingQuote->total_ttc) }}</strong></p>
-        <a class="btn" href="{{ route('portal.quotes.show', $pendingQuote) }}">Lire et signer le devis</a>
+        <a class="btn cta" href="{{ route('portal.quotes.show', $pendingQuote) }}">Lire et signer le devis</a>
     </div>
 @endif
 
@@ -35,7 +35,7 @@
         <p><a class="btn secondary" href="{{ route('portal.documents.download', $plan) }}" target="_blank">Ouvrir les plans</a></p>
         <form method="post" action="{{ route('portal.documents.validate', $plan) }}" onsubmit="return confirm('Confirmez-vous que les plans vous conviennent ?')">
             @csrf
-            <button class="btn block" type="submit">✓ Je valide les plans</button>
+            <button class="btn cta block" type="submit">✓ Je valide les plans</button>
         </form>
         <details style="margin-top:14px">
             <summary>Je souhaite une modification</summary>
@@ -96,7 +96,7 @@
         <p class="muted">Photos de la maison et du terrain sous plusieurs angles, plan cadastral, croquis… Vous pouvez en choisir plusieurs à la fois.</p>
         <form method="post" action="{{ route('portal.dossiers.upload', $dossier) }}" enctype="multipart/form-data">
             @csrf
-            <input type="file" name="files[]" multiple accept="image/*,.pdf" required style="font-size:1rem;padding:12px 0">
+            <input type="file" name="files[]" multiple accept="image/*,.pdf" required style="padding:12px 0">
             <p><button class="btn" type="submit">Envoyer mes fichiers</button></p>
         </form>
     </div>

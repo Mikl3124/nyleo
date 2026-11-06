@@ -1,0 +1,93 @@
+/* Administration Nyleo : même charte que le site (public/css/site.css) et l'espace client.
+   Couleurs Filament réglées dans App\Support\Brand ; ici, polices, fonds, arrondis et détails. */
+@font-face{font-family:"Archivo";src:url(../fonts/site/archivo-var.woff2) format("woff2");font-weight:100 900;font-stretch:62% 125%;font-display:swap}
+@font-face{font-family:"Atkinson Hyperlegible";src:url(../fonts/site/atkinson-hyperlegible-latin-400-normal.woff2) format("woff2");font-weight:400 500;font-display:swap}
+@font-face{font-family:"Atkinson Hyperlegible";src:url(../fonts/site/atkinson-hyperlegible-latin-400-italic.woff2) format("woff2");font-weight:400 500;font-style:italic;font-display:swap}
+@font-face{font-family:"Atkinson Hyperlegible";src:url(../fonts/site/atkinson-hyperlegible-latin-700-normal.woff2) format("woff2");font-weight:600 800;font-display:swap}
+@font-face{font-family:"IBM Plex Mono";src:url(../fonts/site/ibm-plex-mono-latin-500-normal.woff2) format("woff2");font-weight:500;font-display:swap}
+
+:root{
+  --ny-blue:#1d3f91;--ny-blue-d:#142d6c;--ny-blue-l:#e9eefa;
+  --ny-ochre:#e8a92b;--ny-ochre-l:#fcf3df;
+  --ny-ink:#101c36;--ny-ink-2:#3a4661;--ny-ink-3:#5b6580;
+  --ny-line:#dfe3eb;--ny-stone:#f2eee6;--ny-paper:#ffffff;
+  --ny-display:"Archivo","Arial Narrow",system-ui,sans-serif;
+  --ny-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --ny-shadow:0 1px 2px rgba(16,28,54,.05),0 10px 28px -18px rgba(16,28,54,.30);
+  /* Arrondis du site : 6 px pour les boutons et les champs, 14 px pour les cartes */
+  --radius-md:5px;--radius-lg:6px;--radius-xl:14px;
+}
+
+/* ---------- Fond et texte ---------- */
+.fi-body{background-color:var(--ny-stone);color:var(--ny-ink)}
+.fi-body ::selection{background:rgba(232,169,43,.35)}
+
+/* ---------- Logo ---------- */
+.fi-logo{margin-bottom:0}
+.nyleo-brand{display:inline-flex;align-items:center;gap:11px;height:100%;color:var(--ny-ink);text-decoration:none}
+.nyleo-brand .mark{height:100%;width:auto;flex:none;display:block}
+.nyleo-brand-text{display:flex;flex-direction:column;justify-content:center;text-align:left}
+.nyleo-brand-text b{font-family:var(--ny-display);font-stretch:125%;font-weight:800;font-size:1.5rem;line-height:1;letter-spacing:-.01em}
+.nyleo-brand-text small{font-family:var(--ny-mono);font-weight:500;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ny-ink-3);margin-top:5px;line-height:1}
+
+/* ---------- Titres : Archivo, comme le site ---------- */
+.fi-header-heading,.fi-simple-header-heading,.fi-modal-heading,.fi-section-header-heading,.fi-ta-header-heading,.fi-wi-stats-overview-stat-value,.fi-fo-wizard-header-step-label{font-family:var(--ny-display);color:var(--ny-ink)}
+.fi-header-heading{font-stretch:112%;font-weight:750;letter-spacing:-.015em;font-size:2rem;line-height:1.15}
+.fi-section-header-heading,.fi-ta-header-heading,.fi-modal-heading{font-stretch:108%;font-weight:700;letter-spacing:-.005em}
+.fi-wi-stats-overview-stat-value{font-stretch:110%;font-weight:750;letter-spacing:-.02em}
+.fi-wi-stats-overview-stat-label{color:var(--ny-ink-3)}
+.fi-header-subheading{color:var(--ny-ink-2)}
+.fi-breadcrumbs{font-family:var(--ny-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+
+/* ---------- Barre du haut ---------- */
+.fi-topbar{--tw-shadow:0 0 #0000;box-shadow:none;border-bottom:1px solid var(--ny-line);position:relative}
+.fi-topbar::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--ny-ink)}
+.fi-sidebar-header{box-shadow:none;border-bottom:1px solid var(--ny-line)}
+
+/* ---------- Menu de gauche ---------- */
+.fi-sidebar{background-color:var(--ny-stone)}
+.fi-sidebar-group-label{font-family:var(--ny-mono);font-weight:500;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ny-ink-3)}
+.fi-sidebar-item-label{color:var(--ny-ink-2);font-size:.95rem}
+.fi-sidebar-item-btn{transition:background-color .15s}
+.fi-sidebar-item:not(.fi-active)>.fi-sidebar-item-btn:hover{background-color:rgba(29,63,145,.07)}
+.fi-sidebar-item.fi-active>.fi-sidebar-item-btn{background-color:var(--ny-paper);box-shadow:inset 3px 0 0 var(--ny-ochre),0 1px 2px rgba(16,28,54,.06)}
+.fi-sidebar-item.fi-active>.fi-sidebar-item-btn>.fi-sidebar-item-label{color:var(--ny-blue);font-weight:700}
+.fi-sidebar-item.fi-active>.fi-sidebar-item-btn>.fi-icon{color:var(--ny-blue)}
+
+/* ---------- Cartes : sections, tableaux, chiffres, fenêtres ---------- */
+.fi-section:not(.fi-section-not-contained),.fi-ta-ctn,.fi-wi-stats-overview-stat,.fi-in-entry-wrp-ctn,.fi-fo-repeater-item{--tw-ring-color:var(--ny-line);--tw-shadow:var(--ny-shadow)}
+.fi-wi-stats-overview-stat{position:relative;overflow:hidden}
+.fi-wi-stats-overview-stat::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--ny-blue)}
+.fi-ta-header-cell{color:var(--ny-ink-2);font-weight:700}
+.fi-ta-row:hover{background-color:rgba(29,63,145,.03)}
+.fi-modal-window{border-radius:14px}
+
+/* ---------- Boutons et champs ---------- */
+.fi-btn{font-weight:700;letter-spacing:.005em}
+.fi-btn.fi-size-lg,.fi-btn.fi-size-xl{min-height:48px}
+.fi-link{font-weight:700}
+.fi-input-wrp{--tw-ring-color:#c6cdda}
+.fi-badge{font-weight:700}
+
+/* ---------- Pages de connexion et mot de passe oublié ---------- */
+.fi-simple-layout{background:
+  linear-gradient(var(--ny-stone),rgba(242,238,230,.55) 45%,var(--ny-stone)),
+  linear-gradient(rgba(29,63,145,.07) 1px,transparent 1px) 0 0/40px 40px,
+  linear-gradient(90deg,rgba(29,63,145,.07) 1px,transparent 1px) 0 0/40px 40px,
+  var(--ny-stone)}
+.nyleo-band{align-self:stretch;display:flex;justify-content:space-between;align-items:center;gap:16px;min-height:38px;padding:6px max(16px,env(safe-area-inset-left,0px));background:var(--ny-ink);color:#d9deea;font-family:var(--ny-mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase}
+.nyleo-band a{color:#fff;text-decoration:none;font-weight:500}
+.nyleo-band a:hover{color:var(--ny-ochre)}
+.fi-simple-main{border-radius:14px;--tw-ring-color:var(--ny-line);--tw-shadow:var(--ny-shadow);box-shadow:0 0 0 1px var(--ny-line),var(--ny-shadow);position:relative;overflow:hidden;margin-block:48px 20px}
+.fi-simple-main::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:var(--ny-blue)}
+.fi-simple-header .fi-logo{height:3rem!important;margin-bottom:22px;justify-content:center;display:flex}
+.fi-simple-header-heading{font-stretch:112%;font-weight:750;letter-spacing:-.015em;font-size:1.5rem;line-height:1.2;text-wrap:balance}
+.fi-simple-header-subheading{color:var(--ny-ink-2)}
+.fi-simple-page .fi-btn{min-height:48px;font-size:1rem}
+.nyleo-simple-foot{margin:0 0 40px;font-size:.95rem}
+.nyleo-simple-foot a{color:var(--ny-blue);text-underline-offset:3px;text-decoration-thickness:1px;font-weight:700}
+@media (max-width:40rem){
+  .nyleo-band span{display:none}
+  .nyleo-band{justify-content:flex-end}
+  .fi-simple-main{margin-block:24px 16px;width:calc(100% - 32px);padding-inline:20px;padding-block:36px}
+}
