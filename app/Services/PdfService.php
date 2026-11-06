@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\CompanySetting;
 use App\Models\Invoice;
 use App\Models\Quote;
+use App\Support\Typography;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 
@@ -16,7 +17,7 @@ class PdfService
         $company = $quote->company_snapshot ?: CompanySetting::current()->snapshot();
         $client = $quote->client_snapshot ?: $quote->client->snapshot();
 
-        return self::numberPages(Pdf::loadView('pdf.quote', compact('quote', 'company', 'client'))->setPaper('a4'), 'Devis '.($quote->number ?: '(brouillon)'));
+        return self::numberPages(Pdf::loadHTML(Typography::html(view('pdf.quote', compact('quote', 'company', 'client'))->render()))->setPaper('a4'), 'Devis '.($quote->number ?: '(brouillon)'));
     }
 
     public static function invoice(Invoice $invoice): \Barryvdh\DomPDF\PDF
@@ -25,7 +26,7 @@ class PdfService
         $company = $invoice->company_snapshot ?: CompanySetting::current()->snapshot();
         $client = $invoice->client_snapshot ?: $invoice->client->snapshot();
 
-        return self::numberPages(Pdf::loadView('pdf.invoice', compact('invoice', 'company', 'client'))->setPaper('a4'), $invoice->type->label().' '.($invoice->number ?: '(brouillon)'));
+        return self::numberPages(Pdf::loadHTML(Typography::html(view('pdf.invoice', compact('invoice', 'company', 'client'))->render()))->setPaper('a4'), $invoice->type->label().' '.($invoice->number ?: '(brouillon)'));
     }
 
     /** Ajoute « Devis D202611-132 • 1/2 » en bas à droite de chaque page. */

@@ -32,8 +32,17 @@ class AdminAlert extends Notification implements ShouldQueue
 
     public function toMail(object $notifiable): MailMessage
     {
-        $mail = (new MailMessage)->subject('[Nyleo] '.$this->title)->greeting($this->title)->line($this->body);
+        $mail = (new MailMessage)
+            ->subject('[Nyleo] '.$this->title)
+            ->line($this->body)
+            ->salutation('Nyleo · votre administration');
+        $mail->viewData = [
+            'eyebrow' => 'Notification Nyleo',
+            'title' => $this->title,
+            'preheader' => $this->body,
+            'buttonColor' => 'secondary', // bleu : couleur des actions de l'administration
+        ];
 
-        return $this->url ? $mail->action('Ouvrir dans Nyleo', $this->url) : $mail;
+        return $this->url ? $mail->action('Ouvrir dans l\'administration', $this->url) : $mail;
     }
 }

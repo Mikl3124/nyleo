@@ -63,6 +63,12 @@ class Geo
             ->take($n)->values();
     }
 
+    /** Les autres communes avec page de la même intercommunalité. */
+    public static function sameEpci(array $commune): Collection
+    {
+        return $commune['epci'] ? self::pages()->where('epci', $commune['epci'])->reject(fn ($c) => $c['code'] === $commune['code'])->sortBy('name')->values() : collect();
+    }
+
     public static function distance(array $a, array $b): int
     {
         return (int) round(hypot($a['x'] - $b['x'], $a['y'] - $b['y']));
@@ -118,6 +124,7 @@ class Geo
         return match (true) {
             str_starts_with($name, 'Les ') => 'des '.substr($name, 4),
             str_starts_with($name, 'Le ') => 'du '.substr($name, 3),
+            (bool) preg_match('/^[AEIOUYÉÈÊÎÔÂ]/u', $name) => "d'".$name,
             default => 'de '.$name,
         };
     }

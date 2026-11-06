@@ -2,15 +2,18 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\NyleoAvatarProvider;
+use App\Filament\Pages\Dashboard;
+use App\Support\Brand;
+use Filament\FontProviders\LocalFontProvider;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Navigation\NavigationGroup;
-use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -28,11 +31,19 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->passwordReset()
-            ->profile()
+            ->profile(isSimple: false)
             ->brandName('Nyleo')
-            ->colors([
-                'primary' => Color::Teal,
-            ])
+            // Charte Nyleo (voir App\Support\Brand) : mêmes couleurs, polices et logo que le site.
+            ->brandLogo(fn () => view('filament.brand'))
+            ->brandLogoHeight('2.75rem')
+            ->favicon(asset('favicon.svg'))
+            ->colors(Brand::filamentColors())
+            ->font('Atkinson Hyperlegible', provider: LocalFontProvider::class)
+            ->darkMode(false)
+            ->defaultAvatarProvider(NyleoAvatarProvider::class)
+            ->renderHook(PanelsRenderHook::STYLES_AFTER, fn () => view('filament.styles'))
+            ->renderHook(PanelsRenderHook::SIMPLE_LAYOUT_START, fn () => view('filament.simple-band'))
+            ->renderHook(PanelsRenderHook::SIMPLE_LAYOUT_END, fn () => view('filament.simple-footer'))
             ->databaseNotifications()
             ->databaseNotificationsPolling('60s')
             ->globalSearch()
@@ -57,6 +68,7 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                \App\Http\Middleware\FrenchTypography::class,
             ])
             ->authMiddleware([
                 Authenticate::class,

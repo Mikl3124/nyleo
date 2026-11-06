@@ -54,7 +54,6 @@ enum DossierStatus: string
     {
         return [
             'devis' => 'Devis',
-            'pieces' => 'Vos documents',
             'plans' => 'Réalisation des plans',
             'validation' => 'Validation des plans',
             'depot' => 'Dépôt en mairie',
@@ -67,8 +66,8 @@ enum DossierStatus: string
     {
         return match ($this) {
             self::Nouveau, self::DevisEnvoye => 'devis',
-            self::DevisSigne, self::PiecesAttendues => 'pieces',
-            self::PlansEnCours => 'plans',
+            // L'envoi de photos est facultatif : ce n'est pas une étape, on passe directement aux plans.
+            self::DevisSigne, self::PiecesAttendues, self::PlansEnCours => 'plans',
             self::PlansAValider, self::PlansValides => 'validation',
             self::Depose => 'depot',
             self::Incomplet, self::EnInstruction => 'instruction',

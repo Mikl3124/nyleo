@@ -10,6 +10,7 @@
             $dueText .= '<br><span style="font-size:8.5px">Merci d\'indiquer la référence <strong>'.e($invoice->number ?: '').'</strong> lors de votre virement.</span>';
         }
     }
+    $paymentQr = $isCredit ? null : \App\Support\PaymentQr::png($invoice, $company);
     $extraRows = [];
     if ((float) $invoice->deposits_deducted > 0) {
         $extraRows[] = ['Acomptes déjà versés', '− '.money($invoice->deposits_deducted), false];

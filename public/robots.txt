@@ -1,2 +1,5 @@
 User-agent: *
-Disallow:
+Disallow: /admin
+Disallow: /espace
+
+Sitemap: https://nyleo.fr/sitemap.xml

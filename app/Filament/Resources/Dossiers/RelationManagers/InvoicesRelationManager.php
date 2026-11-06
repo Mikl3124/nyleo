@@ -19,6 +19,8 @@ class InvoicesRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->emptyStateHeading('Aucune facture pour ce dossier')
+            ->emptyStateDescription(null)
             ->columns([
                 TextColumn::make('number')->label('N°')->placeholder('Brouillon'),
                 TextColumn::make('type')->label('Type')->formatStateUsing(fn (InvoiceType $state) => $state->label()),
@@ -34,6 +36,7 @@ class InvoicesRelationManager extends RelationManager
             ->recordActions([
                 InvoiceResource::paymentAction(),
                 Action::make('open')->label('Ouvrir')->url(fn ($record) => InvoiceResource::getUrl('edit', ['record' => $record])),
+                InvoiceResource::deleteAction(),
             ]);
     }
 }

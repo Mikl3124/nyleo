@@ -1,0 +1,362 @@
+/* E-mails Nyleo : charte du site (public/css/site.css), couleurs de App\Support\Brand.
+   Les polices du site ne sont pas chargées par les messageries : Arial les remplace. */
+
+/* Base */
+body,
+body *:not(html):not(style):not(br):not(tr):not(code) {
+    box-sizing: border-box;
+    font-family: 'Atkinson Hyperlegible', Arial, Helvetica, sans-serif;
+    position: relative;
+}
+
+body {
+    -webkit-text-size-adjust: none;
+    background-color: #f2eee6;
+    color: #101c36;
+    height: 100%;
+    line-height: 1.5;
+    margin: 0;
+    padding: 0;
+    width: 100% !important;
+}
+
+p,
+ul,
+ol,
+blockquote {
+    line-height: 1.55;
+    text-align: start;
+}
+
+a {
+    color: #1d3f91;
+}
+
+a img {
+    border: none;
+}
+
+/* Typography */
+h1 {
+    color: #101c36;
+    font-family: 'Archivo', Arial, Helvetica, sans-serif;
+    font-size: 24px;
+    font-weight: bold;
+    line-height: 1.25em;
+    margin-top: 0;
+    margin-bottom: 18px;
+    text-align: start;
+}
+
+h2 {
+    color: #101c36;
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 0;
+    text-align: start;
+}
+
+h3 {
+    color: #101c36;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 0;
+    text-align: left;
+}
+
+p {
+    color: #101c36;
+    font-size: 17px;
+    line-height: 1.55em;
+    margin-top: 0;
+    text-align: left;
+}
+
+p.sub {
+    font-size: 13px;
+}
+
+strong {
+    color: #101c36;
+}
+
+img {
+    max-width: 100%;
+}
+
+/* Layout */
+.wrapper {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    background-color: #f2eee6;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.content {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+/* Header */
+.header {
+    padding: 28px 0 22px;
+    text-align: center;
+}
+
+.header a {
+    color: #101c36;
+    font-size: 19px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+/* Logo */
+.logo {
+    height: 45px;
+    max-height: 45px;
+    width: 190px;
+}
+
+/* Body */
+.body {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    background-color: #f2eee6;
+    border-bottom: 1px solid #f2eee6;
+    border-top: 1px solid #f2eee6;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.inner-body {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 570px;
+    background-color: #ffffff;
+    border: 1px solid #dfe3eb;
+    border-top: 4px solid #1d3f91;
+    border-radius: 14px;
+    box-shadow: 0 10px 28px -18px rgba(16, 28, 54, 0.30);
+    margin: 0 auto;
+    padding: 0;
+    width: 570px;
+}
+
+.inner-body a {
+    word-break: break-word;
+}
+
+/* Subcopy */
+.subcopy {
+    border-top: 1px solid #dfe3eb;
+    margin-top: 25px;
+    padding-top: 22px;
+}
+
+.subcopy p {
+    color: #5b6580;
+    font-size: 14px;
+}
+
+/* Footer */
+.footer {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 570px;
+    margin: 0 auto;
+    padding: 0;
+    text-align: center;
+    width: 570px;
+}
+
+.footer p {
+    color: #5b6580;
+    font-size: 13px;
+    line-height: 1.6em;
+    text-align: center;
+}
+
+.footer a {
+    color: #3a4661;
+    text-decoration: underline;
+}
+
+/* Tables */
+.table table {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    margin: 30px auto;
+    width: 100%;
+}
+
+.table th {
+    border-bottom: 1px solid #dfe3eb;
+    margin: 0;
+    padding-bottom: 8px;
+}
+
+.table td {
+    color: #101c36;
+    font-size: 15px;
+    line-height: 18px;
+    margin: 0;
+    padding: 10px 0;
+}
+
+.content-cell {
+    max-width: 100vw;
+    padding: 32px;
+}
+
+/* Petite étiquette au-dessus du titre (IBM Plex Mono sur le site) */
+.eyebrow {
+    color: #1d3f91;
+    font-family: 'IBM Plex Mono', 'Courier New', monospace;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 0.08em;
+    margin: 0 0 8px;
+    text-transform: uppercase;
+}
+
+/* Récapitulatif (devis, facture, dossier) */
+.recap {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    border: 1px solid #dfe3eb;
+    border-radius: 10px;
+    border-collapse: separate;
+    margin: 4px 0 24px;
+    width: 100%;
+}
+
+.recap td {
+    border-bottom: 1px solid #dfe3eb;
+    font-size: 16px;
+    line-height: 1.4em;
+    padding: 11px 16px;
+}
+
+.recap tr:last-child td {
+    border-bottom: 0;
+}
+
+.recap-label {
+    color: #5b6580;
+}
+
+.recap-value {
+    color: #101c36;
+    font-weight: bold;
+    text-align: right;
+}
+
+/* Aide et signature */
+.help {
+    border-top: 1px solid #dfe3eb;
+    color: #3a4661;
+    font-size: 15px;
+    margin-top: 8px;
+    padding-top: 18px;
+}
+
+/* Buttons : ocre pour l'action principale, comme le bouton « Devis gratuit » du site */
+.action {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    margin: 26px auto 28px;
+    padding: 0;
+    text-align: center;
+    width: 100%;
+    float: unset;
+}
+
+.button {
+    -webkit-text-size-adjust: none;
+    border-radius: 6px;
+    color: #ffffff;
+    display: inline-block;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 1.2em;
+    overflow: hidden;
+    text-decoration: none;
+}
+
+.button-blue,
+.button-primary {
+    background-color: #e8a92b;
+    border-bottom: 16px solid #e8a92b;
+    border-left: 32px solid #e8a92b;
+    border-right: 32px solid #e8a92b;
+    border-top: 16px solid #e8a92b;
+    color: #101c36;
+}
+
+.button-secondary {
+    background-color: #1d3f91;
+    border-bottom: 16px solid #1d3f91;
+    border-left: 32px solid #1d3f91;
+    border-right: 32px solid #1d3f91;
+    border-top: 16px solid #1d3f91;
+    color: #ffffff;
+}
+
+.button-green,
+.button-success {
+    background-color: #2f7a4b;
+    border-bottom: 14px solid #2f7a4b;
+    border-left: 28px solid #2f7a4b;
+    border-right: 28px solid #2f7a4b;
+    border-top: 14px solid #2f7a4b;
+}
+
+.button-red,
+.button-error {
+    background-color: #a3271a;
+    border-bottom: 14px solid #a3271a;
+    border-left: 28px solid #a3271a;
+    border-right: 28px solid #a3271a;
+    border-top: 14px solid #a3271a;
+}
+
+/* Panels */
+.panel {
+    border-left: #e8a92b solid 4px;
+    margin: 21px 0;
+}
+
+.panel-content {
+    background-color: #fcf3df;
+    color: #101c36;
+    padding: 16px;
+}
+
+.panel-content p {
+    color: #101c36;
+}
+
+.panel-item {
+    padding: 0;
+}
+
+.panel-item p:last-of-type {
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+/* Utilities */
+.break-all {
+    word-break: break-all;
+}

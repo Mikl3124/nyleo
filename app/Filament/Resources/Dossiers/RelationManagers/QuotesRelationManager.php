@@ -18,6 +18,8 @@ class QuotesRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->emptyStateHeading('Aucun devis pour ce dossier')
+            ->emptyStateDescription(null)
             ->columns([
                 TextColumn::make('number')->label('N°')->placeholder('Brouillon'),
                 TextColumn::make('subject')->label('Objet'),

@@ -2,14 +2,17 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Resources\Invoices\Pages\EditInvoice;
 use App\Models\Client;
 use App\Models\Dossier;
+use App\Models\Invoice;
 use App\Models\Quote;
 use App\Models\User;
 use App\Services\InvoiceService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class AdminPagesTest extends TestCase
@@ -41,5 +44,25 @@ class AdminPagesTest extends TestCase
         }
         $this->get(route('admin.quotes.pdf', $quote))->assertOk()->assertHeader('content-type', 'application/pdf');
         $this->get(route('admin.invoices.pdf', $invoice))->assertOk();
+    }
+
+    public function test_issued_invoice_can_be_deleted_from_the_admin(): void
+    {
+        Storage::fake('local');
+        Notification::fake();
+        $this->seed();
+        $client = Client::create(['last_name' => 'Martin', 'email' => 'm@example.com']);
+        $quote = Quote::create(['client_id' => $client->id]);
+        $quote->lines()->create(['label' => 'DP', 'quantity' => 1, 'unit_price' => 400]);
+        $quote->recalculate();
+        $invoice = InvoiceService::issue(InvoiceService::createFinalFromQuote($quote), notify: false);
+
+        $this->actingAs(User::factory()->create());
+        $this->get("/admin/invoices/{$invoice->id}/edit")->assertOk()->assertSee('Supprimer');
+        Livewire::test(EditInvoice::class, ['record' => $invoice->id])
+            ->callAction('deleteInvoice')
+            ->assertRedirect('/admin/invoices');
+
+        $this->assertNull(Invoice::withTrashed()->find($invoice->id));
     }
 }

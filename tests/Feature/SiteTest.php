@@ -14,14 +14,11 @@ class SiteTest extends TestCase
     {
         CatalogItem::create(['category' => 'DP', 'label' => 'DP véranda', 'description' => "Intro\nContenu du dossier :\n- DP1 : Plan de situation", 'unit_price' => 400, 'position' => 1]);
 
-        foreach (['/', '/declaration-prealable', '/permis-de-construire', '/tarifs', '/secteurs', '/secteurs/dordogne', '/secteurs/gironde', '/questions-frequentes', '/qui-suis-je', '/contact', '/secteurs/dordogne/sourzac', '/secteurs/gironde/bordeaux', '/mentions-legales', '/confidentialite'] as $url) {
+        foreach (['/', '/declaration-prealable', '/permis-de-construire', '/secteurs', '/secteurs/dordogne', '/secteurs/gironde', '/questions-frequentes', '/qui-suis-je', '/contact', '/secteurs/dordogne/sourzac', '/secteurs/gironde/bordeaux', '/mentions-legales', '/confidentialite'] as $url) {
             $this->get($url)->assertOk()->assertSee('Dordogne');
         }
 
-        $this->get('/')->assertSee('400 €');
-        $this->get('/tarifs')->assertSee('<li>DP1 : Plan de situation</li>', false);
-        CatalogItem::create(['category' => 'option', 'label' => 'COMPLÉMENT DE DOSSIER DEMANDÉ PAR LA MAIRIE', 'unit_price' => 0, 'position' => 9]);
-        $this->get('/tarifs')->assertSeeInOrder(['COMPLÉMENT DE DOSSIER DEMANDÉ PAR LA MAIRIE', '0 €']);
+        $this->get('/tarifs')->assertRedirect('/contact')->assertStatus(301);
         $this->get('/secteurs/lot')->assertNotFound();
         $this->get('/secteurs/dordogne/perigueux')->assertOk()->assertSee('à Périgueux')->assertSee('sud-ouest de Périgueux');
         $this->get('/secteurs/dordogne/une-commune-inconnue')->assertNotFound();
@@ -34,17 +31,108 @@ class SiteTest extends TestCase
         $this->get('/sitemap.xml')->assertOk()->assertHeader('Content-Type', 'application/xml')->assertSee(route('site.pc'));
     }
 
+    public function test_project_guides_render_and_are_linked_everywhere(): void
+    {
+        CatalogItem::create(['category' => 'DP', 'label' => 'DP véranda', 'unit_price' => 400, 'position' => 1]);
+        CatalogItem::create(['category' => 'PC', 'label' => 'PC maison', 'unit_price' => 1500, 'position' => 2]);
+
+        $this->get('/projets')->assertOk()->assertSee('Piscine')->assertSee(route('site.project', 'changement-de-destination'));
+        foreach (array_keys(\App\Support\ProjectGuides::GUIDES) as $slug) {
+            $this->get('/projets/'.$slug)->assertOk()
+                ->assertSee('"@type":"FAQPage"', false)
+                ->assertSee('"@type":"BreadcrumbList"', false)
+                ->assertSee('"@type":"Service"', false)
+                ->assertDontSee('architecte</b> Mickaël', false);
+        }
+        $this->get('/projets/veranda')->assertSee("<title>Véranda\u{00A0}: déclaration préalable ou permis de construire\u{00A0}? | Nyleo</title>", false)
+            ->assertSee('value="extension" checked', false);
+        $this->get('/projets/piscine')->assertSee('value="piscine" checked', false)->assertSee('?demarche=DP', false);
+        $this->get('/projets/une-idee')->assertNotFound();
+
+        // Maillage : accueil, pages villes, pied de page et plan du site mènent aux guides.
+        $this->get('/')->assertSee(route('site.project', 'veranda'));
+        $this->get('/secteurs/dordogne/perigueux')->assertSee(route('site.project', 'piscine'));
+        $this->get('/mentions-legales')->assertSee(route('site.project', 'cloture-portail'));
+        $this->get('/sitemap.xml')->assertSee(route('site.projects'))->assertSee(route('site.project', 'panneaux-solaires'));
+    }
+
+    public function test_site_wide_structured_data_and_light_pages(): void
+    {
+        $home = $this->get('/')->assertOk();
+        $home->assertSee('"@type":"WebSite"', false)->assertSee('"@type":"ProfessionalService"', false)
+            ->assertSee('<meta name="twitter:card" content="summary_large_image">', false)
+            ->assertSee('<meta property="og:image:width" content="1200">', false);
+        // La liste des 1 000 communes n'est plus dans la page : elle est chargée à la demande.
+        $home->assertDontSee('<option value="Abjat-sur-Bandiat (24300)">', false)->assertSee(route('site.communes'));
+        $this->assertLessThan(170000, strlen($home->getContent()));
+        $this->getJson('/communes.json')->assertOk()->assertJsonFragment(['Sourzac (24400)'])->assertHeader('X-Robots-Tag', 'noindex');
+        $this->get('/qui-suis-je')->assertSee('"@type":"Person"', false);
+        $this->get('/permis-de-construire')->assertSee('"@type":"Service"', false);
+    }
+
+    public function test_public_site_shows_no_price(): void
+    {
+        CatalogItem::create(['category' => 'DP', 'label' => 'DP véranda', 'unit_price' => 400, 'position' => 1]);
+        CatalogItem::create(['category' => 'PC', 'label' => 'PC maison', 'unit_price' => 1500, 'position' => 2]);
+        $urls = ['/', '/declaration-prealable', '/permis-de-construire', '/projets', '/secteurs', '/secteurs/dordogne', '/questions-frequentes', '/qui-suis-je', '/contact', '/secteurs/dordogne/perigueux', '/secteurs/gironde/bordeaux'];
+        $urls = array_merge($urls, array_map(fn ($s) => '/projets/'.$s, array_keys(\App\Support\ProjectGuides::GUIDES)));
+        foreach ($urls as $url) {
+            $html = $this->get($url)->assertOk()->getContent();
+            $text = mb_strtolower(strip_tags(preg_replace('#<(script|style)\b.*?</\1>#s', '', $html)));
+            $this->assertStringNotContainsString('€', $html, $url);
+            $this->assertDoesNotMatchRegularExpression('/\bprix\b|\btarifs?\b|à partir de/u', $text, $url);
+            $this->assertStringNotContainsString('price', $html, $url); // ni minPrice, ni priceRange dans les données structurées
+            $this->assertStringNotContainsString('/tarifs', $html, $url);
+        }
+        // Plus de zone photo à remplir dans « Qui suis-je » ni sur l'accueil.
+        $this->get('/qui-suis-je')->assertDontSee('class="portrait"', false);
+        $this->get('/')->assertDontSee('class="portrait"', false);
+        $this->get('/sitemap.xml')->assertDontSee('/tarifs');
+    }
+
+    public function test_brand_is_always_written_with_a_capital_n(): void
+    {
+        \App\Models\CompanySetting::current()->update(['trade_name' => 'nyleo']);
+
+        $this->get('/')->assertOk()->assertSee('<b>Nyleo</b>', false)->assertDontSee('<b>nyleo</b>', false);
+        $this->get('/espace/connexion')->assertOk()->assertSee('<b>Nyleo</b>', false);
+    }
+
+    public function test_town_pages_use_the_public_data_of_their_commune(): void
+    {
+        // Périgueux : PLUi, monuments historiques, sites patrimoniaux remarquables, PPRI.
+        $this->get('/secteurs/dordogne/perigueux')->assertOk()
+            ->assertSee('plan local d&#039;urbanisme intercommunal (PLUi) de la communauté d&#039;agglomération Le Grand Périgueux', false)
+            ->assertSee('Cathédrale Saint-Front')
+            ->assertSee('site patrimonial remarquable')
+            ->assertSee('PPRI AGGLOMERATION DE PERIGUEUX')
+            ->assertSee('23 rue du Président-Wilson')
+            ->assertSee('"@type":"FAQPage"', false)
+            ->assertSee('"@type":"BreadcrumbList"', false)
+            ->assertSee('"@type":"Service"', false);
+        // Sans PLU, le seuil des 40 m² ne s'applique pas.
+        $this->get('/secteurs/gironde/hourtin')->assertOk()->assertSee('règlement national d&#039;urbanisme (RNU)', false)->assertSee('reste à 20 m²');
+        $this->get('/secteurs/dordogne/eyraud-crempse-maurens')->assertSee('carte communale, approuvée en')->assertSee('Mairie d&#039;Eyraud', false);
+        // Littoral, PPRT, feux de forêt.
+        $this->get('/secteurs/gironde/la-teste-de-buch')->assertSee('submersion marine')->assertSee('risques technologiques')->assertSee('Feux de forêt');
+        // Communes patrimoniales de moins de 1 000 habitants : leur propre page.
+        $this->get('/secteurs/dordogne/domme')->assertOk()->assertSee('site patrimonial remarquable');
+        $this->get('/secteurs/dordogne')->assertSee('PLU intercommunal')->assertSee('Sites patrimoniaux remarquables')->assertSee('"@type":"FAQPage"', false);
+        $this->get('/sitemap.xml')->assertSee('<lastmod>', false)->assertSee(route('site.town', ['dordogne', 'domme']));
+    }
+
     public function test_town_search_leads_to_the_town_page_or_to_the_quote_form(): void
     {
         $this->get('/secteurs/recherche?q=perigueux')->assertRedirect(route('site.town', ['dordogne', 'perigueux']));
         $this->get('/secteurs/recherche?q=SOURZAC')->assertRedirect(route('site.town', ['dordogne', 'sourzac']));
         $this->get('/secteurs/recherche?q=abjat sur bandiat')->assertRedirect(route('site.contact', ['commune' => 'Abjat-sur-Bandiat (24300)']));
-        $this->get('/secteurs/recherche?q=st emilion')->assertRedirect(route('site.contact', ['commune' => 'Saint-Émilion (33330)']));
+        $this->get('/secteurs/recherche?q=st emilion')->assertRedirect(route('site.town', ['gironde', 'saint-emilion']));
+        $this->get('/secteurs/recherche?q=st laurent des combes')->assertRedirect(route('site.contact', ['commune' => 'Saint-Laurent-des-Combes (33330)']));
         $this->get('/secteurs/recherche?q=xyz')->assertRedirect(route('site.areas'));
         $this->get('/secteurs/recherche?q=villenave d ornon')->assertRedirect(route('site.town', ['gironde', 'villenave-d-ornon']));
         $this->get('/secteurs/recherche?q=saint-jean-d-illac')->assertRedirect(route('site.town', ['gironde', 'saint-jean-d-illac']));
         // Même nom dans les deux départements : le département de la page ou le code postal tranchent.
-        $this->get('/secteurs/recherche?q=Quinsac&dep=gironde')->assertRedirect(route('site.contact', ['commune' => 'Quinsac (33360)']));
+        $this->get('/secteurs/recherche?q=Quinsac&dep=gironde')->assertRedirect(route('site.town', ['gironde', 'quinsac']));
         $this->get('/secteurs/recherche?q=Quinsac (24530)')->assertRedirect(route('site.contact', ['commune' => 'Quinsac (24530)']));
         $this->get('/secteurs/recherche?q=Quinsac')->assertRedirect(route('site.contact', ['commune' => 'Quinsac']));
         // Une commune de Dordogne cherchée depuis la page Gironde est quand même trouvée.

@@ -13,6 +13,7 @@ class CompanySetting extends Model
         return [
             'vat_enabled' => 'boolean',
             'auto_reminders' => 'boolean',
+            'bcc_enabled' => 'boolean',
             'default_vat_rate' => 'decimal:2',
         ];
     }
@@ -21,6 +22,7 @@ class CompanySetting extends Model
     {
         return static::query()->firstOrCreate([], [
             'trade_name' => 'Nyleo',
+            'email' => 'mickael@nyleo.fr',
             'payment_terms_days' => 10,
             'quote_footer' => 'Ce devis concerne uniquement de la prestation de service.',
             'payment_terms_text' => 'Paiement par virement bancaire ou par chèque.',
@@ -30,7 +32,10 @@ class CompanySetting extends Model
 
     public function displayName(): string
     {
-        return $this->trade_name ?: ($this->company_name ?: config('app.name'));
+        $name = $this->trade_name ?: ($this->company_name ?: config('app.name'));
+
+        // La marque s'écrit toujours « Nyleo », même si elle a été saisie en minuscules.
+        return mb_strtolower(trim((string) $name)) === 'nyleo' ? 'Nyleo' : $name;
     }
 
     public function fullAddress(): string

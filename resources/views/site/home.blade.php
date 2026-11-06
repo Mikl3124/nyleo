@@ -5,7 +5,6 @@
     $c = \App\Models\CompanySetting::current();
     $tel = $c->phone ? preg_replace('/\s+/', '', $c->phone) : null;
     $base = Geo::base();
-    $fmt = fn ($p) => $p ? number_format($p, 0, ',', ' ').' €' : null;
 @endphp
 @section('content')
 <section class="hero">
@@ -19,8 +18,8 @@
                 <a class="btn ghost" href="{{ route('site.contact') }}">Demander un devis gratuit</a>
             </div>
             <ul class="proof">
-                <li>@include('site.partials.icon', ['name' => 'check']) Prix fixe dans le devis</li>
-                <li>@include('site.partials.icon', ['name' => 'check']) Vous payez après validation des plans</li>
+                <li>@include('site.partials.icon', ['name' => 'check']) Un seul interlocuteur, du devis à la décision</li>
+                <li>@include('site.partials.icon', ['name' => 'check']) Dépôt en mairie en votre nom</li>
                 <li>@include('site.partials.icon', ['name' => 'check']) Suivi jusqu'à la décision</li>
             </ul>
         </div>
@@ -40,10 +39,10 @@
             <div>
                 <span class="eyebrow">Simulateur</span>
                 <h2>Déclaration préalable ou permis ? Faites le test.</h2>
-                <p class="lead">Indiquez votre projet et la surface : vous voyez tout de suite la démarche, le délai et le prix de départ.</p>
+                <p class="lead">Indiquez votre projet et la surface : vous voyez tout de suite la démarche, le formulaire et le délai.</p>
             </div>
         </div>
-        @include('site.partials.simulator', ['prices' => $prices])
+        @include('site.partials.simulator')
     </div>
 </section>
 
@@ -54,7 +53,7 @@
                 <span class="eyebrow">Vos projets</span>
                 <h2>Ce que je dessine chaque semaine</h2>
             </div>
-            <a class="link-arrow" href="{{ route('site.pricing') }}">Voir les tarifs @include('site.partials.icon', ['name' => 'arrow'])</a>
+            <a class="link-arrow" href="{{ route('site.projects') }}">Tous les projets @include('site.partials.icon', ['name' => 'arrow'])</a>
         </div>
         @include('site.partials.project-cards')
     </div>
@@ -77,10 +76,8 @@
             <span class="eyebrow">Le dossier</span>
             <h2>Toutes les pièces demandées, dessinées pour vous</h2>
             <p class="lead">Un dossier incomplet, c'est un mois de perdu. Chaque planche porte son code officiel et elle est vérifiée avant le dépôt.</p>
-            <div class="duo" style="grid-template-columns:1fr 1fr;gap:14px;margin-top:26px">
-                <div class="box"><span class="muted">Déclaration préalable</span><div class="price"><small>à partir de</small><b>{{ $fmt($prices['DP'] ?? null) ?? 'Sur devis' }}</b></div><a class="link-arrow" href="{{ route('site.dp') }}" style="margin-top:8px">Détails @include('site.partials.icon', ['name' => 'arrow'])</a></div>
-                <div class="box"><span class="muted">Permis de construire</span><div class="price"><small>à partir de</small><b>{{ $fmt($prices['PC'] ?? null) ?? 'Sur devis' }}</b></div><a class="link-arrow" href="{{ route('site.pc') }}" style="margin-top:8px">Détails @include('site.partials.icon', ['name' => 'arrow'])</a></div>
-            </div>
+            <p style="margin-top:22px"><a class="link-arrow" href="{{ route('site.dp') }}">La déclaration préalable @include('site.partials.icon', ['name' => 'arrow'])</a></p>
+            <p><a class="link-arrow" href="{{ route('site.pc') }}">Le permis de construire @include('site.partials.icon', ['name' => 'arrow'])</a></p>
         </div>
         @include('site.partials.plates', ['pieces' => SiteContent::DP_PIECES])
     </div>
@@ -111,16 +108,15 @@
 </section>
 
 <section>
-    <div class="wrap about">
-        @include('site.partials.portrait')
-        <div>
+    <div class="wrap">
+        <div style="max-width:820px">
             <span class="eyebrow">Qui suis-je</span>
             <h2>Un dessinateur du coin, joignable en direct</h2>
             <p class="lead">Je m'appelle Mickaël. Mon bureau est à {{ $base['name'] }}, près de Mussidan, entre Périgueux et Libourne. Vous m'appelez, vous me parlez de votre projet, et c'est moi qui dessine et qui dépose votre dossier.</p>
             <div class="values">
                 <div><b>Un seul interlocuteur</b><span>Pas de standard ni de plateforme : vous parlez à la personne qui dessine.</span></div>
                 <div><b>Des plans soignés</b><span>Clairs pour la mairie, compréhensibles pour vous.</span></div>
-                <div><b>Des prix fixes</b><span>Le prix du devis est le prix final, sauf option demandée.</span></div>
+                <div><b>Toutes les pièces</b><span>Chaque planche est vérifiée avant le dépôt.</span></div>
                 <div><b>Simple pour tous</b><span>Pas de mot de passe, de gros boutons, et le téléphone pour le reste.</span></div>
             </div>
             <p style="margin-top:24px"><a class="link-arrow" href="{{ route('site.about') }}">En savoir plus @include('site.partials.icon', ['name' => 'arrow'])</a></p>
