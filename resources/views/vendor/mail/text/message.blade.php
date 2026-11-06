@@ -1,6 +1,7 @@
 @php
     $company = rescue(fn () => \App\Models\CompanySetting::current(), null, false);
-    $site = $company?->website ?: config('app.url');
+    $w = trim((string) $company?->website);
+    $site = $w === '' ? config('app.url') : (preg_match('#^https?://#i', $w) ? $w : 'https://'.ltrim($w, '/'));
 @endphp
 <x-mail::layout>
 {{-- En-tête --}}

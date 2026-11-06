@@ -1,6 +1,7 @@
 @php
     $company = rescue(fn () => \App\Models\CompanySetting::current(), null, false);
-    $site = $company?->website ?: config('app.url');
+    $w = trim((string) $company?->website);
+    $site = $w === '' ? config('app.url') : (preg_match('#^https?://#i', $w) ? $w : 'https://'.ltrim($w, '/'));
     $place = $company?->city ? $company->city.($company->postal_code ? ' ('.substr($company->postal_code, 0, 2).')' : '') : null;
     $contact = collect([$place, $company?->phone, $company?->email])->filter()->implode(' · ');
 @endphp

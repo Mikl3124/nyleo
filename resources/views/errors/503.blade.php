@@ -3,5 +3,5 @@
 @section('title', 'Le site revient dans quelques minutes')
 @section('message', 'Une mise à jour est en cours. Merci de réessayer un peu plus tard.')
 @section('actions')
-    <a class="btn" href="{{ url('/') }}">Réessayer</a>
+    <a class="btn" href="">Réessayer</a>
 @endsection

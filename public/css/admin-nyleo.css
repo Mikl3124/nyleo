@@ -60,13 +60,11 @@
 .fi-wi-stats-overview-stat::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--ny-blue)}
 .fi-ta-header-cell{color:var(--ny-ink-2);font-weight:700}
 .fi-ta-row:hover{background-color:rgba(29,63,145,.03)}
-.fi-modal-window{border-radius:14px}
 
 /* ---------- Boutons et champs ---------- */
 .fi-btn{font-weight:700;letter-spacing:.005em}
 .fi-btn.fi-size-lg,.fi-btn.fi-size-xl{min-height:48px}
 .fi-link{font-weight:700}
-.fi-input-wrp{--tw-ring-color:#c6cdda}
 .fi-badge{font-weight:700}
 
 /* ---------- Pages de connexion et mot de passe oublié ---------- */

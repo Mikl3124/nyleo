@@ -74,6 +74,19 @@ class BrandTest extends TestCase
             ->assertDontSee('Invalid signature');
 
         $this->get('/espace/acces/'.$client->id.'?signature=abc')->assertForbidden()->assertSee('Ce lien n’est plus valable');
+
+        // Client déjà connecté : pas de nouveau lien à demander, on ouvre l'espace.
+        $this->actingAs($client, 'client')->get($url)->assertForbidden()
+            ->assertSee('Ouvrir mon espace')
+            ->assertDontSee('Recevoir un nouveau lien');
+    }
+
+    public function test_a_broken_admin_password_reset_link_points_back_to_the_admin(): void
+    {
+        $this->get('/admin/password-reset/reset?email=demo%40nyleo.fr&token=abc&signature=bad')->assertForbidden()
+            ->assertSee('Ce lien n’est plus valable')
+            ->assertSee(url('/admin/password-reset/request'), false)
+            ->assertDontSee('href="'.url('/espace/connexion').'">Recevoir', false);
     }
 
     public function test_error_pages_are_in_french_with_the_site_style(): void
@@ -86,6 +99,8 @@ class BrandTest extends TestCase
         foreach (['419' => 'Cette page a expiré', '429' => 'Trop d’essais', '500' => 'Un problème est survenu', '503' => 'Le site revient'] as $code => $text) {
             $this->assertStringContainsString($text, view('errors.'.$code)->render());
         }
+        // « Réessayer » recharge la page demandée (lien de connexion compris), pas l'accueil.
+        $this->assertStringContainsString('<a class="btn" href="">Réessayer</a>', view('errors.503')->render());
     }
 
     public function test_emails_carry_the_logo_the_ochre_button_and_the_contact_details(): void
@@ -103,5 +118,11 @@ class BrandTest extends TestCase
             $this->assertStringContainsString('07 85 65 91 65', $html);
             $this->assertStringNotContainsString('laravel.com', $html);
         }
+
+        // Site saisi sans « https:// » dans les paramètres : les liens de l'e-mail restent valables.
+        CompanySetting::current()->update(['website' => 'www.nyleo.fr']);
+        $html = (string) (new PortalLink)->toMail($client)->render();
+        $this->assertStringContainsString('href="https://www.nyleo.fr"', $html);
+        $this->assertStringNotContainsString('href="www.nyleo.fr"', $html);
     }
 }
