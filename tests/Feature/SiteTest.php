@@ -20,6 +20,8 @@ class SiteTest extends TestCase
 
         $this->get('/')->assertSee('400 €');
         $this->get('/tarifs')->assertSee('<li>DP1 : Plan de situation</li>', false);
+        CatalogItem::create(['category' => 'option', 'label' => 'COMPLÉMENT DE DOSSIER DEMANDÉ PAR LA MAIRIE', 'unit_price' => 0, 'position' => 9]);
+        $this->get('/tarifs')->assertSeeInOrder(['COMPLÉMENT DE DOSSIER DEMANDÉ PAR LA MAIRIE', '0 €']);
         $this->get('/secteurs/lot')->assertNotFound();
         $this->get('/secteurs/dordogne/perigueux')->assertOk()->assertSee('à Périgueux')->assertSee('sud-ouest de Périgueux');
         $this->get('/secteurs/dordogne/une-commune-inconnue')->assertNotFound();

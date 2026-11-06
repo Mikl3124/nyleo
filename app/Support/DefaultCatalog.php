@@ -92,7 +92,7 @@ class DefaultCatalog
                 '- PCMI7 : Photographie de l\'environnement proche' . "\n" .
                 '- PCMI8 : Photographie du paysage lointain',
                 'unit' => 'forfait',
-                'unit_price' => 500.00,
+                'unit_price' => 650.00,
             ],
             [
                 'category' => 'option',
@@ -114,7 +114,7 @@ class DefaultCatalog
                 'description' => 'Reprise ou ajout des pièces demandées par le service instructeur, puis dépôt des compléments dans le délai imparti.' . "\n" .
                 'Non facturé si la demande porte sur une erreur de notre part.',
                 'unit' => 'forfait',
-                'unit_price' => 80.00,
+                'unit_price' => 0.00,
             ],
         ];
     }
