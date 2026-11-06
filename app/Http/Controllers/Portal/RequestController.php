@@ -33,6 +33,12 @@ class RequestController extends Controller
             'last_name' => 'nom', 'phone' => 'téléphone', 'site_city' => 'commune du projet', 'procedure' => 'type de demande',
         ]);
 
+        // « Mussidan (24400) » choisi dans la liste : la commune et le code postal sont séparés, même sans JavaScript.
+        if (preg_match('/^(.*\S)\s*\((\d{5})\)\s*$/u', $data['site_city'], $m)) {
+            $data['site_city'] = $m[1];
+            $data['site_postal_code'] = $m[2];
+        }
+
         $client = Client::firstOrCreate(['email' => $data['email']], [
             'last_name' => $data['last_name'], 'first_name' => $data['first_name'] ?? null, 'phone' => $data['phone'], 'source' => 'site',
         ]);

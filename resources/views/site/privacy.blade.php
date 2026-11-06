@@ -4,16 +4,16 @@
     $c = \App\Models\CompanySetting::current();
 @endphp
 @section('content')
-@include('site.partials.page-hero', ['crumb' => 'Confidentialité', 'kicker' => 'Vos données', 'h1' => 'Confidentialité', 'lead' => 'Ce que je fais de vos informations, et comment les faire modifier ou supprimer.'])
+@include('site.partials.page-hero', ['crumbs' => 'Confidentialité', 'kicker' => 'Vos données', 'h1' => 'Confidentialité', 'lead' => 'Ce que je fais de vos informations, et comment les faire modifier ou supprimer.'])
 <section>
     <div class="wrap prose">
         <h2>Responsable du traitement</h2>
         <p>{{ $c->company_name ?: $c->displayName() }}@if ($c->address), {{ $c->address }}, {{ $c->postal_code }} {{ $c->city }}@endif.</p>
         <h2>Informations recueillies et usage</h2>
-        <p>Les informations que vous transmettez (identité, coordonnées, informations sur votre projet, et pour le formulaire CERFA votre date et votre lieu de naissance) servent uniquement à :</p>
+        <p>Les informations que vous transmettez (identité, coordonnées, informations sur votre projet, et pour le formulaire CERFA votre date et votre lieu de naissance) servent uniquement à :</p>
         <ul>
-            <li>vous rappeler et établir votre devis ;</li>
-            <li>préparer et déposer votre dossier d'urbanisme ;</li>
+            <li>vous rappeler et établir votre devis ;</li>
+            <li>préparer et déposer votre dossier d'urbanisme ;</li>
             <li>établir vos factures et vous informer de l'avancement de votre dossier.</li>
         </ul>
         <p>Elles ne sont jamais revendues ni utilisées à des fins publicitaires. Elles sont transmises à l'administration uniquement dans le cadre du dépôt de votre dossier.</p>

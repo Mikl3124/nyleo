@@ -4,7 +4,7 @@
     $c = \App\Models\CompanySetting::current();
 @endphp
 @section('content')
-@include('site.partials.page-hero', ['crumb' => 'Mentions légales', 'kicker' => 'Informations', 'h1' => 'Mentions légales', 'lead' => 'Informations sur l\'éditeur et l\'hébergeur du site.'])
+@include('site.partials.page-hero', ['crumbs' => 'Mentions légales', 'kicker' => 'Informations', 'h1' => 'Mentions légales', 'lead' => 'Informations sur l\'éditeur et l\'hébergeur du site.'])
 <section>
     <div class="wrap prose">
         <h2>Éditeur du site</h2>
@@ -14,7 +14,7 @@
             @if ($c->rcs){{ $c->rcs }}<br>@endif
             @if ($c->phone)Téléphone : {{ $c->phone }}<br>@endif
             @if ($c->email)E-mail : {{ $c->email }}@endif</p>
-        <p>Directeur de la publication : Mickaël Delpech.</p>
+        <p>Directeur de la publication : Mickaël Delpech.</p>
         <h2>Hébergement</h2>
         <p>{{ config('nyleo.host_name') }}<br>{{ config('nyleo.host_address') }}</p>
         <h2>Propriété intellectuelle</h2>
