@@ -13,6 +13,7 @@ class CompanySetting extends Model
         return [
             'vat_enabled' => 'boolean',
             'auto_reminders' => 'boolean',
+            'bcc_enabled' => 'boolean',
             'default_vat_rate' => 'decimal:2',
         ];
     }
