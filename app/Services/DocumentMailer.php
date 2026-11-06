@@ -10,6 +10,7 @@ use App\Models\Invoice;
 use App\Models\Quote;
 use App\Models\User;
 use App\Notifications\ClientNotification;
+use App\Support\MailTracking;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use RuntimeException;
@@ -17,7 +18,7 @@ use RuntimeException;
 /**
  * Envoi « en un clic » d'un devis ou d'une facture avec un texte modifiable et des pièces jointes.
  *
- * $data : to, cc[], subject, body, attach_pdf, include_link, documents[] (ids du dossier),
+ * $data : to, cc[], subject, body, attach_pdf, include_link (bouton « Consulter »), include_downloads (liens « Télécharger le PDF »), documents[] (ids du dossier),
  * attachments[] (chemins sur le disque local) + attachment_names[chemin => nom], copy_to_me.
  */
 class DocumentMailer
@@ -38,10 +39,15 @@ class DocumentMailer
                 : ['data' => PdfService::quote($quote)->output(), 'name' => PdfService::quoteFilename($quote)];
         }
 
+        $downloads = ($data['include_downloads'] ?? true)
+            ? [['label' => 'Télécharger le devis (PDF)', 'url' => MailTracking::downloadUrl($quote)]] : [];
+
         self::deliver($quote->client, $quote->dossier, $data, $files, $predicted, $quote->number,
-            ($data['include_link'] ?? true) && $quote->status === QuoteStatus::Envoye
-                ? ['Lire et signer mon devis', ClientNotification::portalUrl($quote->client, route('portal.quotes.show', $quote, false))]
-                : (($data['include_link'] ?? false) ? ['Voir mon espace client', ClientNotification::portalUrl($quote->client)] : null),
+            ($data['include_link'] ?? true)
+                ? [$quote->status === QuoteStatus::Envoye ? 'Lire et signer mon devis' : 'Consulter mon devis',
+                    ClientNotification::portalUrl($quote->client, route('portal.quotes.show', $quote, false))]
+                : null,
+            $downloads, ['quote' => $quote->id],
         );
     }
 
@@ -61,10 +67,15 @@ class DocumentMailer
                 : ['data' => PdfService::invoice($invoice)->output(), 'name' => PdfService::invoiceFilename($invoice)];
         }
 
+        $downloads = ($data['include_downloads'] ?? true)
+            ? [['label' => 'Télécharger '.($invoice->isCreditNote() ? "l'avoir" : 'la facture').' (PDF)', 'url' => MailTracking::downloadUrl($invoice)]] : [];
+
         self::deliver($invoice->client, $invoice->dossier, $data, $files, $predicted, $invoice->number,
-            ($data['include_link'] ?? false)
-                ? ['Voir mon espace client', ClientNotification::portalUrl($invoice->client, $invoice->dossier ? route('portal.dossiers.show', $invoice->dossier, false) : null)]
+            ($data['include_link'] ?? true)
+                ? [$invoice->isCreditNote() ? 'Consulter mon avoir' : 'Consulter ma facture',
+                    ClientNotification::portalUrl($invoice->client, $invoice->dossier ? route('portal.dossiers.show', $invoice->dossier, false) : null)]
                 : null,
+            $downloads, ['invoice' => $invoice->id],
         );
 
         $invoice->forceFill(['sent_at' => now()])->saveQuietly();
@@ -78,7 +89,7 @@ class DocumentMailer
         return filter_var($email, FILTER_VALIDATE_EMAIL) ? $email : User::query()->orderBy('id')->value('email');
     }
 
-    private static function deliver($client, $dossier, array $data, array $files, ?string $predicted, ?string $number, ?array $button): void
+    private static function deliver($client, $dossier, array $data, array $files, ?string $predicted, ?string $number, ?array $button, array $downloads = [], array $tracking = []): void
     {
         $to = trim((string) ($data['to'] ?? $client->email));
         if (! filter_var($to, FILTER_VALIDATE_EMAIL)) {
@@ -97,6 +108,9 @@ class DocumentMailer
             foreach (Document::where('dossier_id', $dossier->id)->whereIn('id', $data['documents'])->get() as $doc) {
                 if (Storage::disk('local')->exists($doc->path)) {
                     $files[] = ['disk' => 'local', 'path' => $doc->path, 'name' => self::filename($doc->name, $doc->path)];
+                    if ($data['include_downloads'] ?? true) {
+                        $downloads[] = ['label' => 'Télécharger « '.$doc->displayName().' »', 'url' => MailTracking::downloadUrl($doc)];
+                    }
                 }
             }
         }
@@ -120,7 +134,8 @@ class DocumentMailer
         }
 
         try {
-            $mail->send(new DocumentMail($subject, $body, $files, $button[0] ?? null, $button[1] ?? null, $reply));
+            $mail->send(new DocumentMail($subject, $body, $files, $button[0] ?? null, $button[1] ?? null, $reply, $downloads,
+                $tracking + ['client' => $client->id, 'dossier' => $dossier?->id]));
         } finally {
             Storage::disk('local')->delete($uploads);
         }

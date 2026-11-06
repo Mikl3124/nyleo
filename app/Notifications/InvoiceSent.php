@@ -6,6 +6,7 @@ use App\Enums\InvoiceType;
 use App\Models\CompanySetting;
 use App\Models\Invoice;
 use App\Services\PdfService;
+use App\Support\MailTracking;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Storage;
 
@@ -24,7 +25,9 @@ class InvoiceSent extends ClientNotification
         if ($i->type === InvoiceType::Avoir) {
             $mail = $this->message($notifiable, "Avoir {$i->number}", 'Votre avoir', 'Avoir '.$i->number)
                 ->line("Vous trouverez ci-joint l'avoir {$i->number} (fichier PDF). Il vient en déduction de la facture concernée.")
-                ->action('Voir dans mon espace client', $url);
+                ->action('Consulter mon avoir', $url);
+            $this->downloads($mail, [['label' => "Télécharger l'avoir (PDF)", 'url' => MailTracking::downloadUrl($i)]]);
+            $this->track($mail, $notifiable, ['invoice' => $i->id, 'dossier' => $i->dossier_id]);
             $this->recap($mail, ['Projet' => self::project($i->dossier), 'Montant' => money($i->total_ttc)]);
 
             return $this->preheader($mail, 'Avoir de '.money($i->total_ttc).'.')
@@ -38,7 +41,9 @@ class InvoiceSent extends ClientNotification
         if ($isFinal) {
             $mail->line('**Comme convenu, je dépose votre dossier en mairie dès réception du règlement.**');
         }
-        $mail->action('Voir ma facture', $url);
+        $mail->action('Consulter ma facture', $url);
+        $this->downloads($mail, [['label' => 'Télécharger la facture (PDF)', 'url' => MailTracking::downloadUrl($i)]]);
+        $this->track($mail, $notifiable, ['invoice' => $i->id, 'dossier' => $i->dossier_id]);
         if ($s->iban && $i->dossier) {
             $mail->line('Dans votre espace client, un QR code permet aussi de payer par virement depuis l\'application de votre banque.');
         }

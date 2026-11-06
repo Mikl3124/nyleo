@@ -128,4 +128,14 @@ class Invoice extends Model
     {
         return $this->type->label().' '.$this->displayNumber();
     }
+
+    public function emailMessages(): HasMany
+    {
+        return $this->hasMany(EmailMessage::class);
+    }
+
+    public function activities(): HasMany
+    {
+        return $this->hasMany(ClientActivity::class);
+    }
 }

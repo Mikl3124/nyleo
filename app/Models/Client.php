@@ -126,4 +126,14 @@ class Client extends Authenticatable
             'type' => $this->type,
         ];
     }
+
+    public function emailMessages(): HasMany
+    {
+        return $this->hasMany(EmailMessage::class);
+    }
+
+    public function activities(): HasMany
+    {
+        return $this->hasMany(ClientActivity::class);
+    }
 }

@@ -8,6 +8,7 @@ use App\Filament\Support\LineItems;
 use App\Models\Client;
 use App\Models\Dossier;
 use App\Models\Quote;
+use App\Support\TrackingSummary;
 use BackedEnum;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Placeholder;
@@ -16,14 +17,15 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\View;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\HtmlString;
 use UnitEnum;
 
@@ -92,6 +94,7 @@ class QuoteResource extends Resource
     {
         return $table
             ->defaultSort('created_at', 'desc')
+            ->modifyQueryUsing(fn (Builder $query) => TrackingSummary::withAggregates($query))
             ->columns([
                 TextColumn::make('number')->label('N°')->placeholder('Brouillon')->searchable()->sortable(),
                 TextColumn::make('client.last_name')->label('Client')->formatStateUsing(fn ($record) => $record->client?->display_name)->searchable(),
@@ -101,6 +104,7 @@ class QuoteResource extends Resource
                     ->formatStateUsing(fn (QuoteStatus $state) => $state->label())->color(fn (QuoteStatus $state) => $state->color()),
                 TextColumn::make('issue_date')->label('Date')->date('d/m/Y')->sortable(),
                 TextColumn::make('signed_at')->label('Signé le')->dateTime('d/m/Y H:i')->toggleable(),
+                TrackingSummary::column(),
             ])
             ->filters([
                 SelectFilter::make('status')->label('Statut')->options(QuoteStatus::options()),

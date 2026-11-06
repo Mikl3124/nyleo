@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Portal;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Notifications\PortalLink;
+use App\Services\ClientTracking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -30,7 +31,13 @@ class AuthController extends Controller
     {
         Auth::guard('client')->login($client, remember: true);
         $request->session()->regenerate();
-        $client->forceFill(['last_login_at' => now()])->saveQuietly();
+        if ($request->query(ClientTracking::COPY_PARAM) !== null) {
+            // Lien ouvert depuis la copie de Mickaël : ses visites ne comptent pas comme celles du client.
+            $request->session()->put(ClientTracking::STAFF_SESSION, true);
+        } else {
+            $request->session()->forget(ClientTracking::STAFF_SESSION);
+            $client->forceFill(['last_login_at' => now()])->saveQuietly();
+        }
 
         $to = $request->query('to');
 

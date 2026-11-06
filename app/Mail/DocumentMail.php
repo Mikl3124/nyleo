@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Models\CompanySetting;
+use App\Support\MailTracking;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Attachment;
 use Illuminate\Mail\Mailable;
@@ -11,7 +12,10 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Str;
 
-/** E-mail rédigé à la main dans l'admin (devis, facture) : texte libre, bouton optionnel, pièces jointes. */
+/**
+ * E-mail rédigé à la main dans l'admin (devis, facture) : texte libre, bouton « Consulter » optionnel,
+ * liens « Télécharger le PDF » ($downloads : [['label', 'url'], ...]), pièces jointes, suivi ($tracking, voir MailTracking::tag).
+ */
 class DocumentMail extends Mailable
 {
     use Queueable, SerializesModels;
@@ -26,7 +30,13 @@ class DocumentMail extends Mailable
         public ?string $buttonLabel = null,
         public ?string $buttonUrl = null,
         public ?string $replyAddress = null,
-    ) {}
+        public array $downloads = [],
+        array $tracking = [],
+    ) {
+        if ($tracking) {
+            MailTracking::tag($this, $tracking);
+        }
+    }
 
     public function envelope(): Envelope
     {
