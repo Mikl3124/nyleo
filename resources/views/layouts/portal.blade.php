@@ -31,7 +31,7 @@
     <div class="wrap">
         Une question ? @if ($company->phone)Appelez-moi au <a href="tel:{{ preg_replace('/\s+/', '', $company->phone) }}"><strong>{{ $company->phone }}</strong></a>@endif
         @if ($company->email) ou écrivez à <a href="mailto:{{ $company->email }}">{{ $company->email }}</a>@endif.
-        <br><a href="{{ route('home') }}">Site {{ $company->displayName() }}</a> · <a href="{{ route('legal') }}">Mentions légales</a> · <a href="{{ route('privacy') }}">Confidentialité</a>
+        <br><a href="{{ route('home') }}">Site {{ $company->displayName() }}</a> · <a href="{{ route('legal') }}">Mentions légales</a> · <a href="{{ route('privacy') }}">Confidentialité</a> · <a href="{{ $company->cgvUrl() }}">CGV</a>
     </div>
 </footer>
 </body>

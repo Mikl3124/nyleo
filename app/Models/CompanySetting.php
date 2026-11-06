@@ -38,6 +38,12 @@ class CompanySetting extends Model
         return mb_strtolower(trim((string) $name)) === 'nyleo' ? 'Nyleo' : $name;
     }
 
+    /** Lien vers les CGV : celui saisi dans Paramètres, sinon la page /cgv du site. */
+    public function cgvUrl(): string
+    {
+        return $this->cgv_url ?: route('cgv');
+    }
+
     public function fullAddress(): string
     {
         return trim(collect([$this->address, trim($this->postal_code.' '.$this->city)])->filter()->implode("\n"));
@@ -45,7 +51,7 @@ class CompanySetting extends Model
 
     public function snapshot(): array
     {
-        return $this->only([
+        return ['cgv_url' => $this->cgvUrl()] + $this->only([
             'company_name', 'trade_name', 'legal_form', 'share_capital', 'cgv_url', 'pdf_color', 'siret', 'rcs', 'ape_code', 'vat_number',
             'address', 'postal_code', 'city', 'phone', 'email', 'website', 'logo_path',
             'iban', 'bic', 'bank_name', 'cheque_order', 'cheque_address',

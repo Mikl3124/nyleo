@@ -142,7 +142,7 @@ class SiteController extends Controller
 
     public function sitemap(): Response
     {
-        $urls = collect(['home', 'site.dp', 'site.pc', 'site.projects', 'site.areas', 'site.about', 'site.faq', 'site.contact', 'legal', 'privacy'])
+        $urls = collect(['home', 'site.dp', 'site.pc', 'site.projects', 'site.areas', 'site.about', 'site.faq', 'site.contact', 'legal', 'privacy', 'cgv'])
             ->map(fn ($r) => route($r))
             ->merge(ProjectGuides::all()->map(fn ($g) => route('site.project', $g['slug'])))
             ->merge(collect(array_keys(SiteContent::DEPARTMENTS))->map(fn ($d) => route('site.area', $d)))

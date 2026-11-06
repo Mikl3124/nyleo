@@ -15,6 +15,7 @@ class PdfService
     {
         $quote->loadMissing('lines', 'client', 'dossier');
         $company = $quote->company_snapshot ?: CompanySetting::current()->snapshot();
+        $company['cgv_url'] = ($company['cgv_url'] ?? null) ?: CompanySetting::current()->cgvUrl();
         $client = $quote->client_snapshot ?: $quote->client->snapshot();
 
         return self::numberPages(Pdf::loadHTML(Typography::html(view('pdf.quote', compact('quote', 'company', 'client'))->render()))->setPaper('a4'), 'Devis '.($quote->number ?: '(brouillon)'));
@@ -24,6 +25,7 @@ class PdfService
     {
         $invoice->loadMissing('lines', 'client', 'dossier', 'parent', 'payments', 'quote');
         $company = $invoice->company_snapshot ?: CompanySetting::current()->snapshot();
+        $company['cgv_url'] = ($company['cgv_url'] ?? null) ?: CompanySetting::current()->cgvUrl();
         $client = $invoice->client_snapshot ?: $invoice->client->snapshot();
 
         return self::numberPages(Pdf::loadHTML(Typography::html(view('pdf.invoice', compact('invoice', 'company', 'client'))->render()))->setPaper('a4'), $invoice->type->label().' '.($invoice->number ?: '(brouillon)'));
