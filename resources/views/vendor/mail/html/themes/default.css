@@ -360,3 +360,21 @@ img {
 .break-all {
     word-break: break-all;
 }
+
+/* « Télécharger le PDF » : bouton secondaire, contour bleu sur fond blanc (une seule action ocre par e-mail). */
+.button-outline {
+    background-color: #ffffff;
+    border-bottom: 12px solid #ffffff;
+    border-left: 24px solid #ffffff;
+    border-right: 24px solid #ffffff;
+    border-top: 12px solid #ffffff;
+    color: #1d3f91;
+    font-size: 16px;
+}
+
+.downloads-title {
+    color: #4a5670;
+    font-size: 15px;
+    margin: 8px 0 4px;
+    text-align: center;
+}

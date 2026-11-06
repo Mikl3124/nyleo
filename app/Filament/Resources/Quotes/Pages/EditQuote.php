@@ -7,6 +7,7 @@ use App\Filament\Resources\Dossiers\DossierResource;
 use App\Filament\Resources\Invoices\InvoiceResource;
 use App\Filament\Resources\Quotes\QuoteResource;
 use App\Filament\Support\SendEmailAction;
+use App\Filament\Widgets\ClientTrackingWidget;
 use App\Models\Quote;
 use App\Services\InvoiceService;
 use App\Services\QuoteService;
@@ -116,5 +117,10 @@ class EditQuote extends EditRecord
                 DeleteAction::make()->visible(fn () => $q->isEditable()),
             ]),
         ];
+    }
+
+    protected function getFooterWidgets(): array
+    {
+        return [ClientTrackingWidget::class];
     }
 }

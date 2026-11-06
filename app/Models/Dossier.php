@@ -256,4 +256,14 @@ class Dossier extends Model
     {
         return $this->quotes()->where('status', 'signe')->latest('signed_at')->first();
     }
+
+    public function emailMessages(): HasMany
+    {
+        return $this->hasMany(EmailMessage::class);
+    }
+
+    public function activities(): HasMany
+    {
+        return $this->hasMany(ClientActivity::class);
+    }
 }

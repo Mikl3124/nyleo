@@ -30,6 +30,8 @@ class PaymentReceived extends ClientNotification
             'Reste à régler' => $left > 0 ? money($left) : null,
         ]);
 
+        $this->track($mail, $notifiable, ['invoice' => $i->id, 'dossier' => $i->dossier_id]);
+
         return $this->preheader($mail, 'Règlement de '.money($this->payment->amount).' bien reçu, merci.');
     }
 }

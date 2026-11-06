@@ -86,6 +86,7 @@ class DocumentMailTest extends TestCase
             $names = array_map(fn ($a) => $a->as, $m->attachments());
 
             return $m->hasTo('jean@example.com') && $m->hasCc('marie@example.com') && $m->hasBcc('mickael@nyleo.fr')
+                && $m->downloads[0]['label'] === 'Télécharger le devis (PDF)' && str_contains($m->downloads[0]['url'], '/fichiers/devis/'.$quote->id)
                 && $m->hasReplyTo('mickael@nyleo.fr')
                 && $m->mailSubject === 'Mon objet'
                 && $m->buttonLabel === 'Lire et signer mon devis'
@@ -127,7 +128,9 @@ class DocumentMailTest extends TestCase
         Mail::assertSent(DocumentMail::class, function (DocumentMail $m) use ($invoice) {
             $names = array_map(fn ($a) => $a->as, $m->attachments());
 
-            return $names === ["Facture-{$invoice->number}.pdf", 'V1 - DP - MARTIN.pdf'] && $m->buttonUrl === null;
+            return $names === ["Facture-{$invoice->number}.pdf", 'V1 - DP - MARTIN.pdf']
+                && $m->buttonLabel === 'Consulter ma facture'
+                && array_column($m->downloads, 'label') === ['Télécharger la facture (PDF)', 'Télécharger « V1 - DP - MARTIN (V1) »'];
         });
     }
 
