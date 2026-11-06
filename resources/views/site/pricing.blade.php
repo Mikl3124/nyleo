@@ -23,7 +23,7 @@
                             @if ($item->description)<div class="desc">{!! rich_description($item->description) !!}</div>@endif
                         </div>
                         <div class="amount">
-                            @if ((float) $item->unit_price > 0)<small>{{ $cat === 'option' ? 'Forfait' : 'À partir de' }}</small><b>{{ number_format($item->unit_price, 0, ',', ' ') }} €</b>@else<small>Tarif</small><b style="font-size:1.3rem">Sur devis</b>@endif
+                            @if ((float) $item->unit_price > 0 || \App\Support\SiteContent::isFreeOption($item->label))<small>{{ $cat === 'option' ? 'Forfait' : 'À partir de' }}</small><b>{{ number_format($item->unit_price, 0, ',', ' ') }} €</b>@else<small>Tarif</small><b style="font-size:1.3rem">Sur devis</b>@endif
                         </div>
                     </article>
                 @endforeach

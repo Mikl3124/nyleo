@@ -12,6 +12,17 @@ class SiteContent
      */
     public const TOWN_NOTES = [];
 
+    /**
+     * Options du catalogue à 0 € qui sont vraiment gratuites (affichées « 0 € » sur la page Tarifs).
+     * Les autres lignes à 0 € restent affichées « Sur devis ».
+     */
+    public const FREE_OPTIONS = ['complement de dossier demande par la mairie'];
+
+    public static function isFreeOption(string $label): bool
+    {
+        return in_array(\Illuminate\Support\Str::lower(\Illuminate\Support\Str::ascii(trim($label))), self::FREE_OPTIONS, true);
+    }
+
     public const DEPARTMENTS = [
         'dordogne' => [
             'name' => 'Dordogne', 'code' => '24',

@@ -114,7 +114,7 @@ class DefaultCatalog
                 'description' => 'Reprise ou ajout des pièces demandées par le service instructeur, puis dépôt des compléments dans le délai imparti.' . "\n" .
                 'Non facturé si la demande porte sur une erreur de notre part.',
                 'unit' => 'forfait',
-                'unit_price' => 80.00,
+                'unit_price' => 0.00,
             ],
         ];
     }
