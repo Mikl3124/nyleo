@@ -40,9 +40,11 @@ a img {
 h1 {
     color: #101c36;
     font-family: 'Archivo', Arial, Helvetica, sans-serif;
-    font-size: 21px;
+    font-size: 24px;
     font-weight: bold;
+    line-height: 1.25em;
     margin-top: 0;
+    margin-bottom: 18px;
     text-align: start;
 }
 
@@ -216,12 +218,64 @@ img {
     padding: 32px;
 }
 
+/* Petite étiquette au-dessus du titre (IBM Plex Mono sur le site) */
+.eyebrow {
+    color: #1d3f91;
+    font-family: 'IBM Plex Mono', 'Courier New', monospace;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 0.08em;
+    margin: 0 0 8px;
+    text-transform: uppercase;
+}
+
+/* Récapitulatif (devis, facture, dossier) */
+.recap {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    border: 1px solid #dfe3eb;
+    border-radius: 10px;
+    border-collapse: separate;
+    margin: 4px 0 24px;
+    width: 100%;
+}
+
+.recap td {
+    border-bottom: 1px solid #dfe3eb;
+    font-size: 16px;
+    line-height: 1.4em;
+    padding: 11px 16px;
+}
+
+.recap tr:last-child td {
+    border-bottom: 0;
+}
+
+.recap-label {
+    color: #5b6580;
+}
+
+.recap-value {
+    color: #101c36;
+    font-weight: bold;
+    text-align: right;
+}
+
+/* Aide et signature */
+.help {
+    border-top: 1px solid #dfe3eb;
+    color: #3a4661;
+    font-size: 15px;
+    margin-top: 8px;
+    padding-top: 18px;
+}
+
 /* Buttons : ocre pour l'action principale, comme le bouton « Devis gratuit » du site */
 .action {
     -premailer-cellpadding: 0;
     -premailer-cellspacing: 0;
     -premailer-width: 100%;
-    margin: 30px auto;
+    margin: 26px auto 28px;
     padding: 0;
     text-align: center;
     width: 100%;
@@ -233,8 +287,9 @@ img {
     border-radius: 6px;
     color: #ffffff;
     display: inline-block;
-    font-size: 17px;
+    font-size: 18px;
     font-weight: bold;
+    line-height: 1.2em;
     overflow: hidden;
     text-decoration: none;
 }
@@ -242,11 +297,20 @@ img {
 .button-blue,
 .button-primary {
     background-color: #e8a92b;
-    border-bottom: 14px solid #e8a92b;
-    border-left: 28px solid #e8a92b;
-    border-right: 28px solid #e8a92b;
-    border-top: 14px solid #e8a92b;
+    border-bottom: 16px solid #e8a92b;
+    border-left: 32px solid #e8a92b;
+    border-right: 32px solid #e8a92b;
+    border-top: 16px solid #e8a92b;
     color: #101c36;
+}
+
+.button-secondary {
+    background-color: #1d3f91;
+    border-bottom: 16px solid #1d3f91;
+    border-left: 32px solid #1d3f91;
+    border-right: 32px solid #1d3f91;
+    border-top: 16px solid #1d3f91;
+    color: #ffffff;
 }
 
 .button-green,

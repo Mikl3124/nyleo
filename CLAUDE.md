@@ -15,3 +15,8 @@ Application Laravel 13 + Filament 5 de gestion de l'activité de dessinateur (DP
 - Polices auto-hébergées (`public/fonts/site`) : Archivo pour les titres, Atkinson Hyperlegible pour le texte, IBM Plex Mono pour les petites étiquettes en capitales.
 - Arrondis : 6 px pour les boutons et les champs, 14 px pour les cartes. Logo : `site.partials.logo` (SVG) ou `public/img/logo-nyleo-horizontal.png`.
 - Où elle s'applique : site (`public/css/site.css`), espace client et pages d'erreur (`public/css/nyleo.css`), administration (`App\Support\Brand::filamentColors()` + `public/css/admin-nyleo.css`), e-mails (`resources/views/vendor/mail`), PDF (`resources/views/pdf/_styles.blade.php`). Toute nouvelle page reprend ces fichiers, sans nouvelle couleur.
+
+## Typographie française (règle de Mickaël)
+
+- La ponctuation ne doit jamais se retrouver seule en début de ligne. `App\Support\Typography` met une espace insécable avant « : ; ! ? », dans les guillemets « », entre un nombre et son unité (€, m², km, %), dans les milliers et les numéros de téléphone.
+- Appliqué partout automatiquement : pages HTML (middleware `FrenchTypography`, site, espace client et admin), PDF (`PdfService`), e-mails (écouteur `MessageSending` dans `AppServiceProvider`). Les textes écrits en JavaScript passent par `nb()` (simulateur). Écrire les textes normalement, avec des espaces simples.

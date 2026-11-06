@@ -5,7 +5,7 @@
 @include('site.partials.page-hero', [
     'crumbs' => 'Contact', 'kicker' => 'Devis gratuit · rappel sous 48 h',
     'h1' => 'Parlez-moi de <span class="hl">votre projet</span>',
-    'lead' => "Quelques informations suffisent. Je vous rappelle pour en parler, puis je vous envoie un devis clair, au prix fixe.",
+    'lead' => "Quelques informations suffisent. Je vous rappelle pour en parler, puis je vous envoie un devis clair.",
 ])
 <section>
     <div class="wrap contact">

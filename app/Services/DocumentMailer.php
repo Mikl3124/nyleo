@@ -70,15 +70,12 @@ class DocumentMailer
         $invoice->forceFill(['sent_at' => now()])->saveQuietly();
     }
 
-    /** Adresse où arrivent les réponses des clients (l'adresse d'expédition n'a pas de boîte). */
+    /** Adresse où arrivent les réponses des clients : celle des paramètres (mickael@nyleo.fr), sinon le premier admin. */
     public static function replyAddress(): ?string
     {
-        $email = CompanySetting::current()->email;
-        if ($email && strcasecmp($email, (string) config('mail.from.address')) !== 0) {
-            return $email;
-        }
+        $email = trim((string) CompanySetting::current()->email);
 
-        return User::query()->orderBy('id')->value('email') ?: $email;
+        return filter_var($email, FILTER_VALIDATE_EMAIL) ? $email : User::query()->orderBy('id')->value('email');
     }
 
     private static function deliver($client, $dossier, array $data, array $files, ?string $predicted, ?string $number, ?array $button): void

@@ -161,8 +161,9 @@ section.tight{padding-block:64px}
 .map .ring-label{font-family:var(--mono);font-size:4.2px;fill:var(--blue);opacity:.8}
 .map .hit{fill:transparent}
 .map .base-pulse,.map .base-dot{pointer-events:none}
-.map .town{fill:var(--paper);stroke:var(--blue);stroke-width:.9}
+.map .town{fill:var(--tf,var(--paper));stroke:var(--ts,var(--blue));stroke-width:.9}
 .map a:hover .town,.map a:focus .town{fill:var(--ochre);stroke:var(--ink)}
+.map a:hover,.map a:focus{--tf:var(--ochre);--ts:var(--ink)}
 .map .town-label{pointer-events:none;font-family:var(--body);font-size:5.2px;font-weight:700;fill:var(--ink);paint-order:stroke;stroke:#fff;stroke-width:1.6px;stroke-linejoin:round}
 .map .dep-label{font-family:var(--display);font-stretch:125%;font-weight:800;font-size:9px;fill:var(--blue);opacity:.35;letter-spacing:.06em;text-transform:uppercase}
 .map .base-dot{fill:var(--ochre);stroke:var(--ink);stroke-width:1.2}
@@ -410,6 +411,8 @@ html.js .steps-nav{display:flex}
 .note{font-size:.88rem;color:var(--ink-3);margin-top:14px}
 .prose{max-width:780px}
 .prose h2{font-size:1.4rem;margin-top:1.6em}
+.prose>h2:first-child{margin-top:0}
+.offer-boxes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:28px}
 .prose ul{padding-left:1.2em}
 
 /* ── Pied de page ──────────────────────────────── */
@@ -507,6 +510,8 @@ h3[tabindex="-1"]:focus{outline:none}
 .delays thead th{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
 .delays tbody th{font-weight:700}
 .delays td{font-family:var(--display);font-weight:700;white-space:nowrap}
+.delays.rules th[scope=row]{width:55%}.delays.rules td{white-space:normal}
+@media (max-width:640px){.delays.rules th,.delays.rules th[scope=row],.delays.rules td{display:block;width:auto;border-bottom:0;padding:4px 16px}.delays.rules tr{display:block;padding:10px 0;border-bottom:1px solid var(--line)}.delays.rules thead{display:none}.delays.rules td{color:var(--blue)}}
 .sources{margin-top:28px;font-size:.85rem}
 .epci-group{margin-top:28px}
 .epci-group h3{font-size:1.05rem;margin-bottom:4px}

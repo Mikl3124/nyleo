@@ -20,12 +20,10 @@
     @endforeach
     {{-- Les points restent cliquables à la souris, mais hors du parcours clavier : la liste complète est sur les pages départements. --}}
     <g aria-hidden="true">
-    @foreach ($towns as $t)
-        <a href="{{ $g::url($t) }}" tabindex="-1">
-            <circle class="hit" cx="{{ $t['x'] }}" cy="{{ $t['y'] }}" r="3.5"/>
-            <circle class="town" cx="{{ $t['x'] }}" cy="{{ $t['y'] }}" r="{{ in_array($t['name'], $labelled, true) ? 2.1 : 1.15 }}"/>
-        </a>
-    @endforeach
+    {{-- Un point = un <use> du modèle ci-dessous : la carte de l'accueil pèse deux fois moins. --}}
+    {{-- Styles en ligne : les sélecteurs de site.css n'atteignent pas les copies faites par <use>, seules les variables s'y transmettent. --}}
+    <defs><g id="pt"><circle r="3.5" fill="transparent"/><circle r="1.15" style="fill:var(--tf,var(--paper));stroke:var(--ts,var(--blue));stroke-width:.9"/></g><g id="pt-l"><circle r="3.5" fill="transparent"/><circle r="2.1" style="fill:var(--tf,var(--paper));stroke:var(--ts,var(--blue));stroke-width:.9"/></g></defs>
+    @foreach ($towns as $t)<a href="{{ parse_url($g::url($t), PHP_URL_PATH) }}" tabindex="-1"><use href="#pt{{ in_array($t['name'], $labelled, true) ? '-l' : '' }}" x="{{ $t['x'] }}" y="{{ $t['y'] }}"/></a>@endforeach
     </g>
     @foreach ($towns->filter(fn ($t) => in_array($t['name'], $labelled, true)) as $t)
         <text class="town-label" x="{{ $t['x'] > 75 ? $t['x'] - 3.2 : $t['x'] + 3.2 }}" y="{{ $t['y'] + 1.8 }}" text-anchor="{{ $t['x'] > 75 ? 'end' : 'start' }}">{{ $t['name'] }}</text>

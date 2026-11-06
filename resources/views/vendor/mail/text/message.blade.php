@@ -1,3 +1,4 @@
+@props(['preheader' => null])
 @php
     $company = rescue(fn () => \App\Models\CompanySetting::current(), null, false);
     $w = trim((string) $company?->website);

@@ -1,7 +1,7 @@
 @extends('layouts.site')
 @section('title', 'Déclaration préalable de travaux en Dordogne et Gironde')
 @section('description', "Dossier de déclaration préalable complet (DP1 à DP8, CERFA 13703) pour véranda, pergola, carport, piscine, clôture ou façade, déposé en votre nom en Dordogne et en Gironde.")
-@php($fmt = $price ? number_format($price, 0, ',', ' ').' €' : null)
+@include('site.partials.service-ld', ['name' => 'Dossier de déclaration préalable', 'description' => "Plans et dossier complet de déclaration préalable (DP1 à DP8, CERFA 13703), déposé en mairie au nom du client et suivi jusqu'à la décision."])
 @section('content')
 @include('site.partials.page-hero', [
     'crumbs' => 'Déclaration préalable', 'kicker' => 'CERFA n° 13703 · Dordogne et Gironde',
@@ -16,7 +16,6 @@
             <span class="eyebrow">Quand est-elle obligatoire ?</span>
             <h2>Les cas les plus courants</h2>
             <p class="lead">Une déclaration préalable suffit pour les projets de taille modeste. Au-delà, il faut un permis de construire.</p>
-            @if ($fmt)<div class="box ochre" style="margin-top:28px"><span class="muted">Dossier complet</span><div class="price"><small>À partir de</small><b>{{ $fmt }}</b></div><small class="muted">Prix fixe indiqué dans le devis{{ \App\Models\CompanySetting::current()->vat_enabled ? '.' : ', TVA non applicable.' }}</small></div>@endif
         </div>
         <div class="box">
             <ul class="ticks-list">
@@ -60,7 +59,7 @@
 <section>
     <div class="wrap">
         <div class="sec-head"><span class="eyebrow">Simulateur</span><h2>Vérifiez votre projet</h2></div>
-        @include('site.partials.simulator', ['prices' => $prices])
+        @include('site.partials.simulator')
     </div>
 </section>
 @include('site.partials.cta')

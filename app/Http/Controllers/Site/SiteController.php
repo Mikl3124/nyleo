@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
-use App\Models\CatalogItem;
 use App\Support\Geo;
+use App\Support\ProjectGuides;
 use App\Support\SiteContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -15,21 +15,30 @@ class SiteController extends Controller
 {
     public function home()
     {
-        return view('site.home', ['prices' => $this->startingPrices()]);
+        return view('site.home');
     }
 
     public function dp()
     {
-        $prices = $this->startingPrices();
-
-        return view('site.dp', ['price' => $prices['DP'] ?? null, 'prices' => $prices]);
+        return view('site.dp');
     }
 
     public function pc()
     {
-        $prices = $this->startingPrices();
+        return view('site.pc');
+    }
 
-        return view('site.pc', ['price' => $prices['PC'] ?? null, 'prices' => $prices]);
+    public function projects()
+    {
+        return view('site.projects');
+    }
+
+    public function project(string $project)
+    {
+        $guide = ProjectGuides::find($project);
+        abort_unless($guide, 404);
+
+        return view('site.project', ['guide' => $guide]);
     }
 
     public function areas()
@@ -42,7 +51,7 @@ class SiteController extends Controller
         $commune = Geo::find($department, $town);
         abort_unless($commune && $commune['page'], 404);
 
-        return view('site.town', ['town' => $commune, 'prices' => $this->startingPrices()]);
+        return view('site.town', ['town' => $commune]);
     }
 
     /** Recherche de commune : sa page si elle existe, sinon le formulaire de devis prérempli. */
@@ -101,13 +110,6 @@ class SiteController extends Controller
         return view('site.about');
     }
 
-    public function pricing()
-    {
-        $items = CatalogItem::query()->where('active', true)->orderBy('position')->get()->groupBy('category');
-
-        return view('site.pricing', ['groups' => $items]);
-    }
-
     public function area(string $department)
     {
         abort_unless(isset(SiteContent::DEPARTMENTS[$department]), 404);
@@ -130,22 +132,23 @@ class SiteController extends Controller
         ]);
     }
 
+    /** Communes des deux départements pour l'autocomplétion du formulaire de devis. */
+    public function communes()
+    {
+        $names = Geo::communes()->sortBy('name')->map(fn ($c) => $c['name'].' ('.($c['cp'][0] ?? '').')')->values();
+
+        return response()->json($names, 200, ['Cache-Control' => 'public, max-age=86400', 'X-Robots-Tag' => 'noindex'], JSON_UNESCAPED_UNICODE);
+    }
+
     public function sitemap(): Response
     {
-        $urls = collect(['home', 'site.dp', 'site.pc', 'site.pricing', 'site.areas', 'site.about', 'site.faq', 'site.contact', 'legal', 'privacy'])
+        $urls = collect(['home', 'site.dp', 'site.pc', 'site.projects', 'site.areas', 'site.about', 'site.faq', 'site.contact', 'legal', 'privacy'])
             ->map(fn ($r) => route($r))
+            ->merge(ProjectGuides::all()->map(fn ($g) => route('site.project', $g['slug'])))
             ->merge(collect(array_keys(SiteContent::DEPARTMENTS))->map(fn ($d) => route('site.area', $d)))
             ->merge(Geo::pages()->map(fn ($c) => Geo::url($c)));
 
         return response()->view('site.sitemap', ['urls' => $urls, 'townUpdated' => \App\Support\TownFacts::updated(), 'townPrefix' => route('site.areas').'/'])->header('Content-Type', 'application/xml');
     }
 
-    /** Prix « à partir de » par catégorie, d'après le catalogue. */
-    private function startingPrices(): array
-    {
-        return CatalogItem::query()->where('active', true)->where('unit_price', '>', 0)
-            ->whereIn('category', ['DP', 'PC'])
-            ->selectRaw('category, MIN(unit_price) as price')->groupBy('category')
-            ->pluck('price', 'category')->map(fn ($p) => (float) $p)->all();
-    }
 }

@@ -9,6 +9,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Str;
 
 /** E-mail rédigé à la main dans l'admin (devis, facture) : texte libre, bouton optionnel, pièces jointes. */
 class DocumentMail extends Mailable
@@ -42,6 +43,7 @@ class DocumentMail extends Mailable
         return new Content(markdown: 'mail.document', with: [
             'paragraphs' => self::toMarkdown($this->body),
             'signature' => $settings->email_signature ?: $settings->displayName(),
+            'preheader' => self::preheader($this->body),
         ]);
     }
 
@@ -51,6 +53,18 @@ class DocumentMail extends Mailable
             ? Attachment::fromData(fn () => $f['data'], $f['name'])->withMime($f['mime'] ?? 'application/pdf')
             : Attachment::fromStorageDisk($f['disk'] ?? 'local', $f['path'])->as($f['name']),
             $this->files);
+    }
+
+    /** Aperçu dans la boîte de réception : le premier paragraphe après « Bonjour, ». */
+    public static function preheader(string $text): ?string
+    {
+        $blocks = array_values(array_filter(array_map('trim', preg_split("/\n\s*\n/", str_replace("\r\n", "\n", $text)))));
+        if ($blocks && preg_match('/^(bonjour|bonsoir|madame|monsieur|cher|chère)\b[^\n]{0,60}$/iu', $blocks[0])) {
+            array_shift($blocks);
+        }
+        $first = preg_replace('/\s+/u', ' ', $blocks[0] ?? '');
+
+        return $first !== '' ? Str::limit($first, 140) : null;
     }
 
     /** Texte saisi → Markdown sûr : HTML échappé, retours à la ligne conservés, lignes « - » en liste. */

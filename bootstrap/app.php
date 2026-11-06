@@ -12,6 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->web(append: [\App\Http\Middleware\FrenchTypography::class]);
         $middleware->redirectGuestsTo(fn (Request $request) => $request->is('espace*')
             ? route('portal.login')
             : route('filament.admin.auth.login'));
