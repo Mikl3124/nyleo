@@ -12,6 +12,7 @@ use App\Filament\Resources\Partners\PartnerResource;
 use App\Filament\Resources\Partners\RelationManagers\DossiersRelationManager;
 use App\Filament\Widgets\TodoDossiers;
 use App\Models\Dossier;
+use App\Support\SiteContent;
 use BackedEnum;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
@@ -261,7 +262,7 @@ class DossierResource extends Resource
                 Filter::make('commission_due')->label('Commission à payer')
                     ->query(fn (Builder $query) => $query->whereNotNull('partner_id')->where('commissionable', true)->where('commission_paid', false)),
                 SelectFilter::make('procedure')->label('Procédure')->options(Procedure::options()),
-                SelectFilter::make('department')->label('Département')->options(['24' => 'Dordogne (24)', '33' => 'Gironde (33)', '16' => 'Charente (16)', '17' => 'Charente-Maritime (17)', '47' => 'Lot-et-Garonne (47)']),
+                SelectFilter::make('department')->label('Département')->options(collect(SiteContent::DEPARTMENTS)->mapWithKeys(fn (array $d) => [$d['code'] => $d['name'].' ('.$d['code'].')'])->all()),
                 SelectFilter::make('ouverts')->label('Afficher')->default('ouverts')
                     ->options(['ouverts' => 'Dossiers en cours', 'clos' => 'Dossiers clos'])
                     // Le paramètre doit s'appeler $query : Filament l'injecte par son nom.

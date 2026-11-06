@@ -29,7 +29,7 @@
     <meta property="og:description" content="{{ $description }}">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta name="theme-color" content="#1d3f91">
-    <meta property="og:image" content="{{ asset('img/og-nyleo.png').'?v=3' }}">
+    <meta property="og:image" content="{{ asset('img/og-nyleo.png').'?v=4' }}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="{{ $company->displayName() }}, plans de permis de construire et de déclaration préalable en Dordogne et départements voisins">
@@ -54,7 +54,7 @@
             'telephone' => $company->phone,
             'email' => $company->email,
             'logo' => asset('img/logo-nyleo.png'),
-            'image' => asset('img/og-nyleo.png').'?v=3',
+            'image' => asset('img/og-nyleo.png').'?v=4',
             'founder' => ['@id' => url('/qui-suis-je').'#mickael'],
             'address' => $company->city ? array_filter(['@type' => 'PostalAddress', 'streetAddress' => $company->address, 'postalCode' => $company->postal_code, 'addressLocality' => $company->city, 'addressCountry' => 'FR']) : ['@type' => 'PostalAddress', 'addressLocality' => $base['name'], 'postalCode' => $base['cp'][0] ?? null, 'addressRegion' => 'Dordogne', 'addressCountry' => 'FR'],
             'areaServed' => collect(\App\Support\SiteContent::DEPARTMENTS)->map(fn ($d) => ['@type' => 'AdministrativeArea', 'name' => $d['name']])->values()->all(),

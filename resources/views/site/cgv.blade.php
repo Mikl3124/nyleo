@@ -1,6 +1,6 @@
 @extends('layouts.site')
 @section('title', 'Conditions générales de vente')
-@section('description', "Conditions générales de vente des plans de déclaration préalable et de permis de construire réalisés par Nyleo en Dordogne et en Gironde.")
+@section('description', "Conditions générales de vente des plans de déclaration préalable et de permis de construire réalisés par Nyleo en Dordogne et dans les départements voisins.")
 @php
     $c = \App\Models\CompanySetting::current();
     $email = $c->email ?: 'mickael@nyleo.fr';

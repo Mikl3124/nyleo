@@ -1,6 +1,6 @@
 # Nyleo
 
-Application de gestion pour **Nyleo** (nyleo.fr) : plans de déclaration préalable et de permis de construire en Dordogne et en Gironde.
+Application de gestion pour **Nyleo** (nyleo.fr) : plans de déclaration préalable et de permis de construire en Dordogne et dans les départements voisins.
 
 - **Back-office** (`/admin`, Filament) : clients, dossiers, catalogue de prestations, devis, factures, factures d'acompte, avoirs, encaissements (virement, chèque), paramètres de l'entreprise, tableau de bord.
 - **Espace client** (`/espace`) : connexion par lien envoyé par e-mail (sans mot de passe), avancement du dossier, signature du devis en ligne, validation des plans, envoi de photos, infos CERFA, téléchargement des documents et factures.
