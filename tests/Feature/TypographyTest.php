@@ -17,6 +17,7 @@ class TypographyTest extends TestCase
         $n = self::N;
         $this->assertSame("la toiture{$n}: c'est ça{$n}? Oui{$n}! «{$n}Bien{$n}»{$n};", Typography::text("la toiture : c'est ça ? Oui ! « Bien » ;"));
         $this->assertSame("400{$n}€, 20{$n}m², 1{$n}500{$n}€ et 07{$n}85{$n}65{$n}91{$n}65", Typography::text('400 €, 20 m², 1 500 € et 07 85 65 91 65'));
+        $this->assertSame("Rappel sous 48{$n}h, 10{$n}jours, 3{$n}mois. Le 2 hameaux reste.", Typography::text('Rappel sous 48 h, 10 jours, 3 mois. Le 2 hameaux reste.'));
         // Ni l'IBAN, ni les heures, ni les adresses web, ni les mots qui suivent un nombre.
         $this->assertSame('FR76 3000 6000 0112 3456 7890 189', Typography::text('FR76 3000 6000 0112 3456 7890 189'));
         $this->assertSame('10:30 https://nyleo.fr 2 habitants', Typography::text('10:30 https://nyleo.fr 2 habitants'));

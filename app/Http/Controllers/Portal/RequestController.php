@@ -57,6 +57,29 @@ class RequestController extends Controller
         Admin::notify(new AdminAlert('Nouvelle demande de devis', "{$client->display_name} ({$data['phone']}) — {$dossier->title}",
             route('filament.admin.resources.dossiers.view', $dossier)));
 
-        return back()->with('status', 'Merci ! Votre demande est bien reçue. Je vous rappelle sous 48 h ouvrées.')->withFragment('demande');
+        // Écran de confirmation dédié : le récapitulatif reste affiché si la personne recharge la page.
+        session()->put('demande_recue', [
+            'name' => trim(($data['first_name'] ?? '').' '.$data['last_name']),
+            'first_name' => $data['first_name'] ?? null,
+            'nature' => $data['nature'] ?? null,
+            'procedure' => $data['procedure'],
+            'city' => $data['site_city'].(filled($data['site_postal_code'] ?? null) ? ' ('.$data['site_postal_code'].')' : ''),
+            'phone' => $data['phone'],
+            'email' => $data['email'],
+            'description' => $data['description'] ?? null,
+        ]);
+
+        return redirect()->route('site.request.thanks');
+    }
+
+    /** Écran « Merci » affiché après l'envoi du formulaire. */
+    public function thanks()
+    {
+        $demande = session('demande_recue');
+        if (! is_array($demande)) {
+            return redirect()->route('site.contact');
+        }
+
+        return view('site.thanks', ['d' => $demande]);
     }
 }

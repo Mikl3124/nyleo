@@ -144,9 +144,11 @@
     </div>
 </footer>
 
+@unless (trim($__env->yieldContent('no_callbar'))) {{-- masquée sur l'écran « Merci » : la demande est déjà faite --}}
 <div class="callbar">
     @if ($tel)<a class="btn" href="tel:{{ $tel }}">@include('site.partials.icon', ['name' => 'phone']) Appeler</a>@endif
     <a class="btn cta" href="{{ route('site.contact') }}">Devis gratuit</a>
 </div>
+@endunless
 </body>
 </html>
