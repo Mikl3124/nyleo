@@ -1,9 +1,5 @@
 {{-- Simulateur : quelle démarche pour mon projet ? (calcul dans le navigateur, sans envoi) --}}
-@php
-    $priceDp = $prices['DP'] ?? null;
-    $pricePc = $prices['PC'] ?? null;
-@endphp
-<div class="sim" id="simulateur" data-dp="{{ $priceDp ? number_format($priceDp, 0, ',', ' ').' €' : '' }}" data-pc="{{ $pricePc ? number_format($pricePc, 0, ',', ' ').' €' : '' }}" data-contact="{{ route('site.contact') }}">
+<div class="sim" id="simulateur" data-contact="{{ route('site.contact') }}">
     <form class="sim-form" onsubmit="return false">
         <fieldset>
             <legend>Votre projet</legend>
@@ -46,7 +42,6 @@
         <dl>
             <dt>Délai d'instruction</dt><dd id="sim_delay">1 mois</dd>
             <dt>Formulaire</dt><dd id="sim_cerfa">CERFA n° 13703</dd>
-            <dt>Dossier complet</dt><dd id="sim_price">{{ $priceDp ? 'à partir de '.number_format($priceDp, 0, ',', ' ').' €' : 'sur devis' }}</dd>
         </dl>
         <a class="btn cta" id="sim_cta" href="{{ route('site.contact') }}">Demander mon devis @include('site.partials.icon', ['name' => 'arrow'])</a>
     </div>
@@ -58,7 +53,7 @@
     var $ = function (id) { return document.getElementById(id); };
     var val = function (n) { var e = root.querySelector('input[name="' + n + '"]:checked'); return e ? e.value : null; };
     // Typographie française : la ponctuation et les unités ne partent jamais seules à la ligne.
-    function nb(t) { return String(t).replace(/ ([:;!?»])/g, '\u00a0$1').replace(/(\d) (?=m²|€|mois|km|\d{3}\b)/g, '$1\u00a0'); }
+    function nb(t) { return String(t).replace(/ ([:;!?»])/g, '\u00a0$1').replace(/(\d) (?=m²|mois|km|\d{3}\b)/g, '$1\u00a0'); }
     function compute() {
         var t = val('sim_type'), s = +$('sim_surface').value, zone = val('sim_zone'), abf = val('sim_abf') === 'oui';
         $('sim_surface_out').textContent = s + '\u00a0m²';
@@ -87,8 +82,6 @@
         var extra = abf ? 1 : 0, note = abf ? ' (avis des Bâtiments de France)' : '';
         $('sim_delay').textContent = nb(r === 'RIEN' ? '—' : (r === 'DP ou PC' ? (1 + extra) + ' ou ' + (2 + extra) + ' mois' : (months + extra) + ' mois') + note);
         $('sim_cerfa').textContent = r === 'PC' ? 'CERFA n° 13406' : (r === 'DP' ? 'CERFA n° 13703' : (r === 'RIEN' ? '—' : '13703 ou 13406'));
-        var p = r === 'PC' ? root.dataset.pc : root.dataset.dp;
-        $('sim_price').textContent = nb(r === 'RIEN' ? 'conseil gratuit' : (p ? 'à partir de ' + p : 'sur devis'));
         var d = r === 'PC' ? 'PC' : (r === 'DP' ? 'DP' : 'AUTRE');
         $('sim_cta').href = root.dataset.contact + '?demarche=' + d;
     }

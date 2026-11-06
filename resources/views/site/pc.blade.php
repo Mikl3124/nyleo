@@ -1,8 +1,7 @@
 @extends('layouts.site')
 @section('title', 'Permis de construire de maison individuelle en Dordogne et Gironde')
 @section('description', "Plans de permis de construire (PCMI1 à PCMI8, CERFA 13406) pour maison individuelle, extension ou garage, déposés en votre nom en Dordogne et en Gironde.")
-@php($fmt = $price ? number_format($price, 0, ',', ' ').' €' : null)
-@include('site.partials.service-ld', ['name' => 'Dossier de permis de construire', 'description' => "Plans et dossier complet de permis de construire de maison individuelle (PCMI1 à PCMI8, CERFA 13406), déposé en mairie au nom du client et suivi jusqu'à la décision.", 'price' => $price])
+@include('site.partials.service-ld', ['name' => 'Dossier de permis de construire', 'description' => "Plans et dossier complet de permis de construire de maison individuelle (PCMI1 à PCMI8, CERFA 13406), déposé en mairie au nom du client et suivi jusqu'à la décision."])
 @section('content')
 @include('site.partials.page-hero', [
     'crumbs' => 'Permis de construire', 'kicker' => 'CERFA n° 13406 · Dordogne et Gironde',
@@ -17,7 +16,6 @@
             <span class="eyebrow">Quand est-il obligatoire ?</span>
             <h2>Les projets concernés</h2>
             <p class="lead">Le permis de construire concerne les constructions neuves et les agrandissements importants.</p>
-            @if ($fmt)<div class="box ochre" style="margin-top:28px"><span class="muted">Dossier complet</span><div class="price"><small>À partir de</small><b>{{ $fmt }}</b></div><small class="muted">Prix fixe indiqué dans le devis{{ \App\Models\CompanySetting::current()->vat_enabled ? '.' : ', TVA non applicable.' }}</small></div>@endif
         </div>
         <div class="box">
             <ul class="ticks-list">
@@ -58,7 +56,7 @@
 <section>
     <div class="wrap">
         <div class="sec-head"><span class="eyebrow">Simulateur</span><h2>Vérifiez votre projet</h2></div>
-        @include('site.partials.simulator', ['prices' => $prices])
+        @include('site.partials.simulator')
     </div>
 </section>
 @include('site.partials.cta')

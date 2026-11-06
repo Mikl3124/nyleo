@@ -15,7 +15,7 @@
 <section class="stone">
     <div class="wrap">
         <div class="sec-head"><span class="eyebrow">Simulateur</span><h2>Ou faites le test directement</h2></div>
-        @include('site.partials.simulator', ['prices' => $prices])
+        @include('site.partials.simulator')
     </div>
 </section>
 @include('site.partials.cta')
