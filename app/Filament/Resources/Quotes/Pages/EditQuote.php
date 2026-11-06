@@ -23,6 +23,27 @@ class EditQuote extends EditRecord
 {
     protected static string $resource = QuoteResource::class;
 
+    /** false = aperçu du devis tel que le client le verra ; true = formulaire de construction. */
+    public bool $editing = false;
+
+    public function mount(int|string $record): void
+    {
+        parent::mount($record);
+        // Devis encore vide : on arrive directement sur le formulaire.
+        $this->editing = $this->record->isEditable() && ! $this->record->lines()->exists();
+    }
+
+    public function startEditing(): void
+    {
+        $this->editing = true;
+        $this->fillForm();
+    }
+
+    public function stopEditing(): void
+    {
+        $this->editing = false;
+    }
+
     public function getTitle(): string
     {
         return 'Devis '.$this->record->displayNumber().' — '.$this->record->status->label();
@@ -31,12 +52,21 @@ class EditQuote extends EditRecord
     protected function afterSave(): void
     {
         $this->record->recalculate();
+        QuoteResource::fillSubjectFromLines($this->record);
         QuoteResource::ensureDossier($this->record);
+        $this->editing = false;
     }
 
     protected function getFormActions(): array
     {
-        return $this->record->isEditable() ? parent::getFormActions() : [];
+        if (! $this->record->isEditable() || ! $this->editing) {
+            return [];
+        }
+
+        return [
+            $this->getSaveFormAction()->label('Enregistrer et voir l\'aperçu'),
+            Action::make('cancelEdit')->label('Annuler')->color('gray')->action(fn () => $this->stopEditing()),
+        ];
     }
 
     protected function getHeaderActions(): array
@@ -47,7 +77,7 @@ class EditQuote extends EditRecord
         return [
             SendEmailAction::forQuote(
                 $q,
-                before: fn () => $q->isEditable() ? $this->save(shouldRedirect: false, shouldSendSavedNotification: false) : null,
+                before: fn () => $q->isEditable() && $this->editing ? $this->save(shouldRedirect: false, shouldSendSavedNotification: false) : null,
                 after: fn () => $this->redirect(QuoteResource::getUrl('edit', ['record' => $q])),
             ),
             Action::make('pdf')->label('PDF')->icon(Heroicon::OutlinedArrowDownTray)->color('gray')

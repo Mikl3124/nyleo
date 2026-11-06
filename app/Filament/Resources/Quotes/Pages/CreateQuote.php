@@ -21,6 +21,7 @@ class CreateQuote extends CreateRecord
     protected function afterCreate(): void
     {
         $this->record->recalculate();
+        QuoteResource::fillSubjectFromLines($this->record);
         QuoteResource::ensureDossier($this->record);
     }
 

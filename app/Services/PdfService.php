@@ -21,6 +21,24 @@ class PdfService
         return self::numberPages(Pdf::loadHTML(Typography::html(view('pdf.quote', compact('quote', 'company', 'client'))->render()))->setPaper('a4'), 'Devis '.($quote->number ?: '(brouillon)'));
     }
 
+    /** Même rendu que le PDF, en HTML : sert à l'aperçu dans l'administration. */
+    public static function quoteHtml(Quote $quote): string
+    {
+        $quote->loadMissing('lines', 'client', 'dossier');
+        $company = $quote->company_snapshot ?: CompanySetting::current()->snapshot();
+        $company['cgv_url'] = ($company['cgv_url'] ?? null) ?: CompanySetting::current()->cgvUrl();
+        $client = $quote->client_snapshot ?: $quote->client->snapshot();
+
+        $html = Typography::html(view('pdf.quote', compact('quote', 'company', 'client'))->render());
+
+        // Le PDF lit les images sur le disque ; le navigateur a besoin d'URL.
+        return str_replace(
+            [storage_path('app/public').'/', public_path().'/'],
+            [asset('storage').'/', url('/').'/'],
+            $html,
+        );
+    }
+
     public static function invoice(Invoice $invoice): \Barryvdh\DomPDF\PDF
     {
         $invoice->loadMissing('lines', 'client', 'dossier', 'parent', 'payments', 'quote');
