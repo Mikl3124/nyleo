@@ -1,0 +1,162 @@
+<?php
+
+namespace App\Services;
+
+use App\Enums\DocumentCategory;
+use App\Enums\DossierStatus;
+use App\Models\Document;
+use App\Models\Dossier;
+use App\Notifications\AdminAlert;
+use App\Notifications\DossierUpdate;
+use App\Support\Admin;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+
+class DossierWorkflow
+{
+    /** Le dessinateur met des plans en ligne et demande la validation du client. */
+    public static function submitPlans(Document $plan, ?string $message = null): void
+    {
+        $plan->forceFill(['requires_validation' => true, 'visible_to_client' => true])->save();
+        $dossier = $plan->dossier;
+        $dossier->update(['status' => DossierStatus::PlansAValider]);
+        $dossier->log('plans_envoyes', "« {$plan->displayName()} » envoyés pour validation", true);
+        $dossier->client->notify(new DossierUpdate(
+            $dossier,
+            'Vos plans sont prêts',
+            [
+                "Les plans de votre projet sont prêts : {$plan->displayName()}.",
+                $message,
+                'Merci de les consulter dans votre espace, puis de cliquer sur « Je valide les plans » ou « Je demande une modification ».',
+            ],
+            'Voir mes plans',
+        ));
+    }
+
+    /** Validation des plans par le client : la facture est générée et envoyée automatiquement. */
+    public static function clientValidatesPlans(Document $plan): void
+    {
+        DB::transaction(function () use ($plan) {
+            $plan->forceFill(['validated_at' => now()])->save();
+            $dossier = $plan->dossier;
+            $dossier->update(['status' => DossierStatus::PlansValides]);
+            $dossier->log('plans_valides', "« {$plan->displayName()} » validés par le client", true);
+
+            if ($quote = $dossier->signedQuote()) {
+                $invoice = InvoiceService::createFinalFromQuote($quote);
+                if ($invoice->isDraft()) {
+                    InvoiceService::issue($invoice, notify: true);
+                }
+            }
+        });
+
+        Admin::notify(new AdminAlert(
+            "Plans validés — {$plan->dossier->reference}",
+            "{$plan->dossier->client->display_name} a validé les plans {$plan->displayName()}. La facture a été envoyée automatiquement.",
+            route('filament.admin.resources.dossiers.view', $plan->dossier),
+        ));
+    }
+
+    public static function clientRequestsChanges(Document $plan, string $feedback): void
+    {
+        $plan->forceFill(['change_requested_at' => now(), 'client_feedback' => $feedback])->save();
+        $dossier = $plan->dossier;
+        $dossier->update(['status' => DossierStatus::PlansEnCours]);
+        $dossier->log('modification_demandee', "Modification demandée sur {$plan->displayName()} : {$feedback}", true);
+        Admin::notify(new AdminAlert(
+            "Modification demandée — {$dossier->reference}",
+            "{$dossier->client->display_name} : « {$feedback} »",
+            route('filament.admin.resources.dossiers.view', $dossier),
+        ));
+    }
+
+    /** Dépôt en mairie : calcule la date de décision tacite et prévient le client. */
+    public static function markDeposited(Dossier $dossier, Carbon $date, ?string $number, ?string $channel, ?string $receiptPath = null): void
+    {
+        $dossier->fill([
+            'deposit_date' => $date,
+            'deposit_number' => $number,
+            'deposit_channel' => $channel,
+            'status' => DossierStatus::EnInstruction,
+        ]);
+        $dossier->decision_due_date = $dossier->computeDecisionDueDate();
+        $dossier->save();
+
+        if ($receiptPath) {
+            $dossier->documents()->create([
+                'category' => DocumentCategory::Recepisse,
+                'name' => 'Récépissé de dépôt'.($number ? " n° {$number}" : ''),
+                'path' => $receiptPath,
+                'visible_to_client' => true,
+            ]);
+        }
+
+        $dossier->log('depose', "Dossier déposé en mairie le {$date->format('d/m/Y')}".($number ? " (n° {$number})" : ''), true);
+        $dossier->client->notify(new DossierUpdate(
+            $dossier,
+            'Votre dossier a été déposé en mairie',
+            [
+                "Votre dossier a été déposé le {$date->format('d/m/Y')}".($number ? ", sous le numéro {$number}" : '').'.',
+                "La mairie dispose en principe de {$dossier->instructionMonths()} mois pour l'instruire, soit jusqu'au {$dossier->decision_due_date->format('d/m/Y')}, sauf demande de pièces complémentaires.",
+                'Le récépissé est disponible dans votre espace.',
+            ],
+            'Voir mon dossier',
+        ));
+    }
+
+    /** La mairie demande des pièces : le délai d'instruction ne court plus (3 mois pour répondre). */
+    public static function markIncomplete(Dossier $dossier, Carbon $notifiedAt, ?string $details): void
+    {
+        $dossier->update([
+            'status' => DossierStatus::Incomplet,
+            'incomplete_notified_at' => $notifiedAt,
+            'incomplete_deadline' => $notifiedAt->copy()->addMonthsNoOverflow(3),
+        ]);
+        $dossier->log('incomplet', 'La mairie demande des pièces complémentaires'.($details ? " : {$details}" : ''), true);
+        $dossier->client->notify(new DossierUpdate(
+            $dossier,
+            'La mairie demande des pièces complémentaires',
+            [
+                'La mairie a demandé des compléments pour votre dossier.',
+                $details,
+                "Je m'en occupe et je reviens vers vous si j'ai besoin d'informations de votre part.",
+            ],
+            'Voir mon dossier',
+        ));
+    }
+
+    /** Pièces complémentaires déposées : le délai repart à zéro à partir de cette date. */
+    public static function markCompleted(Dossier $dossier, Carbon $date): void
+    {
+        $dossier->deposit_date = $date;
+        $dossier->status = DossierStatus::EnInstruction;
+        $dossier->decision_due_date = $dossier->computeDecisionDueDate();
+        $dossier->save();
+        $dossier->log('complete', "Pièces complémentaires déposées le {$date->format('d/m/Y')}", true);
+    }
+
+    public static function markDecision(Dossier $dossier, bool $granted, Carbon $date, ?string $arretePath = null): void
+    {
+        $dossier->update([
+            'status' => $granted ? DossierStatus::Accorde : DossierStatus::Refuse,
+            'decision_date' => $date,
+        ]);
+        if ($arretePath) {
+            $dossier->documents()->create([
+                'category' => DocumentCategory::Arrete,
+                'name' => 'Arrêté du '.$date->format('d/m/Y'),
+                'path' => $arretePath,
+                'visible_to_client' => true,
+            ]);
+        }
+        $dossier->log('decision', ($granted ? 'Autorisation accordée' : 'Autorisation refusée').' le '.$date->format('d/m/Y'), true);
+        $dossier->client->notify(new DossierUpdate(
+            $dossier,
+            $granted ? 'Bonne nouvelle : votre projet est accordé' : 'Décision de la mairie',
+            $granted
+                ? ["La mairie a accordé votre {$dossier->procedure->label()} le {$date->format('d/m/Y')}.", "Pensez à afficher l'autorisation sur le terrain, visible depuis la voie publique, pendant toute la durée des travaux."]
+                : ["La mairie a rendu une décision défavorable le {$date->format('d/m/Y')}.", 'Je vous appelle pour voir ensemble les solutions possibles.'],
+            'Voir mon dossier',
+        ));
+    }
+}
