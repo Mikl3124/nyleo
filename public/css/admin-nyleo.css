@@ -89,3 +89,9 @@
   .nyleo-band{justify-content:flex-end}
   .fi-simple-main{margin-block:24px 16px;width:calc(100% - 32px);padding-inline:20px;padding-block:36px}
 }
+
+/* ---------- Liste des dossiers : tout voir d'un coup d'œil ---------- */
+.nyleo-col-next{min-width:12rem;max-width:17rem;font-size:.875rem;line-height:1.35}
+.fi-ta-header-cell{white-space:nowrap}
+.fi-ta-table .fi-ta-cell:not(.fi-ta-selection-cell),.fi-ta-table .fi-ta-header-cell{padding-inline:.65rem}
+.fi-ta-table .fi-ta-cell:first-child,.fi-ta-table .fi-ta-header-cell:first-child{padding-inline-start:1.25rem}
