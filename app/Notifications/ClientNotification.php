@@ -43,7 +43,7 @@ abstract class ClientNotification extends Notification implements ShouldQueue
 
     /**
      * Base commune : objet, titre, salutation, signature, ligne d'aide et adresse de réponse
-     * (contact@nyleo.fr n'a pas de boîte : les réponses vont à l'adresse des paramètres).
+     * (les réponses vont à l'adresse des paramètres, mickael@nyleo.fr).
      */
     protected function message(Client $client, string $subject, ?string $title = null, ?string $eyebrow = null): MailMessage
     {
