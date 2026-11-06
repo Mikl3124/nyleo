@@ -6,6 +6,7 @@ use App\Enums\DocumentCategory;
 use App\Enums\DossierStatus;
 use App\Models\Document;
 use App\Models\Dossier;
+use App\Models\PieceRequest;
 use App\Notifications\AdminAlert;
 use App\Notifications\DossierUpdate;
 use App\Support\Admin;
@@ -104,35 +105,71 @@ class DossierWorkflow
         ));
     }
 
-    /** La mairie demande des pièces : le délai d'instruction ne court plus (3 mois pour répondre). */
-    public static function markIncomplete(Dossier $dossier, Carbon $notifiedAt, ?string $details): void
+    /**
+     * La mairie demande des pièces : on enregistre la demande (il peut y en avoir plusieurs),
+     * le délai d'instruction ne court plus, en principe 3 mois pour répondre.
+     */
+    public static function markIncomplete(Dossier $dossier, Carbon $notifiedAt, ?string $details, ?Carbon $deadline = null,
+        string $waitingOn = 'moi', ?string $letterPath = null, bool $notify = true): PieceRequest
     {
+        $deadline ??= $notifiedAt->copy()->addMonthsNoOverflow(3);
+        $request = $dossier->pieceRequests()->create([
+            'requested_at' => $notifiedAt,
+            'pieces' => $details,
+            'deadline' => $deadline,
+            'waiting_on' => $waitingOn,
+        ]);
+        if ($letterPath) {
+            $dossier->documents()->create(['category' => DocumentCategory::CourrierMairie, 'name' => 'Demande de pièces du '.$notifiedAt->format('d/m/Y'), 'path' => $letterPath]);
+        }
         $dossier->update([
             'status' => DossierStatus::Incomplet,
             'incomplete_notified_at' => $notifiedAt,
-            'incomplete_deadline' => $notifiedAt->copy()->addMonthsNoOverflow(3),
+            'incomplete_deadline' => $deadline,
         ]);
         $dossier->log('incomplet', 'La mairie demande des pièces complémentaires'.($details ? " : {$details}" : ''), true);
-        $dossier->client->notify(new DossierUpdate(
-            $dossier,
-            'La mairie demande des pièces complémentaires',
-            [
-                'La mairie a demandé des compléments pour votre dossier.',
-                $details,
-                "Je m'en occupe et je reviens vers vous si j'ai besoin d'informations de votre part.",
-            ],
-            'Voir mon dossier',
-        ));
+
+        if ($notify) {
+            $dossier->client->notify(new DossierUpdate(
+                $dossier,
+                'La mairie demande des pièces complémentaires',
+                array_values(array_filter([
+                    'La mairie a demandé des compléments pour votre dossier.',
+                    $details,
+                    $waitingOn === 'client'
+                        ? "J'ai besoin de votre aide pour certains documents : merci de me les envoyer depuis votre espace, avant le {$deadline->copy()->subDays(15)->format('d/m/Y')} si possible."
+                        : "Je m'en occupe et je reviens vers vous si j'ai besoin d'informations de votre part.",
+                ])),
+                'Voir mon dossier',
+            ));
+        }
+
+        return $request;
     }
 
-    /** Pièces complémentaires déposées : le délai repart à zéro à partir de cette date. */
-    public static function markCompleted(Dossier $dossier, Carbon $date): void
+    /**
+     * Pièces complémentaires envoyées à la mairie : la demande est close, et quand plus aucune
+     * n'est ouverte le délai d'instruction repart à zéro à partir de cette date.
+     */
+    public static function markCompleted(Dossier $dossier, Carbon $date, ?PieceRequest $request = null): void
     {
-        $dossier->deposit_date = $date;
-        $dossier->status = DossierStatus::EnInstruction;
-        $dossier->decision_due_date = $dossier->computeDecisionDueDate();
+        $open = $request ? collect([$request]) : $dossier->openPieceRequests()->get();
+        foreach ($open as $r) {
+            $r->update(['sent_at' => $date]);
+        }
+
+        $dossier->incomplete_answered_at = $date;
+        $next = $dossier->openPieceRequests()->orderBy('deadline')->first();
+        if ($next) {
+            $dossier->incomplete_notified_at = $next->requested_at;
+            $dossier->incomplete_deadline = $next->deadline;
+        } else {
+            // La date de dépôt reste celle d'origine ; le délai d'instruction repart de l'envoi des pièces.
+            $dossier->status = DossierStatus::EnInstruction;
+            $dossier->decision_due_date = $date->copy()->addMonthsNoOverflow($dossier->instructionMonths());
+        }
         $dossier->save();
-        $dossier->log('complete', "Pièces complémentaires déposées le {$date->format('d/m/Y')}", true);
+        $dossier->log('complete', "Pièces complémentaires envoyées à la mairie le {$date->format('d/m/Y')}", true);
     }
 
     public static function markDecision(Dossier $dossier, bool $granted, Carbon $date, ?string $arretePath = null): void
@@ -158,5 +195,29 @@ class DossierWorkflow
                 : ["La mairie a rendu une décision défavorable le {$date->format('d/m/Y')}.", 'Je vous appelle pour voir ensemble les solutions possibles.'],
             'Voir mon dossier',
         ));
+    }
+
+    /**
+     * Mise à jour du suivi (ce qui remplaçait une ligne du fichier Excel) : prochaine action,
+     * qui doit agir, date de relance, priorité, pièces manquantes, et une note datée au journal.
+     */
+    public static function updateFollowUp(Dossier $dossier, array $data): void
+    {
+        $fields = ['follow_up_action', 'waiting_on', 'waiting_on_details', 'follow_up_at', 'priority', 'missing_pieces'];
+        $dossier->fill(array_intersect_key($data, array_flip($fields)));
+        $changed = $dossier->isDirty();
+        $dossier->save();
+
+        $note = trim((string) ($data['note'] ?? ''));
+        if ($note !== '') {
+            $dossier->log('suivi', $note, (bool) ($data['note_visible'] ?? false));
+        } elseif ($changed) {
+            $parts = array_filter([
+                $dossier->follow_up_action ? 'À faire : '.$dossier->follow_up_action : null,
+                $dossier->waiting_on ? 'En attente de : '.mb_strtolower($dossier->waiting_on->label()) : null,
+                $dossier->follow_up_at ? 'relance le '.$dossier->follow_up_at->format('d/m/Y') : null,
+            ]);
+            $dossier->log('suivi', 'Suivi mis à jour'.($parts ? ' — '.implode(' ; ', $parts) : ''));
+        }
     }
 }
