@@ -10,7 +10,6 @@ use App\Models\Invoice;
 use App\Services\InvoiceService;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
-use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
@@ -84,7 +83,7 @@ class EditInvoice extends EditRecord
                 Action::make('dossier')->label('Voir le dossier')->icon(Heroicon::OutlinedFolder)
                     ->visible(fn () => (bool) $inv->dossier_id)
                     ->url(fn () => DossierResource::getUrl('view', ['record' => $inv->dossier_id])),
-                DeleteAction::make()->visible(fn () => $inv->isDraft()),
+                InvoiceResource::deleteAction()->record($inv)->after(fn () => $this->redirect(InvoiceResource::getUrl('index'))),
             ]),
         ];
     }

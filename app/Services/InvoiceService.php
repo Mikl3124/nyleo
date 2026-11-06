@@ -15,6 +15,7 @@ use App\Notifications\InvoiceSent;
 use App\Notifications\PaymentReceived;
 use App\Support\Admin;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use RuntimeException;
 
 class InvoiceService
@@ -200,6 +201,54 @@ class InvoiceService
         $credit->recalculate();
 
         return $credit;
+    }
+
+    /**
+     * Supprime définitivement une facture (même émise), avec ses paiements, ses lignes,
+     * ses avoirs et son PDF archivé. Réservé à la phase de test : en production, une
+     * facture émise s'annule par un avoir. Si c'était le dernier numéro attribué, le
+     * compteur recule pour que la numérotation reprenne sans trou.
+     */
+    public static function delete(Invoice $invoice): void
+    {
+        DB::transaction(function () use ($invoice) {
+            foreach ($invoice->creditNotes()->withTrashed()->get() as $credit) {
+                self::delete($credit);
+            }
+
+            $parent = $invoice->parent;
+            $label = $invoice->title();
+            $number = $invoice->number;
+            $kind = $invoice->isCreditNote() ? 'credit_note' : 'invoice';
+
+            $invoice->payments()->delete();
+            $invoice->lines()->delete();
+            if ($invoice->pdf_path) {
+                Storage::disk('local')->delete($invoice->pdf_path);
+            }
+            // Contourne le garde-fou du modèle (facture émise non supprimable) : suppression voulue.
+            Invoice::withoutEvents(fn () => $invoice->forceDelete());
+
+            if ($number) {
+                Numbering::release($kind, $number);
+            }
+
+            // Un avoir supprimé : la facture d'origine redevient due.
+            if ($parent && $number) {
+                $credited = (float) $parent->creditNotes()->whereNotNull('number')->sum('total_ttc');
+                $parent->forceFill([
+                    'status' => InvoiceStatus::Emise,
+                    'amount_due' => max(0, (float) $parent->total_ttc - (float) $parent->deposits_deducted - $credited),
+                ])->save();
+                if ($credited >= (float) $parent->total_ttc) {
+                    $parent->forceFill(['status' => InvoiceStatus::Annulee])->save();
+                } else {
+                    self::refreshPaymentStatus($parent);
+                }
+            }
+
+            $invoice->dossier?->log('facture_supprimee', "{$label} supprimée");
+        });
     }
 
     /** Relance automatique ou manuelle d'une facture impayée. */
