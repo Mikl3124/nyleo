@@ -19,6 +19,8 @@ class Dossier extends Model
 
     protected $guarded = ['id'];
 
+    protected $attributes = ['commissionable' => true];
+
     protected function casts(): array
     {
         return [
@@ -41,6 +43,8 @@ class Dossier extends Model
             'commission_amount' => 'decimal:2',
             'agreed_price' => 'decimal:2',
             'commission_paid' => 'boolean',
+            'commission_paid_at' => 'date',
+            'commissionable' => 'boolean',
         ];
     }
 
@@ -52,10 +56,57 @@ class Dossier extends Model
                 $count = static::withTrashed()->where('reference', 'like', "N{$year}-%")->count() + 1;
                 $dossier->reference = sprintf('N%s-%03d', $year, $count);
             }
+            // Un dossier d'un client apporté par un partenaire est rattaché à ce partenaire.
+            if (! $dossier->partner_id && $dossier->client_id) {
+                $dossier->partner_id = Client::find($dossier->client_id)?->partner_id;
+            }
             if (! $dossier->department && $dossier->site_postal_code) {
                 $dossier->department = substr($dossier->site_postal_code, 0, 2);
             }
         });
+
+        static::saving(function (Dossier $dossier) {
+            if ($dossier->isDirty('commission_paid')) {
+                $dossier->commission_paid_at = $dossier->commission_paid ? ($dossier->commission_paid_at ?? today()) : null;
+            }
+        });
+    }
+
+    public function partner(): BelongsTo
+    {
+        return $this->belongsTo(Partner::class);
+    }
+
+    /** Montant HT du dossier : devis signé(s), sinon prix convenu hors Nyleo. */
+    public function amountHt(): ?float
+    {
+        $signed = $this->relationLoaded('quotes')
+            ? $this->quotes->filter(fn (Quote $q) => $q->status?->value === 'signe')
+            : $this->quotes()->where('status', 'signe')->get();
+
+        if ($signed->isNotEmpty()) {
+            return (float) $signed->sum('total_ht');
+        }
+
+        return $this->agreed_price !== null ? (float) $this->agreed_price : null;
+    }
+
+    /** Commission saisie à la main, sinon calculée avec la règle du partenaire. Null : pas de commission. */
+    public function commissionDue(): ?float
+    {
+        if (! $this->partner_id || ! $this->commissionable) {
+            return null;
+        }
+        if ($this->commission_amount !== null) {
+            return (float) $this->commission_amount;
+        }
+
+        return $this->partner?->defaultCommission($this->amountHt());
+    }
+
+    public function isCommissionComputed(): bool
+    {
+        return $this->partner_id && $this->commissionable && $this->commission_amount === null;
     }
 
     public function client(): BelongsTo
@@ -110,9 +161,6 @@ class Dossier extends Model
             'meta' => $meta ?: null,
         ]);
     }
-
-    /** Prescripteurs habituels (proposés dans la saisie, on peut en taper un autre). */
-    public const PRESCRIBERS = ['Direct', 'AKENA — Thibault', 'AKENA — Rémi', 'AKENA — Cédric', 'Permis-Construire.com'];
 
     public static function closedStatuses(): array
     {

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Clients;
 
+use App\Filament\Resources\Partners\PartnerResource;
 use App\Models\Client;
 use App\Notifications\PortalLink;
 use BackedEnum;
@@ -60,7 +61,8 @@ class ClientResource extends Resource
                 Select::make('source')->label('Origine du contact')->options([
                     'telephone' => 'Téléphone', 'bouche_a_oreille' => 'Bouche-à-oreille', 'partenaire' => 'Partenaire / installateur',
                     'site' => 'Site nyleo.fr', 'autre' => 'Autre',
-                ]),
+                ])->live(),
+                PartnerResource::partnerSelect()->visible(fn (Get $get) => $get('source') === 'partenaire'),
             ]),
             Section::make('Adresse')->columns(3)->schema([
                 TextInput::make('address')->label('Adresse')->columnSpanFull(),
@@ -92,6 +94,7 @@ class ClientResource extends Resource
                 TextColumn::make('email')->label('E-mail')->searchable()->toggleable(),
                 TextColumn::make('city')->label('Commune')->searchable(),
                 TextColumn::make('dossiers_count')->label('Dossiers')->counts('dossiers')->badge(),
+                TextColumn::make('partner.name')->label('Partenaire')->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('last_login_at')->label('Dernière visite espace')->since()->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
@@ -104,6 +107,7 @@ class ClientResource extends Resource
                         false: fn (Builder $query) => $query->whereNotIn('id', Client::query()->prospects()->select('id')),
                     ),
                 SelectFilter::make('type')->options(['particulier' => 'Particulier', 'professionnel' => 'Professionnel']),
+                SelectFilter::make('partner_id')->label('Partenaire')->relationship('partner', 'name'),
             ])
             ->recordActions([
                 EditAction::make(),

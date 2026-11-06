@@ -8,6 +8,8 @@ use App\Enums\Priority;
 use App\Enums\Procedure;
 use App\Enums\WaitingOn;
 use App\Filament\Resources\Clients\ClientResource;
+use App\Filament\Resources\Partners\PartnerResource;
+use App\Filament\Resources\Partners\RelationManagers\DossiersRelationManager;
 use App\Filament\Widgets\TodoDossiers;
 use App\Models\Dossier;
 use BackedEnum;
@@ -22,6 +24,7 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -93,7 +96,7 @@ class DossierResource extends Resource
                 Toggle::make('abf')->label('Secteur protégé (ABF)')->helperText('Ajoute 1 mois au délai d\'instruction.'),
                 Toggle::make('is_individual_house')->label('Maison individuelle ou annexe')->default(true),
             ]),
-            Section::make('Suivi')->description('Ce que contenait le fichier Excel : prochaine action, relance, attente, prescripteur.')
+            Section::make('Suivi')->description('Ce que contenait le fichier Excel : prochaine action, relance, attente.')
                 ->columns(3)->collapsible()->schema(self::followUpFields()),
             Section::make('Instruction et liens')->columns(3)->collapsible()->collapsed()->schema([
                 DatePicker::make('received_at')->label('Demande reçue le'),
@@ -109,10 +112,11 @@ class DossierResource extends Resource
                 TextInput::make('legacy_ref')->label('Ancien n° (Excel)')->placeholder('URB-0001'),
                 TextInput::make('drive_url')->label('Dossier Google Drive (lien)')->url()->columnSpanFull(),
             ]),
-            Section::make('Prescripteur et règlement')->columns(3)->collapsible()->collapsed()->schema([
-                TextInput::make('prescriber')->label('Prescripteur')->datalist(Dossier::PRESCRIBERS)->placeholder('Direct'),
-                TextInput::make('commission_amount')->label('Commission')->numeric()->suffix('€'),
-                Toggle::make('commission_paid')->label('Commission payée')->inline(false),
+            Section::make('Partenaire et règlement')->columns(3)->collapsible()->collapsed()->schema([
+                PartnerResource::partnerSelect()->placeholder('Direct (sans partenaire)')->live()
+                    ->helperText('Repris automatiquement du client s\'il a été apporté par un partenaire.'),
+                Grid::make(2)->columnSpan(2)->schema(DossiersRelationManager::commissionFields())
+                    ->visible(fn (Get $get) => filled($get('partner_id'))),
                 TextInput::make('agreed_price')->label('Prix convenu')->numeric()->suffix('€')
                     ->helperText('Pour les dossiers sans devis dans Nyleo.'),
                 Select::make('external_payment_status')->label('Règlement (hors Nyleo)')->options(ExternalPaymentStatus::options())
@@ -190,10 +194,14 @@ class DossierResource extends Resource
                         ->visible(fn (Dossier $r) => filled($r->missing_pieces)),
                 ]),
                 Section::make('Repères')->columnSpan(1)->schema([
-                    TextEntry::make('prescriber')->label('Prescripteur')->placeholder('Direct'),
-                    TextEntry::make('commission_amount')->label('Commission')->money('EUR')
-                        ->helperText(fn (Dossier $r) => $r->commission_paid ? 'Payée' : 'À payer')
-                        ->visible(fn (Dossier $r) => $r->commission_amount > 0 || $r->commission_paid),
+                    TextEntry::make('partner.name')->label('Partenaire')->placeholder('Direct')->color('primary')
+                        ->url(fn (Dossier $r) => $r->partner_id ? PartnerResource::getUrl('view', ['record' => $r->partner_id]) : null),
+                    TextEntry::make('commission')->label('Commission')
+                        ->state(fn (Dossier $r) => $r->commissionable ? $r->commissionDue() : null)
+                        ->formatStateUsing(fn ($state) => money($state))
+                        ->placeholder(fn (Dossier $r) => $r->commissionable ? 'À définir' : 'Non commissionné')
+                        ->helperText(fn (Dossier $r) => $r->commissionable ? ($r->commission_paid ? 'Payée'.($r->commission_paid_at ? ' le '.$r->commission_paid_at->format('d/m/Y') : '') : 'À payer') : null)
+                        ->visible(fn (Dossier $r) => (bool) $r->partner_id),
                     TextEntry::make('received_at')->label('Demande reçue le')->date('d/m/Y')->placeholder('—'),
                     TextEntry::make('instruction_started_at')->label('Début d\'instruction')->date('d/m/Y')
                         ->visible(fn (Dossier $r) => $r->instruction_started_at !== null),
@@ -232,7 +240,7 @@ class DossierResource extends Resource
                     ->weight(fn (Dossier $r) => $r->isFollowUpDue() ? 'bold' : null),
                 TextColumn::make('priority')->label('Priorité')->badge()->sortable()->toggleable(isToggledHiddenByDefault: true)
                     ->formatStateUsing(fn (Priority $state) => $state->label())->color(fn (Priority $state) => $state->color()),
-                TextColumn::make('prescriber')->label('Prescripteur')->searchable()->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('partner.name')->label('Partenaire')->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('legacy_ref')->label('Ancien n°')->searchable()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('decision_due_date')->label('Décision au plus tard')->date('d/m/Y')->sortable()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')->label('Mis à jour')->since()->sortable(),
@@ -242,10 +250,9 @@ class DossierResource extends Resource
                 Filter::make('a_relancer')->label('À relancer (date passée)')->query(fn (Builder $query) => $query->followUpDue()),
                 SelectFilter::make('waiting_on')->label('En attente de')->options(WaitingOn::options()),
                 SelectFilter::make('priority')->label('Priorité')->options(Priority::options()),
-                SelectFilter::make('prescriber')->label('Prescripteur')
-                    ->options(fn () => Dossier::query()->whereNotNull('prescriber')->distinct()->orderBy('prescriber')->pluck('prescriber', 'prescriber')->all()),
+                SelectFilter::make('partner_id')->label('Partenaire')->relationship('partner', 'name'),
                 Filter::make('commission_due')->label('Commission à payer')
-                    ->query(fn (Builder $query) => $query->where('commission_amount', '>', 0)->where('commission_paid', false)),
+                    ->query(fn (Builder $query) => $query->whereNotNull('partner_id')->where('commissionable', true)->where('commission_paid', false)),
                 SelectFilter::make('procedure')->label('Procédure')->options(Procedure::options()),
                 SelectFilter::make('department')->label('Département')->options(['24' => 'Dordogne (24)', '33' => 'Gironde (33)', '16' => 'Charente (16)', '17' => 'Charente-Maritime (17)', '47' => 'Lot-et-Garonne (47)']),
                 SelectFilter::make('ouverts')->label('Afficher')->default('ouverts')
