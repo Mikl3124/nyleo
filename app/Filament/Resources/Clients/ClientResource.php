@@ -20,7 +20,9 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
 
 class ClientResource extends Resource
@@ -77,10 +79,15 @@ class ClientResource extends Resource
     {
         return $table
             ->defaultSort('created_at', 'desc')
+            ->modifyQueryUsing(fn (Builder $query) => $query->withSignedQuoteFlag())
             ->columns([
                 TextColumn::make('display_name')->label('Client')
                     ->searchable(['last_name', 'first_name', 'company_name'])->sortable(['last_name'])
                     ->description(fn (Client $r) => $r->type === 'professionnel' ? 'Professionnel' : null),
+                TextColumn::make('prospect')->label('')
+                    ->state(fn (Client $r) => $r->isProspect() ? 'Prospect' : null)
+                    ->badge()->color('warning')
+                    ->tooltip('Demande de devis reçue par le site, pas encore de devis signé'),
                 TextColumn::make('phone')->label('Téléphone')->searchable(),
                 TextColumn::make('email')->label('E-mail')->searchable()->toggleable(),
                 TextColumn::make('city')->label('Commune')->searchable(),
@@ -88,6 +95,14 @@ class ClientResource extends Resource
                 TextColumn::make('last_login_at')->label('Dernière visite espace')->since()->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                TernaryFilter::make('prospect')->label('Prospects du site')
+                    ->placeholder('Tous les clients')
+                    ->trueLabel('Prospects seulement')
+                    ->falseLabel('Sans les prospects')
+                    ->queries(
+                        true: fn (Builder $query) => $query->prospects(),
+                        false: fn (Builder $query) => $query->whereNotIn('id', Client::query()->prospects()->select('id')),
+                    ),
                 SelectFilter::make('type')->options(['particulier' => 'Particulier', 'professionnel' => 'Professionnel']),
             ])
             ->recordActions([
