@@ -6,6 +6,7 @@ use App\Enums\QuoteStatus;
 use App\Filament\Resources\Dossiers\DossierResource;
 use App\Filament\Resources\Invoices\InvoiceResource;
 use App\Filament\Resources\Quotes\QuoteResource;
+use App\Filament\Support\SendEmailAction;
 use App\Models\Quote;
 use App\Services\InvoiceService;
 use App\Services\QuoteService;
@@ -44,25 +45,11 @@ class EditQuote extends EditRecord
         $q = $this->record;
 
         return [
-            Action::make('send')
-                ->label($q->status === QuoteStatus::Envoye ? 'Renvoyer au client' : 'Envoyer au client')
-                ->icon(Heroicon::OutlinedPaperAirplane)
-                ->color('primary')
-                ->visible(fn () => in_array($q->status, [QuoteStatus::Brouillon, QuoteStatus::Envoye], true))
-                ->requiresConfirmation()
-                ->modalDescription('Le client reçoit un e-mail avec un lien pour lire et signer le devis en ligne. Le devis ne sera plus modifiable.')
-                ->action(function () use ($q) {
-                    if ($q->isEditable()) {
-                        $this->save(shouldRedirect: false, shouldSendSavedNotification: false);
-                    }
-                    try {
-                        QuoteService::send($q->refresh());
-                        Notification::make()->title('Devis envoyé à '.$q->client->email)->success()->send();
-                    } catch (\Throwable $e) {
-                        Notification::make()->title($e->getMessage())->danger()->send();
-                    }
-                    $this->redirect(QuoteResource::getUrl('edit', ['record' => $q]));
-                }),
+            SendEmailAction::forQuote(
+                $q,
+                before: fn () => $q->isEditable() ? $this->save(shouldRedirect: false, shouldSendSavedNotification: false) : null,
+                after: fn () => $this->redirect(QuoteResource::getUrl('edit', ['record' => $q])),
+            ),
             Action::make('pdf')->label('PDF')->icon(Heroicon::OutlinedArrowDownTray)->color('gray')
                 ->url(fn () => route('admin.quotes.pdf', $q))->openUrlInNewTab(),
             Action::make('dossier')->label('Dossier')->icon(Heroicon::OutlinedFolder)->color('gray')

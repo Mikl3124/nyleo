@@ -11,15 +11,29 @@ use Illuminate\Support\Facades\DB;
  */
 class Numbering
 {
+    /** Numéro que recevra le prochain document, sans le réserver (aperçu avant envoi). */
+    public static function peek(string $kind): string
+    {
+        $settings = CompanySetting::current();
+        [$prefixField, $counterField] = self::fields($kind);
+
+        return $settings->{$prefixField}.now()->format('Ym').'-'.max(1, (int) $settings->{$counterField});
+    }
+
+    private static function fields(string $kind): array
+    {
+        return match ($kind) {
+            'quote' => ['quote_prefix', 'quote_next_number'],
+            'invoice' => ['invoice_prefix', 'invoice_next_number'],
+            'credit_note' => ['credit_note_prefix', 'credit_note_next_number'],
+        };
+    }
+
     public static function next(string $kind): string
     {
         return DB::transaction(function () use ($kind) {
             $settings = CompanySetting::query()->lockForUpdate()->first() ?? CompanySetting::current();
-            [$prefixField, $counterField] = match ($kind) {
-                'quote' => ['quote_prefix', 'quote_next_number'],
-                'invoice' => ['invoice_prefix', 'invoice_next_number'],
-                'credit_note' => ['credit_note_prefix', 'credit_note_next_number'],
-            };
+            [$prefixField, $counterField] = self::fields($kind);
             $seq = max(1, (int) $settings->{$counterField});
             $settings->forceFill([$counterField => $seq + 1])->save();
 
