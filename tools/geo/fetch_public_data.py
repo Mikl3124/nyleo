@@ -22,7 +22,7 @@ CACHE = os.path.expanduser('~/.cache/nyleo-public-data')
 # Départements de resources/data/geo.json : la Dordogne et ses voisins.
 DEPS = tuple(d['code'] for d in json.load(open(os.path.join(ROOT, 'resources', 'data', 'geo.json'), encoding='utf-8'))['departments'].values())
 YEARS = ('2021', '2022', '2023', '2024', '2025')
-UA = 'nyleo.fr collecte donnees publiques (contact: mickael.delpech@gmail.com)'
+UA = 'nyleo.fr collecte donnees publiques (contact: mickael@nyleo.fr)'
 MIN_INTERVAL = 0.2  # 5 requêtes/s au plus
 
 GEORISQUES = 'https://georisques.gouv.fr/api/v1'
