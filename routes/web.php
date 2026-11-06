@@ -26,6 +26,7 @@ Route::controller(SiteController::class)->group(function () {
 Route::permanentRedirect('/tarifs', '/contact');
 Route::view('/mentions-legales', 'site.legal')->name('legal');
 Route::view('/confidentialite', 'site.privacy')->name('privacy');
+Route::view('/cgv', 'site.cgv')->name('cgv');
 Route::post('/demande', [Portal\RequestController::class, 'store'])->middleware('throttle:5,10')->name('site.request');
 
 // Téléchargements du back-office (protégés par la connexion admin)

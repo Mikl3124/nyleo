@@ -62,7 +62,9 @@ class Settings extends Page
                     TextInput::make('phone')->label('Téléphone'),
                     TextInput::make('email')->label('E-mail de contact')->email(),
                     TextInput::make('website')->label('Site web'),
-                    TextInput::make('cgv_url')->label('Lien vers vos conditions générales de vente')->url()->placeholder('https://nyleo.fr/cgv'),
+                    TextInput::make('cgv_url')->label('Lien vers vos conditions générales de vente')->url()->placeholder(route('cgv'))
+                        ->helperText('Laissez vide pour utiliser la page CGV du site.')
+                        ->hintAction(Action::make('voirCgv')->label('Voir les CGV')->url(fn (Get $get) => $get('cgv_url') ?: route('cgv'), shouldOpenInNewTab: true)),
                     ColorPicker::make('pdf_color')->label('Couleur des devis et factures'),
                     FileUpload::make('logo_path')->label('Logo (PNG ou JPG)')->disk('public')->directory('logo')->image(),
                 ]),

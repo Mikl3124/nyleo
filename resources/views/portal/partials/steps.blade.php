@@ -11,8 +11,22 @@
         'instruction' => $current === 'instruction' && $dossier->decision_due_date ? 'Réponse de la mairie attendue au plus tard le '.$dossier->decision_due_date->format('d/m/Y') : null,
         'decision' => $dossier->decision_date ? $dossier->status->label().' le '.$dossier->decision_date->format('d/m/Y') : null,
     ];
-    if ($current === 'instruction' && $dossier->status->value === 'incomplet') {
+    if ($current === 'instruction' && $dossier->status->value === 'incomplet' && $dossier->pieceRequests->isEmpty()) {
         $details['instruction'] = 'La mairie a demandé des compléments'.($dossier->incomplete_notified_at ? ' le '.$dossier->incomplete_notified_at->format('d/m/Y') : '').' : je m\'en occupe.';
+    } elseif ($current === 'instruction' && $dossier->status->value === 'incomplet') {
+        $details['instruction'] = 'Le délai de la mairie est suspendu jusqu\'à l\'envoi des pièces.';
+    }
+    // Chaque demande de pièces de la mairie, avec son état.
+    $pieceLines = $current === 'instruction' ? $dossier->pieceRequests->sortBy('requested_at')->map(fn ($pr) => [
+        'Pièces demandées par la mairie'.($pr->requested_at ? ' le '.$pr->requested_at->format('d/m/Y') : '').($pr->pieces ? ' : '.$pr->pieces : '').'.',
+        match (true) {
+            $pr->sent_at !== null => 'Envoyées le '.$pr->sent_at->format('d/m/Y').'.',
+            $pr->waiting_on?->value === 'client' => 'J\'ai besoin de documents de votre part'.($pr->deadline ? ', avant le '.$pr->deadline->copy()->subDays(15)->format('d/m/Y') : '').'.',
+            default => 'Je prépare la réponse'.($pr->deadline ? ' (à remettre avant le '.$pr->deadline->format('d/m/Y').')' : '').'.',
+        },
+    ]) : collect();
+    if ($current === 'instruction' && $dossier->instruction_started_at) {
+        $details['instruction'] = trim('Instruction commencée le '.$dossier->instruction_started_at->format('d/m/Y').'. '.($details['instruction'] ?? ''));
     }
 @endphp
 <section class="card">
@@ -29,6 +43,11 @@
                     <span class="step-label">{{ $label }}</span>
                     @if ($state === 'current' && ! $closed)<span class="step-now">En cours</span>@endif
                     @if ($details[$key] ?? null)<span class="step-detail">{{ $details[$key] }}</span>@endif
+                    @if ($key === 'instruction')
+                        @foreach ($pieceLines as $line)
+                            <span class="step-detail">{{ $line[0] }} <strong>{{ $line[1] }}</strong></span>
+                        @endforeach
+                    @endif
                 </span>
             </li>
         @endforeach

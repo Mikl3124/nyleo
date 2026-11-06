@@ -162,6 +162,17 @@ class WorkflowTest extends TestCase
         $invoice->fresh()->delete();
     }
 
+    public function test_invoice_is_due_ten_days_after_issue_by_default(): void
+    {
+        Carbon::setTestNow('2026-11-06 09:00');
+        $invoice = InvoiceService::createFinalFromQuote($this->makeQuote());
+        InvoiceService::issue($invoice, notify: false);
+
+        $this->assertSame(10, CompanySetting::current()->payment_terms_days);
+        $this->assertSame('2026-11-16', $invoice->fresh()->due_date->toDateString());
+        Carbon::setTestNow();
+    }
+
     public function test_test_invoice_can_be_deleted_with_payments_and_credit_notes_and_number_is_reused(): void
     {
         $ym = now()->format('Ym');

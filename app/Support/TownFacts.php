@@ -141,7 +141,7 @@ class TownFacts
         return 'de '.$epci;
     }
 
-    /** Nombre de communes (Dordogne et Gironde) qui partagent le même PLUi. */
+    /** Nombre de communes couvertes qui partagent le même PLUi. */
     private function sameDocCount(): int
     {
         $key = $this->f['urba']['porteur'] ?? null;

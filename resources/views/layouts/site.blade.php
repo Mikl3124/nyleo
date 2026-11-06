@@ -137,7 +137,7 @@
         </div>
         <div class="foot-bottom">
             <span>© {{ now()->year }} {{ $company->company_name ?: $company->displayName() }}@if ($company->siret) · SIRET {{ $company->siret }}@endif</span>
-            <span><a href="{{ route('portal.login') }}">Espace client</a> · <a href="{{ route('legal') }}">Mentions légales</a> · <a href="{{ route('privacy') }}">Confidentialité</a>@if ($company->cgv_url) · <a href="{{ $company->cgv_url }}">CGV</a>@endif</span>
+            <span><a href="{{ route('portal.login') }}">Espace client</a> · <a href="{{ route('legal') }}">Mentions légales</a> · <a href="{{ route('privacy') }}">Confidentialité</a> · <a href="{{ $company->cgvUrl() }}">CGV</a></span>
         </div>
     </div>
 </footer>

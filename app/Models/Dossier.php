@@ -3,7 +3,10 @@
 namespace App\Models;
 
 use App\Enums\DossierStatus;
+use App\Enums\ExternalPaymentStatus;
+use App\Enums\Priority;
 use App\Enums\Procedure;
+use App\Enums\WaitingOn;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -28,6 +31,16 @@ class Dossier extends Model
             'incomplete_deadline' => 'date',
             'decision_due_date' => 'date',
             'decision_date' => 'date',
+            'received_at' => 'date',
+            'follow_up_at' => 'date',
+            'instruction_started_at' => 'date',
+            'incomplete_answered_at' => 'date',
+            'waiting_on' => WaitingOn::class,
+            'priority' => Priority::class,
+            'external_payment_status' => ExternalPaymentStatus::class,
+            'commission_amount' => 'decimal:2',
+            'agreed_price' => 'decimal:2',
+            'commission_paid' => 'boolean',
         ];
     }
 
@@ -70,6 +83,24 @@ class Dossier extends Model
         return $this->hasMany(DossierEvent::class)->latest();
     }
 
+    /** Demandes de pièces de la mairie, la plus récente en premier. */
+    public function pieceRequests(): HasMany
+    {
+        return $this->hasMany(PieceRequest::class)->orderByDesc('requested_at')->orderByDesc('id');
+    }
+
+    public function openPieceRequests(): HasMany
+    {
+        return $this->hasMany(PieceRequest::class)->whereNull('sent_at');
+    }
+
+    /** Dossiers où quelqu'un doit agir : le champ « En attente de » ou une demande de pièces non envoyée. */
+    public function scopeWaitingOn($query, WaitingOn $who)
+    {
+        return $query->where(fn ($q) => $q->where('waiting_on', $who->value)
+            ->orWhereHas('openPieceRequests', fn ($r) => $r->where('waiting_on', $who->value)));
+    }
+
     public function log(string $type, string $message, bool $visibleToClient = false, array $meta = []): DossierEvent
     {
         return $this->events()->create([
@@ -78,6 +109,31 @@ class Dossier extends Model
             'visible_to_client' => $visibleToClient,
             'meta' => $meta ?: null,
         ]);
+    }
+
+    /** Prescripteurs habituels (proposés dans la saisie, on peut en taper un autre). */
+    public const PRESCRIBERS = ['Direct', 'AKENA — Thibault', 'AKENA — Rémi', 'AKENA — Cédric', 'Permis-Construire.com'];
+
+    public static function closedStatuses(): array
+    {
+        return [DossierStatus::Accorde->value, DossierStatus::Refuse->value, DossierStatus::Abandonne->value];
+    }
+
+    /** Relance prévue aujourd'hui ou déjà passée. */
+    public function isFollowUpDue(): bool
+    {
+        return $this->follow_up_at !== null && $this->follow_up_at->lte(today());
+    }
+
+    /** Dossiers dont la date de relance est arrivée. */
+    public function scopeFollowUpDue($query)
+    {
+        return $query->whereNotNull('follow_up_at')->whereDate('follow_up_at', '<=', today());
+    }
+
+    public function scopeOpen($query)
+    {
+        return $query->whereNotIn('status', static::closedStatuses());
     }
 
     public function siteAddress(): string
@@ -109,6 +165,16 @@ class Dossier extends Model
      */
     public function nextAction(): ?string
     {
+        // L'action notée à la main (suivi) prime sur celle déduite du statut.
+        if (filled($this->follow_up_action)) {
+            return $this->follow_up_action;
+        }
+        if ($open = $this->openPieceRequests()->orderBy('deadline')->first()) {
+            return $open->waiting_on === WaitingOn::Client
+                ? null
+                : 'Fournir les pièces à la mairie'.($open->deadline ? ' avant le '.$open->deadline->format('d/m/Y') : '');
+        }
+
         return match ($this->status) {
             DossierStatus::Nouveau => 'Rappeler le client et faire le devis',
             DossierStatus::DevisSigne, DossierStatus::PiecesAttendues => 'Démarrer les plans',
@@ -125,6 +191,10 @@ class Dossier extends Model
     /** Qui a la main : utile pour savoir pourquoi un dossier n'avance pas. */
     public function waitingFor(): ?string
     {
+        if ($this->openPieceRequests()->where('waiting_on', WaitingOn::Client->value)->exists()) {
+            return 'Le client doit fournir les pièces demandées par la mairie';
+        }
+
         return match ($this->status) {
             DossierStatus::DevisEnvoye => 'Le client doit signer le devis',
             DossierStatus::PlansAValider => 'Le client doit valider les plans',
@@ -142,6 +212,7 @@ class Dossier extends Model
             $this->quotes()->where('status', 'envoye')->get()->contains(fn (Quote $q) => $q->isSignable()) => 'Devis à signer',
             $this->documents()->where('requires_validation', true)->whereNull('validated_at')->whereNull('change_requested_at')->exists() => 'Plans à vérifier',
             $this->invoices()->whereNotNull('number')->where('type', '!=', 'avoir')->whereIn('status', ['emise', 'partiellement_payee'])->exists() => 'Facture à régler',
+            $this->openPieceRequests()->where('waiting_on', WaitingOn::Client->value)->exists() => 'Documents demandés par la mairie',
             default => null,
         };
     }
@@ -159,7 +230,9 @@ class Dossier extends Model
                 : 'Plans validés, merci ! Je dépose votre dossier en mairie dans les prochains jours.',
             DossierStatus::Depose, DossierStatus::EnInstruction => 'Votre dossier est entre les mains de la mairie. Rien à faire de votre côté'
                 .($this->decision_due_date ? ' : la réponse est attendue au plus tard le '.$this->decision_due_date->format('d/m/Y').'.' : '.'),
-            DossierStatus::Incomplet => 'La mairie a demandé des compléments. Je m\'en occupe et je vous contacte si j\'ai besoin de vous.',
+            DossierStatus::Incomplet => $this->openPieceRequests()->where('waiting_on', WaitingOn::Client->value)->exists()
+                ? 'La mairie a demandé des compléments : j\'ai besoin de quelques documents de votre part.'
+                : 'La mairie a demandé des compléments. Je m\'en occupe et je vous contacte si j\'ai besoin de vous.',
             DossierStatus::Accorde => 'Bonne nouvelle : votre projet est accordé ! Pensez à afficher l\'autorisation sur le terrain, visible depuis la rue, pendant toute la durée des travaux.',
             DossierStatus::Refuse => 'La mairie a refusé le projet. Je vous appelle pour voir ensemble les solutions possibles.',
             DossierStatus::Abandonne => 'Ce dossier est clos.',

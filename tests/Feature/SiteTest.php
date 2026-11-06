@@ -14,7 +14,7 @@ class SiteTest extends TestCase
     {
         CatalogItem::create(['category' => 'DP', 'label' => 'DP véranda', 'description' => "Intro\nContenu du dossier :\n- DP1 : Plan de situation", 'unit_price' => 400, 'position' => 1]);
 
-        foreach (['/', '/declaration-prealable', '/permis-de-construire', '/secteurs', '/secteurs/dordogne', '/secteurs/gironde', '/questions-frequentes', '/qui-suis-je', '/contact', '/secteurs/dordogne/sourzac', '/secteurs/gironde/bordeaux', '/mentions-legales', '/confidentialite'] as $url) {
+        foreach (['/', '/declaration-prealable', '/permis-de-construire', '/secteurs', '/secteurs/dordogne', '/secteurs/gironde', '/questions-frequentes', '/qui-suis-je', '/contact', '/secteurs/dordogne/sourzac', '/secteurs/gironde/bordeaux', '/mentions-legales', '/confidentialite', '/cgv'] as $url) {
             $this->get($url)->assertOk()->assertSee('Dordogne');
         }
 
@@ -75,7 +75,7 @@ class SiteTest extends TestCase
     {
         CatalogItem::create(['category' => 'DP', 'label' => 'DP véranda', 'unit_price' => 400, 'position' => 1]);
         CatalogItem::create(['category' => 'PC', 'label' => 'PC maison', 'unit_price' => 1500, 'position' => 2]);
-        $urls = ['/', '/declaration-prealable', '/permis-de-construire', '/projets', '/secteurs', '/secteurs/dordogne', '/questions-frequentes', '/qui-suis-je', '/contact', '/secteurs/dordogne/perigueux', '/secteurs/gironde/bordeaux'];
+        $urls = ['/cgv', '/', '/declaration-prealable', '/permis-de-construire', '/projets', '/secteurs', '/secteurs/dordogne', '/questions-frequentes', '/qui-suis-je', '/contact', '/secteurs/dordogne/perigueux', '/secteurs/gironde/bordeaux'];
         $urls = array_merge($urls, array_map(fn ($s) => '/projets/'.$s, array_keys(\App\Support\ProjectGuides::GUIDES)));
         foreach ($urls as $url) {
             $html = $this->get($url)->assertOk()->getContent();
@@ -108,6 +108,28 @@ class SiteTest extends TestCase
             $this->assertStringContainsString('href="'.route('site.area', $d).'"', $home);
         }
         $this->getJson('/communes.json?dep=lot')->assertOk()->assertJsonFragment(['Cahors (46000)'])->assertJsonMissing(['Sourzac (24400)']);
+    }
+
+    public function test_cgv_page_is_published_and_linked_everywhere(): void
+    {
+        $this->get('/cgv')->assertOk()
+            ->assertSee('Conditions générales de vente')
+            ->assertSee('droit de rétractation')
+            ->assertSee('CERFA')
+            ->assertSee(\App\Support\Legal::MEDIATOR_URL);
+
+        // Pied de page du site et de l'espace client, plan du site.
+        $this->get('/')->assertSee('href="'.route('cgv').'"', false);
+        $this->get('/espace/connexion')->assertSee('href="'.route('cgv').'"', false);
+        $this->get('/sitemap.xml')->assertSee(route('cgv'));
+
+        // Lien par défaut sur les devis, remplaçable dans Paramètres.
+        $company = \App\Models\CompanySetting::current();
+        $this->assertSame(route('cgv'), $company->cgvUrl());
+        $this->assertSame(route('cgv'), $company->snapshot()['cgv_url']);
+        $company->update(['cgv_url' => 'https://exemple.fr/cgv']);
+        $this->assertSame('https://exemple.fr/cgv', $company->fresh()->cgvUrl());
+        $this->get('/')->assertSee('href="https://exemple.fr/cgv"', false);
     }
 
     public function test_brand_is_always_written_with_a_capital_n(): void
