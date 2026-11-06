@@ -19,28 +19,43 @@ class InvoiceSent extends ClientNotification
         $s = CompanySetting::current();
         $pdf = $i->pdf_path && Storage::disk('local')->exists($i->pdf_path)
             ? Storage::disk('local')->get($i->pdf_path) : PdfService::invoice($i)->output();
-
-        $mail = $this->message($notifiable, "{$i->type->label()} {$i->number}");
+        $url = self::portalUrl($notifiable, $i->dossier ? route('portal.dossiers.show', $i->dossier, false) : null);
 
         if ($i->type === InvoiceType::Avoir) {
-            $mail->line("Vous trouverez ci-joint l'avoir {$i->number} d'un montant de ".money($i->total_ttc).'.');
-        } else {
-            $mail->line("Vous trouverez ci-joint la {$i->type->label()} {$i->number}, d'un montant de **".money($i->amount_due).'**'
-                    .($i->due_date ? ', à régler avant le '.$i->due_date->format('d/m/Y') : '').'.');
-            if ($i->type === InvoiceType::Facture && $i->dossier) {
-                $mail->line('Comme convenu, je déposerai votre dossier en mairie dès réception du règlement.');
-            }
-            $mail->line('**Règlement possible :**');
-            if ($s->iban) {
-                $mail->line('• par virement : IBAN '.$s->iban.($s->bic ? ' — BIC '.$s->bic : '').", en indiquant la référence {$i->number} ;");
-            }
-            if ($s->cheque_order) {
-                $mail->line('• par chèque à l\'ordre de '.$s->cheque_order.($s->cheque_address ? ', à envoyer à : '.$s->cheque_address : '').'.');
-            }
+            $mail = $this->message($notifiable, "Avoir {$i->number}", 'Votre avoir', 'Avoir '.$i->number)
+                ->line("Vous trouverez ci-joint l'avoir {$i->number} (fichier PDF). Il vient en déduction de la facture concernée.")
+                ->action('Voir dans mon espace client', $url);
+            $this->recap($mail, ['Projet' => self::project($i->dossier), 'Montant' => money($i->total_ttc)]);
+
+            return $this->preheader($mail, 'Avoir de '.money($i->total_ttc).'.')
+                ->attachData($pdf, PdfService::invoiceFilename($i), ['mime' => 'application/pdf']);
         }
 
-        return $mail
-            ->action('Voir dans mon espace', self::portalUrl($notifiable, $i->dossier ? route('portal.dossiers.show', $i->dossier, false) : null))
+        $isFinal = $i->type === InvoiceType::Facture && $i->dossier;
+        $mail = $this->message($notifiable, "{$i->type->label()} {$i->number}",
+            $i->type === InvoiceType::Acompte ? 'Votre facture d\'acompte' : 'Votre facture', $i->type->label().' '.$i->number)
+            ->line("Vous trouverez ci-joint la {$this->lower($i->type->label())} {$i->number} (fichier PDF).");
+        if ($isFinal) {
+            $mail->line('**Comme convenu, je dépose votre dossier en mairie dès réception du règlement.**');
+        }
+        $mail->action('Voir ma facture', $url);
+        if ($s->iban && $i->dossier) {
+            $mail->line('Dans votre espace client, un QR code permet aussi de payer par virement depuis l\'application de votre banque.');
+        }
+
+        $this->recap($mail, [
+            'Projet' => self::project($i->dossier),
+            'Montant à régler' => money($i->amount_due),
+            'À régler avant le' => $i->due_date?->format('d/m/Y'),
+        ]);
+        $this->panel($mail, 'Comment régler ?', self::paymentLines($s, $i->number));
+
+        return $this->preheader($mail, 'Montant à régler : '.money($i->amount_due).($isFinal ? '. Dépôt en mairie dès réception.' : '.'))
             ->attachData($pdf, PdfService::invoiceFilename($i), ['mime' => 'application/pdf']);
+    }
+
+    private function lower(string $label): string
+    {
+        return mb_strtolower(mb_substr($label, 0, 1)).mb_substr($label, 1);
     }
 }

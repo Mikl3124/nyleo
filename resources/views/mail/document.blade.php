@@ -1,4 +1,4 @@
-<x-mail::message>
+<x-mail::message :preheader="$preheader">
 {!! $paragraphs !!}
 
 @if ($buttonUrl)
@@ -9,4 +9,10 @@
 
 Cordialement,<br>
 {!! nl2br(e($signature)) !!}
+
+@if ($buttonUrl)
+<x-slot:subcopy>
+@lang("If you're having trouble clicking the \":actionText\" button, copy and paste the URL below\ninto your web browser:", ['actionText' => $buttonLabel]) <span class="break-all">[{{ $buttonUrl }}]({{ $buttonUrl }})</span>
+</x-slot:subcopy>
+@endif
 </x-mail::message>
