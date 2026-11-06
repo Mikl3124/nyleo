@@ -62,5 +62,6 @@
         @include('site.partials.simulator')
     </div>
 </section>
+@include('site.partials.kind-places', ['kind' => 'dp'])
 @include('site.partials.cta')
 @endsection

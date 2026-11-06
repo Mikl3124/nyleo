@@ -83,7 +83,7 @@
             <span><b>{{ $company->displayName() }}</b><small>Plans &amp; permis · Sud-Ouest</small></span>
         </a>
         <nav class="nav" aria-label="Menu principal">
-            @foreach ($nav as $r => $l)<a href="{{ route($r) }}" @if (request()->routeIs($r) || ($r === 'site.areas' && request()->routeIs('site.area', 'site.town')) || ($r === 'site.projects' && request()->routeIs('site.project'))) aria-current="page" @endif>{{ $l }}</a>@endforeach
+            @foreach ($nav as $r => $l)<a href="{{ route($r) }}" @if (request()->routeIs($r, $r.'.*') || ($r === 'site.projects' && request()->routeIs('site.project'))) aria-current="page" @endif>{{ $l }}</a>@endforeach
         </nav>
         <div class="head-actions">
             @if ($tel)<a class="phone-pill" href="tel:{{ $tel }}"><small>Appelez-moi</small><b>@include('site.partials.icon', ['name' => 'phone']) {{ $company->phone }}</b></a>@endif
@@ -127,8 +127,10 @@
                 </ul>
             </div>
             <div>
-                <h4>Départements</h4>
-                <div class="foot-towns">@foreach (\App\Support\Geo::departmentSlugs() as $d)<a href="{{ route('site.area', $d) }}">{{ \App\Support\SiteContent::DEPARTMENTS[$d]['name'] }}</a>@endforeach</div>
+                <h4>Permis de construire</h4>
+                <div class="foot-towns">@foreach (\App\Support\Geo::departmentSlugs() as $d)<a href="{{ \App\Support\Geo::areaUrl($d, 'pc') }}">{{ \App\Support\SiteContent::DEPARTMENTS[$d]['name'] }}</a>@endforeach</div>
+                <h4 style="margin-top:22px">Déclaration préalable</h4>
+                <div class="foot-towns">@foreach (\App\Support\Geo::departmentSlugs() as $d)<a href="{{ \App\Support\Geo::areaUrl($d, 'dp') }}">{{ \App\Support\SiteContent::DEPARTMENTS[$d]['name'] }}</a>@endforeach</div>
             </div>
             <div>
                 <h4>Grandes villes</h4>

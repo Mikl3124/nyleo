@@ -2,31 +2,30 @@
 @php
     use App\Support\Geo;
     $base = Geo::base();
-    $pages = Geo::pages($slug);
     $all = Geo::communes($slug);
     $pop = $all->sum('pop');
     $stats = \App\Support\TownFacts::department($slug);
-    $byEpci = $pages->groupBy(fn ($t) => $t['epci'] ?: 'Autres communes')->sortByDesc(fn ($g) => $g->sum('pop'));
     $label = ['PLUi' => 'PLU intercommunal', 'PLU' => 'PLU communal', 'CC' => 'carte communale', 'RNU' => 'règlement national (RNU)'];
     $in = Geo::inDep($slug);
     $of = Geo::ofDep($slug);
     $depFaq = array_values(array_filter([
         $stats ? ["Quelles communes ont un PLU {$in} ?", collect(['PLUi', 'PLU', 'CC', 'RNU'])->filter(fn ($k) => ! empty($stats['types'][$k]))->map(fn ($k) => $stats['types'][$k].' '.($stats['types'][$k] > 1 ? 'communes' : 'commune').' '.($k === 'RNU' ? 'relèvent du' : 'ont un').' '.$label[$k])->implode(', ').". Le type de document change les seuils : sans PLU, une extension de plus de 20 m² demande un permis de construire." ] : null,
-        ["Combien de temps pour obtenir une déclaration préalable {$in} ?", "Un mois après le dépôt d'un dossier complet, deux mois si le terrain est dans les abords d'un monument historique ou dans un site patrimonial remarquable. Le permis de construire d'une maison demande deux mois, trois avec l'avis de l'Architecte des Bâtiments de France."],
+        ["Combien de temps pour obtenir un permis de construire {$in} ?", "Deux mois pour une maison individuelle ou son extension, trois mois avec l'avis de l'Architecte des Bâtiments de France. Les autres permis demandent trois mois. Le délai court à partir du dossier complet."],
+        ["Peut-on construire une maison hors d'un PLU {$in} ?", "Avec une carte communale, oui dans ses secteurs constructibles. Sous le règlement national d'urbanisme, en principe seulement dans les parties déjà urbanisées de la commune. Un certificat d'urbanisme opérationnel, demandé avant l'achat du terrain, dit si la maison est possible."],
         ["Intervenez-vous dans {$dep['all']} ?", "Oui. Mon bureau est à {$base['name']} (24) et je travaille à distance pour les {$all->count()} communes du département : un appel, vos photos et le cadastre suffisent dans la plupart des cas."],
     ]));
 @endphp
 @push('head')
 <script type="application/ld+json">{!! json_encode(['@@context' => 'https://schema.org', '@type' => 'FAQPage', 'mainEntity' => collect($depFaq)->map(fn ($f) => ['@type' => 'Question', 'name' => $f[0], 'acceptedAnswer' => ['@type' => 'Answer', 'text' => $f[1]]])->all()], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>
 @endpush
-@section('title', 'Permis de construire et déclaration préalable '.$in.' ('.$dep['code'].')')
-@section('description', "Plans et dépôt de vos dossiers de déclaration préalable et de permis de construire dans les {$all->count()} communes {$of}, par un dessinateur basé à {$base['name']}.")
+@section('title', 'Permis de construire '.$in.' ('.$dep['code'].') : maison, extension')
+@section('description', "Permis de construire {$in} : maison neuve, extension, grange. Documents d'urbanisme, risques et délais des {$all->count()} communes {$of}, dossier préparé par un dessinateur basé à {$base['name']}.")
 @section('content')
 @include('site.partials.page-hero', [
-    'crumbs' => ['Secteurs' => route('site.areas'), $dep['name']], 'kicker' => 'Département '.$dep['code'],
-    'h1' => 'Plans et permis <span class="hl">'.e($in).'</span>',
+    'crumbs' => ['Permis de construire' => route('site.pc'), $dep['name']], 'kicker' => 'Permis de construire · '.$dep['name'].' ('.$dep['code'].')',
+    'h1' => 'Permis de construire <span class="hl">'.e($in).'</span>',
     'lead' => $content['intro'],
-    'cta' => '<a class="btn cta" href="'.route('site.contact').'">Demander un devis</a>',
+    'cta' => '<a class="btn cta" href="'.route('site.contact', ['demarche' => 'PC']).'">Demander un devis</a>',
 ])
 <section>
     <div class="wrap split" style="align-items:start">
@@ -38,13 +37,13 @@
                 <div><dt>Bureau</dt><dd>{{ $base['name'] }} (24)</dd></div>
             </dl>
             <h2 style="margin-top:36px">Trouvez votre commune</h2>
-            <p class="muted">Les communes en bleu foncé ont leur page. Pour toutes les autres, j'interviens aussi.</p>
-            @include('site.partials.town-finder', ['slug' => $slug])
+            <p class="muted">Choisissez votre commune : sa page dit où et comment on peut y construire. J'interviens aussi dans toutes les autres.</p>
+            @include('site.partials.town-finder', ['slug' => $slug, 'kind' => 'pc'])
             <h3 style="margin-top:32px">Bon à savoir {{ $in }}</h3>
             <ul class="ticks-list">@foreach ($content['tips'] as [$t, $d])<li>@include('site.partials.icon', ['name' => 'check'])<span><b>{{ $t }}</b><span>{{ $d }}</span></span></li>@endforeach</ul>
         </div>
         <div class="map-card">
-            @include('site.partials.map-department', ['slug' => $slug])
+            @include('site.partials.map-department', ['slug' => $slug, 'kind' => 'pc'])
             <div class="legend"><span><i style="background:#c9d6f2"></i>Commune avec sa page</span><span><i style="background:var(--blue-l)"></i>Autre commune</span>@if ($base['dep'] === $slug)<span><i style="background:var(--ochre);border:1px solid var(--ink)"></i>Le bureau</span>@endif</div>
         </div>
     </div>
@@ -58,45 +57,26 @@
             <dl class="facts" style="grid-template-columns:1fr 1fr;margin-top:18px">
                 @foreach (['PLUi', 'PLU', 'CC', 'RNU'] as $k)@if (! empty($stats['types'][$k]))<div><dt>{{ $label[$k] }}</dt><dd class="num">{{ $stats['types'][$k] }} <small>communes</small></dd></div>@endif @endforeach
             </dl>
-            <p style="margin-top:18px">Le document en vigueur décide des seuils et des règles : en zone urbaine d'un PLU, une extension jusqu'à 40 m² passe en déclaration préalable ; avec une carte communale ou le règlement national, le seuil reste à 20 m².</p>
+            <p style="margin-top:18px">Le document en vigueur dit où une maison neuve est possible : dans les zones U et AU d'un PLU, dans les secteurs constructibles d'une carte communale, et seulement dans les parties déjà urbanisées sous le règlement national. Il fixe aussi l'emprise au sol, la hauteur et l'aspect.</p>
             @if ($stats['plui'])
                 <h3 style="margin-top:24px">Les principaux PLU intercommunaux</h3>
                 <ul class="mh-list">@foreach (collect($stats['plui'])->take(10) as $name => $n)<li><span>{{ $name }}</span><small>{{ $n }} communes</small></li>@endforeach</ul>
             @endif
         </div>
         <div>
-            <span class="eyebrow">Patrimoine et risques</span>
-            <h2>Monuments historiques et zones protégées</h2>
-            <p>{{ number_format($stats['monuments'], 0, ',', ' ') }} monuments historiques sont protégés {{ $in }}. Autour de chacun, l'Architecte des Bâtiments de France donne son avis sur les projets visibles : l'instruction prend un mois de plus.@if ($stats['ppri']) {{ $stats['ppri'] }} communes ont aussi un plan de prévention du risque inondation.@endif</p>
-            @if ($stats['spr']->isNotEmpty())
-                <h3 style="margin-top:20px">Sites patrimoniaux remarquables</h3>
-                <ul class="near">@foreach ($stats['spr'] as $f)<li>@if ($f->town['page'])<a href="{{ Geo::url($f->town) }}">{{ $f->town['name'] }}</a>@else<span>{{ $f->town['name'] }}</span>@endif</li>@endforeach</ul>
-            @endif
-            @if ($stats['mh_top']->isNotEmpty())
-                <h3 style="margin-top:20px">Les communes les plus riches en monuments</h3>
-                <ul class="mh-list">@foreach ($stats['mh_top'] as $f)<li>@if ($f->town['page'])<a href="{{ Geo::url($f->town) }}">{{ $f->town['name'] }}</a>@else<span>{{ $f->town['name'] }}</span>@endif<small>{{ $f->monuments()->count() }} monuments</small></li>@endforeach</ul>
-            @endif
+            <span class="eyebrow">Risques et patrimoine</span>
+            <h2>Ce qui encadre une construction neuve</h2>
+            <p>@if ($stats['ppri']){{ $stats['ppri'] }} communes {{ $of }} ont un plan de prévention du risque inondation : en zone rouge, les maisons neuves sont en général interdites, en zone bleue le plancher doit être surélevé. @endif Dans les abords des {{ number_format($stats['monuments'], 0, ',', ' ') }} monuments historiques du département, le permis d'une maison est instruit en trois mois au lieu de deux.@php($rate = \App\Support\TownFacts::departmentHousingRate($slug))@if ($rate) On y autorise en moyenne {{ number_format($rate, 1, ',', ' ') }} logements par an pour 1 000 habitants (base Sitadel).@endif</p>
         </div>
     </div>
 </section>
 @endif
-<section>
-    <div class="wrap">
-        <div class="sec-head"><span class="eyebrow">Communes</span><h2>Les principales communes {{ $of }}, par intercommunalité</h2></div>
-        <div class="town-groups">
-        @foreach ($byEpci as $epci => $group)
-            <div class="epci-group">
-                <h3>{{ $epci }}</h3>
-                <ul class="town-index">@foreach ($group->sortBy('name') as $t)<li><a href="{{ Geo::url($t) }}">{{ $t['name'] }}</a><small>{{ $t['cp'][0] ?? '' }}</small></li>@endforeach</ul>
-            </div>
-        @endforeach
-        </div>
-    </div>
-</section>
+@include('site.partials.area-towns', ['kind' => 'pc'])
 <section class="stone">
     <div class="wrap">
-        <div class="sec-head"><span class="eyebrow">Questions</span><h2>Urbanisme {{ $in }} : vos questions</h2></div>
+        <div class="sec-head"><span class="eyebrow">Questions</span><h2>Permis de construire {{ $in }} : vos questions</h2></div>
         <div class="faq">@foreach ($depFaq as [$q, $r])<details><summary>{{ $q }}</summary><p>{{ $r }}</p></details>@endforeach</div>
+        <p style="margin-top:22px">Des travaux plus modestes : véranda, abri, piscine, façade ? <a class="link-arrow" href="{{ Geo::areaUrl($slug, 'dp') }}">La déclaration préalable {{ $in }} @include('site.partials.icon', ['name' => 'arrow'])</a></p>
     </div>
 </section>
 @include('site.partials.cta')

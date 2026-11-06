@@ -158,8 +158,20 @@ class Geo
         };
     }
 
-    public static function url(array $c): string
+    /** Page d'une commune : 'pc' (permis de construire) ou 'dp' (déclaration préalable). */
+    public static function url(array $c, string $kind = 'pc'): string
     {
-        return route('site.town', [$c['dep'], $c['slug']]);
+        return route('site.'.self::kind($kind).'.town', [$c['dep'], $c['slug']]);
+    }
+
+    /** Page d'un département pour une démarche. */
+    public static function areaUrl(string $slug, string $kind = 'pc'): string
+    {
+        return route('site.'.self::kind($kind).'.area', $slug);
+    }
+
+    public static function kind(?string $kind): string
+    {
+        return $kind === 'dp' ? 'dp' : 'pc';
     }
 }

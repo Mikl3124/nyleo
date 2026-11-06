@@ -13,7 +13,7 @@
     <g class="mesh" aria-hidden="true">
         @foreach ($communes as $c)
             @if ($c['page'])
-                <a href="{{ $g::url($c) }}" tabindex="-1"><title>{{ $c['name'] }}</title><path d="{{ $c['path'] }}"/></a>
+                <a href="{{ $g::url($c, $kind ?? 'pc') }}" tabindex="-1"><title>{{ $c['name'] }}</title><path d="{{ $c['path'] }}"/></a>
             @else
                 <path d="{{ $c['path'] }}"><title>{{ $c['name'] }}</title></path>
             @endif

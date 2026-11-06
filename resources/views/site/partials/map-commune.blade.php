@@ -24,7 +24,7 @@
             @if ($c['code'] === $town['code'])
                 <path class="on" d="{{ $c['path'] }}"/>
             @elseif ($c['page'])
-                <a href="{{ $g::url($c) }}"><title>{{ $c['name'] }}</title><path d="{{ $c['path'] }}" style="stroke-width:.18"/></a>
+                <a href="{{ $g::url($c, $kind ?? 'pc') }}"><title>{{ $c['name'] }}</title><path d="{{ $c['path'] }}" style="stroke-width:.18"/></a>
             @else
                 <path d="{{ $c['path'] }}" style="stroke-width:.18"><title>{{ $c['name'] }}</title></path>
             @endif

@@ -530,6 +530,12 @@ h3[tabindex="-1"]:focus{outline:none}
 .delays tbody th{font-weight:700}
 .delays td{font-family:var(--display);font-weight:700;white-space:nowrap}
 .delays.rules th[scope=row]{width:55%}.delays.rules td{white-space:normal}
+.delays.works th[scope=row]{width:26%}.delays.works td{white-space:normal}.delays.works td:nth-child(2){width:20%;color:var(--blue)}.delays.works td:last-child{font-family:inherit;font-weight:400;color:var(--ink-2)}
+@media (max-width:640px){.delays.works th,.delays.works th[scope=row],.delays.works td,.delays.works td:nth-child(2){display:block;width:auto;border-bottom:0;padding:3px 16px}.delays.works tr{display:block;padding:10px 0;border-bottom:1px solid var(--line)}.delays.works thead{display:none}}
+.pieces{list-style:none;margin:16px 0 0;padding:0}
+.pieces li{display:grid;grid-template-columns:64px 1fr;gap:2px 12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.pieces b{font-family:var(--mono);font-size:.78rem;letter-spacing:.06em;color:var(--blue);padding-top:3px}
+.pieces span{font-weight:700}.pieces small{grid-column:2;color:var(--ink-3);font-size:.92rem}
 @media (max-width:640px){.delays.rules th,.delays.rules th[scope=row],.delays.rules td{display:block;width:auto;border-bottom:0;padding:4px 16px}.delays.rules tr{display:block;padding:10px 0;border-bottom:1px solid var(--line)}.delays.rules thead{display:none}.delays.rules td{color:var(--blue)}}
 .sources{margin-top:28px;font-size:.85rem}
 .epci-group{margin-top:28px}

@@ -59,5 +59,6 @@
         @include('site.partials.simulator')
     </div>
 </section>
+@include('site.partials.kind-places', ['kind' => 'pc'])
 @include('site.partials.cta')
 @endsection
