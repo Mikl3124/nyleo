@@ -2,15 +2,16 @@
 
 namespace App\Filament\Resources\Clients;
 
+use App\Filament\Resources\Clients\Pages\CreateClient;
+use App\Filament\Resources\Clients\Pages\EditClient;
 use App\Filament\Resources\Partners\PartnerResource;
+use App\Filament\Support\DeleteActions;
 use App\Models\Client;
 use App\Notifications\PortalLink;
 use App\Services\Communes;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
-use App\Filament\Resources\Clients\Pages\CreateClient;
-use App\Filament\Resources\Clients\Pages\EditClient;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -167,7 +168,8 @@ class ClientResource extends Resource
             ->recordActions([
                 EditAction::make(),
                 self::portalLinkAction(),
-            ]);
+            ])
+            ->toolbarActions([DeleteActions::bulk()]);
     }
 
     public static function portalLinkAction(): Action
@@ -187,8 +189,8 @@ class ClientResource extends Resource
     {
         return [
             'index' => Pages\ListClients::route('/'),
-            'create' => Pages\CreateClient::route('/create'),
-            'edit' => Pages\EditClient::route('/{record}/edit'),
+            'create' => CreateClient::route('/create'),
+            'edit' => EditClient::route('/{record}/edit'),
         ];
     }
 }

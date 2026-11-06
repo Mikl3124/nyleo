@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Dossiers\Pages;
 
 use App\Filament\Resources\Dossiers\DossierResource;
-use Filament\Actions\DeleteAction;
+use App\Filament\Support\DeleteActions;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
 
@@ -25,6 +25,6 @@ class EditDossier extends EditRecord
 
     protected function getHeaderActions(): array
     {
-        return [ViewAction::make(), DeleteAction::make()];
+        return [ViewAction::make(), DeleteActions::record(DossierResource::getUrl())];
     }
 }

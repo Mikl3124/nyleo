@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Quotes;
 
 use App\Enums\QuoteStatus;
 use App\Filament\Resources\Clients\ClientResource;
+use App\Filament\Support\DeleteActions;
 use App\Filament\Support\LineItems;
 use App\Models\Client;
 use App\Models\Dossier;
@@ -109,7 +110,8 @@ class QuoteResource extends Resource
             ->filters([
                 SelectFilter::make('status')->label('Statut')->options(QuoteStatus::options()),
             ])
-            ->recordActions([EditAction::make()->label('Ouvrir')]);
+            ->recordActions([EditAction::make()->label('Ouvrir')])
+            ->toolbarActions([DeleteActions::bulk()]);
     }
 
     public static function getPages(): array
