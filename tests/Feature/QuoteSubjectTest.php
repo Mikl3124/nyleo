@@ -83,4 +83,21 @@ class QuoteSubjectTest extends TestCase
 
         $this->assertSame('zach@example.com', $client->fresh()->email);
     }
+
+    public function test_quote_of_a_deleted_client_still_opens(): void
+    {
+        $this->actingAs(User::factory()->create());
+        $client = Client::create(['last_name' => 'Lafon', 'first_name' => 'Alain', 'type' => 'particulier']);
+        $quote = Quote::create(['client_id' => $client->id]);
+        $quote->lines()->create(['label' => 'DP véranda', 'quantity' => 1, 'unit' => 'forfait', 'unit_price' => 650, 'position' => 1]);
+        $quote->recalculate();
+        $quote->forceFill(['status' => 'envoye', 'number' => 'D202611-643', 'issue_date' => now()])->save();
+        $client->delete();
+
+        $this->get('/admin/quotes')->assertOk()->assertSee('Alain Lafon');
+        Livewire::test(EditQuote::class, ['record' => $quote->getRouteKey()])
+            ->mountAction('signPaper')
+            ->assertActionMounted('signPaper')
+            ->assertSet('mountedActions.0.data.signer_name', 'Alain Lafon');
+    }
 }
