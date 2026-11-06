@@ -25,7 +25,7 @@
         </div>
         <div class="map-card">
             @include('site.partials.map-region')
-            <div class="legend"><span><i style="background:var(--ochre);border:1px solid var(--ink)"></i>Le bureau, à {{ $base['name'] }}</span><span><i style="background:#fff;border:1px solid var(--blue)"></i>{{ Geo::pages()->count() }} communes avec leur page</span><span>Cercles : 50, 100 et 150 km</span></div>
+            <div class="legend"><span><i style="background:var(--ochre);border:1px solid var(--ink)"></i>Le bureau, à {{ $base['name'] }}</span></div>
             <div class="badge-local"><span class="av">M</span><span><b>Mickaël, votre interlocuteur</b><small>Un seul contact, du devis à la décision</small></span></div>
         </div>
     </div>
