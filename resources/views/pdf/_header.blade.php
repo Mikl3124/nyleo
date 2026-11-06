@@ -1,25 +1,21 @@
+@php
+    $oneLine = fn (array $p) => collect([$p['address'] ?? null, trim(($p['postal_code'] ?? '').' '.($p['city'] ?? ''))])->filter()->implode(', ');
+    $logo = ! empty($company['logo_path']) && file_exists(storage_path('app/public/'.$company['logo_path'])) ? storage_path('app/public/'.$company['logo_path']) : null;
+@endphp
 <table class="head">
     <tr>
-        <td style="width:55%">
-            @if (! empty($company['logo_path']) && file_exists(storage_path('app/public/'.$company['logo_path'])))
-                <img src="{{ storage_path('app/public/'.$company['logo_path']) }}" style="max-height:60px;max-width:200px"><br>
-            @else
-                <div class="brand">{{ $company['trade_name'] ?: 'Nyleo' }}</div>
+        @if ($logo)<td class="logo"><img src="{{ $logo }}" style="max-width:70px;max-height:60px"></td>@endif
+        <td>
+            <div class="party-name">{{ $company['company_name'] ?: ($company['trade_name'] ?: 'Nyleo') }}</div>
+            <div class="party-line">{{ $oneLine($company) }}</div>
+            @if (! empty($company['phone']) || ! empty($company['email']))
+                <div class="party-line">{{ collect([$company['phone'] ?? null, $company['email'] ?? null])->filter()->implode(' · ') }}</div>
             @endif
-            @if (! empty($company['company_name']))<strong>{{ $company['company_name'] }}</strong>@if(!empty($company['legal_form'])) — {{ $company['legal_form'] }}@endif<br>@endif
-            @if (! empty($company['address'])){{ $company['address'] }}<br>{{ $company['postal_code'] }} {{ $company['city'] }}<br>@endif
-            @if (! empty($company['phone']))Tél. {{ $company['phone'] }}<br>@endif
-            @if (! empty($company['email'])){{ $company['email'] }}<br>@endif
-            @if (! empty($company['siret']))<span class="muted">SIRET {{ $company['siret'] }}</span>@endif
         </td>
-        <td style="width:45%">
-            <div class="box">
-                <strong>{{ $client['name'] }}</strong><br>
-                @if (! empty($client['address'])){{ $client['address'] }}<br>@endif
-                {{ $client['postal_code'] ?? '' }} {{ $client['city'] ?? '' }}<br>
-                @if (! empty($client['siret']))SIRET {{ $client['siret'] }}<br>@endif
-                @if (! empty($client['email']))<span class="muted">{{ $client['email'] }}</span>@endif
-            </div>
+        <td style="text-align:right">
+            <div class="party-name">{{ $client['name'] }}</div>
+            <div class="party-line">{{ $oneLine($client) }}</div>
+            @if (! empty($client['siret']))<div class="party-line">SIRET : {{ $client['siret'] }}</div>@endif
         </td>
     </tr>
 </table>

@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Models\CompanySetting;
 use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -48,6 +49,7 @@ class Settings extends Page
                     TextInput::make('trade_name')->label('Nom commercial')->default('Nyleo'),
                     TextInput::make('company_name')->label('Raison sociale / nom de l\'entrepreneur'),
                     TextInput::make('legal_form')->label('Forme juridique')->placeholder('Ex. Entrepreneur individuel (EI), SASU…'),
+                    TextInput::make('share_capital')->label('Capital social')->suffix('€')->placeholder('Ex. 100'),
                     TextInput::make('siret')->label('SIRET'),
                     TextInput::make('rcs')->label('RCS / RNE')->placeholder('Ex. RCS Périgueux 123 456 789'),
                     TextInput::make('ape_code')->label('Code APE'),
@@ -57,6 +59,8 @@ class Settings extends Page
                     TextInput::make('phone')->label('Téléphone'),
                     TextInput::make('email')->label('E-mail de contact')->email(),
                     TextInput::make('website')->label('Site web'),
+                    TextInput::make('cgv_url')->label('Lien vers vos conditions générales de vente')->url()->placeholder('https://nyleo.fr/cgv'),
+                    ColorPicker::make('pdf_color')->label('Couleur des devis et factures'),
                     FileUpload::make('logo_path')->label('Logo (PNG ou JPG)')->disk('public')->directory('logo')->image(),
                 ]),
                 Tab::make('Paiement')->icon(Heroicon::OutlinedBanknotes)->columns(2)->schema([
@@ -65,7 +69,7 @@ class Settings extends Page
                     TextInput::make('bic')->label('BIC'),
                     TextInput::make('cheque_order')->label('Ordre des chèques'),
                     TextInput::make('cheque_address')->label('Adresse d\'envoi des chèques')->columnSpanFull(),
-                    TextInput::make('payment_terms_days')->label('Délai de paiement (jours)')->numeric()->required(),
+                    TextInput::make('payment_terms_days')->label('Délai de paiement (jours, 0 = à réception)')->numeric()->required(),
                     TextInput::make('quote_validity_days')->label('Validité des devis (jours)')->numeric()->required(),
                     Textarea::make('payment_terms_text')->label('Conditions de paiement')->rows(2)->columnSpanFull(),
                     Textarea::make('late_penalty_text')->label('Pénalités de retard (mention obligatoire)')->rows(3)->columnSpanFull(),
@@ -75,8 +79,8 @@ class Settings extends Page
                     TextInput::make('vat_number')->label('N° de TVA intracommunautaire')->visible(fn (Get $get) => $get('vat_enabled')),
                     TextInput::make('default_vat_rate')->label('Taux par défaut')->numeric()->suffix('%')->visible(fn (Get $get) => $get('vat_enabled')),
                     TextInput::make('vat_exemption_mention')->label('Mention d\'exonération')->visible(fn (Get $get) => ! $get('vat_enabled'))->columnSpanFull(),
-                    Textarea::make('quote_footer')->label('Texte en bas des devis')->rows(3)->columnSpanFull(),
-                    Textarea::make('invoice_footer')->label('Texte en bas des factures')->rows(3)->columnSpanFull(),
+                    Textarea::make('quote_footer')->label('Termes et conditions des devis')->rows(3)->columnSpanFull(),
+                    Textarea::make('invoice_footer')->label('Termes et conditions des factures')->rows(3)->columnSpanFull(),
                 ]),
                 Tab::make('Numérotation')->icon(Heroicon::OutlinedHashtag)->columns(3)->schema([
                     TextInput::make('quote_prefix')->label('Préfixe devis')->required(),

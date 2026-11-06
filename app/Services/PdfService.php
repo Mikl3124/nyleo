@@ -16,7 +16,7 @@ class PdfService
         $company = $quote->company_snapshot ?: CompanySetting::current()->snapshot();
         $client = $quote->client_snapshot ?: $quote->client->snapshot();
 
-        return Pdf::loadView('pdf.quote', compact('quote', 'company', 'client'))->setPaper('a4');
+        return self::numberPages(Pdf::loadView('pdf.quote', compact('quote', 'company', 'client'))->setPaper('a4'), 'Devis '.($quote->number ?: '(brouillon)'));
     }
 
     public static function invoice(Invoice $invoice): \Barryvdh\DomPDF\PDF
@@ -25,7 +25,21 @@ class PdfService
         $company = $invoice->company_snapshot ?: CompanySetting::current()->snapshot();
         $client = $invoice->client_snapshot ?: $invoice->client->snapshot();
 
-        return Pdf::loadView('pdf.invoice', compact('invoice', 'company', 'client'))->setPaper('a4');
+        return self::numberPages(Pdf::loadView('pdf.invoice', compact('invoice', 'company', 'client'))->setPaper('a4'), $invoice->type->label().' '.($invoice->number ?: '(brouillon)'));
+    }
+
+    /** Ajoute « Devis D202611-132 • 1/2 » en bas à droite de chaque page. */
+    private static function numberPages(\Barryvdh\DomPDF\PDF $pdf, string $label): \Barryvdh\DomPDF\PDF
+    {
+        $pdf->render();
+        $dompdf = $pdf->getDomPDF();
+        $canvas = $dompdf->getCanvas();
+        $font = $dompdf->getFontMetrics()->getFont('DejaVu Sans', 'bold');
+        $text = $label.' • {PAGE_NUM}/{PAGE_COUNT}';
+        $width = $dompdf->getFontMetrics()->getTextWidth(str_replace(['{PAGE_NUM}', '{PAGE_COUNT}'], '9', $text), $font, 7.5);
+        $canvas->page_text($canvas->get_width() - 34 - $width, $canvas->get_height() - 30, $text, $font, 7.5, [0.12, 0.14, 0.16]);
+
+        return $pdf;
     }
 
     public static function quoteFilename(Quote $quote): string
