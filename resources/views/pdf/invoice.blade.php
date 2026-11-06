@@ -1,49 +1,64 @@
+@php
+    $number = $invoice->number ?: '(brouillon)';
+    $title = $invoice->type->label().' '.$number;
+    $isCredit = $invoice->isCreditNote();
+    $issue = $invoice->issue_date ?? now();
+    $dueText = null;
+    if (! $isCredit) {
+        $dueText = (! $invoice->due_date || $invoice->due_date->lte($issue)) ? 'À réception.' : 'Le '.$invoice->due_date->format('d/m/Y').'.';
+        if (! empty($company['iban'])) {
+            $dueText .= '<br><span style="font-size:8.5px">Merci d\'indiquer la référence <strong>'.e($invoice->number ?: '').'</strong> lors de votre virement.</span>';
+        }
+    }
+    $extraRows = [];
+    if ((float) $invoice->deposits_deducted > 0) {
+        $extraRows[] = ['Acomptes déjà versés', '− '.money($invoice->deposits_deducted), false];
+        $extraRows[] = ['Net à payer', money($invoice->amount_due), true];
+    }
+    if (! $isCredit && $invoice->payments->isNotEmpty()) {
+        $extraRows[] = ['Déjà réglé', '− '.money($invoice->payments->sum('amount')), false];
+        $extraRows[] = ['Reste à payer', money($invoice->remaining()), true];
+    }
+@endphp
 <!DOCTYPE html>
 <html lang="fr"><head><meta charset="utf-8"><title>{{ $invoice->title() }}</title>@include('pdf._styles')</head>
 <body>
 @include('pdf._footer')
 @include('pdf._header')
 
-<p class="doc-title">{{ $invoice->type->label() }} {{ $invoice->number ?: '(brouillon)' }}</p>
-<p class="muted">
-    Date d'émission : {{ ($invoice->issue_date ?? now())->format('d/m/Y') }}
-    @if (! $invoice->isCreditNote() && $invoice->due_date) — Échéance : {{ $invoice->due_date->format('d/m/Y') }}@endif
-    @if ($invoice->dossier) — Dossier {{ $invoice->dossier->reference }}@endif
-</p>
-@if ($invoice->isCreditNote() && $invoice->parent)
-    <p><strong>Avoir se rapportant à la facture n° {{ $invoice->parent->number }} du {{ $invoice->parent->issue_date?->format('d/m/Y') }}.</strong></p>
-@endif
-@if ($invoice->quote && ! $invoice->isCreditNote())<p class="muted">Selon devis n° {{ $invoice->quote->number }} signé le {{ $invoice->quote->signed_at?->format('d/m/Y') }}.</p>@endif
-@if ($invoice->subject)<p><strong>Objet :</strong> {{ $invoice->subject }}</p>@endif
-
-@php($extra = '')
-@if ((float) $invoice->deposits_deducted > 0)
-    @php($extra = '<tr><td>Acomptes déjà versés</td><td class="r">− '.money($invoice->deposits_deducted).'</td></tr><tr class="grand"><td>Net à payer</td><td class="r">'.money($invoice->amount_due).'</td></tr>')
-@endif
-@include('pdf._lines', ['lines' => $invoice->lines, 'doc' => $invoice, 'extraTotals' => $extra])
-
-@if ($invoice->notes)<div class="section">{!! nl2br(e($invoice->notes)) !!}</div>@endif
-
-@unless ($invoice->isCreditNote())
-    <div class="section box">
-        <strong>Règlement</strong><br>
-        @if (! empty($company['iban']))
-            Par virement : IBAN <strong>{{ $company['iban'] }}</strong>@if (! empty($company['bic'])) — BIC {{ $company['bic'] }}@endif @if (! empty($company['bank_name']))({{ $company['bank_name'] }})@endif<br>
-            Merci d'indiquer la référence <strong>{{ $invoice->number }}</strong>.<br>
-        @endif
-        @if (! empty($company['cheque_order']))
-            Par chèque à l'ordre de <strong>{{ $company['cheque_order'] }}</strong>@if (! empty($company['cheque_address'])), à envoyer à : {{ $company['cheque_address'] }}@endif.<br>
-        @endif
-        @if ($invoice->payments->isNotEmpty())
-            <br>Paiements reçus :
-            @foreach ($invoice->payments as $p) {{ money($p->amount) }} le {{ $p->paid_at->format('d/m/Y') }}@if (! $loop->last),@endif @endforeach
-            — Reste à payer : <strong>{{ money($invoice->remaining()) }}</strong>
-        @endif
+<p class="doc-title">{{ $title }}</p>
+<div class="dates">
+    <div>Émise le {{ $issue->format('d/m/Y') }}</div>
+    @if (! $isCredit && $invoice->due_date?->gt($issue))<div>Échéance le {{ $invoice->due_date->format('d/m/Y') }}</div>@endif
+</div>
+@php($refs = array_filter([
+    $isCredit && $invoice->parent ? 'Avoir se rapportant à la facture n° '.$invoice->parent->number.' du '.$invoice->parent->issue_date?->format('d/m/Y').'.' : null,
+    $invoice->quote && ! $isCredit ? 'Selon devis n° '.$invoice->quote->number.($invoice->quote->signed_at ? ' signé le '.$invoice->quote->signed_at->format('d/m/Y') : '').'.' : null,
+]))
+@if ($refs || $invoice->subject || $invoice->dossier?->siteAddress())
+    <div class="note">
+        @foreach ($refs as $r){{ $r }}<br>@endforeach
+        @if ($invoice->subject)<strong>Objet :</strong> {{ $invoice->subject }}<br>@endif
+        @if ($invoice->dossier?->siteAddress())<strong>Lieu du projet :</strong> {{ $invoice->dossier->siteAddress() }}@endif
     </div>
-    <div class="section small muted">
-        @if (! empty($company['payment_terms_text'])){{ $company['payment_terms_text'] }}<br>@endif
-        @if (! empty($company['late_penalty_text'])){{ $company['late_penalty_text'] }}<br>@endif
-        @if (! empty($company['invoice_footer'])){!! nl2br(e($company['invoice_footer'])) !!}@endif
+@endif
+
+@include('pdf._lines', ['lines' => $invoice->lines])
+
+@include('pdf._bottom', ['doc' => $invoice])
+
+@if (! $isCredit && $invoice->payments->isNotEmpty())
+    <div class="paid">Paiements reçus :
+        @foreach ($invoice->payments as $p) {{ money($p->amount) }} le {{ $p->paid_at->format('d/m/Y') }}@if (! $loop->last),@endif @endforeach
     </div>
-@endunless
+@endif
+@if ($invoice->notes)<div class="paid">{!! nl2br(e($invoice->notes)) !!}</div>@endif
+
+@include('pdf._terms', [
+    'footerText' => $company['invoice_footer'] ?? null,
+    'extraTerms' => $isCredit ? [] : array_filter([
+        ! empty($company['cheque_order']) ? "Règlement par virement ou par chèque à l'ordre de ".$company['cheque_order'].(! empty($company['cheque_address']) ? ', à envoyer à : '.$company['cheque_address'] : '').'.' : null,
+        $company['late_penalty_text'] ?? null,
+    ]),
+])
 </body></html>
