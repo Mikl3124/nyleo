@@ -24,13 +24,10 @@
 <html lang="fr"><head><meta charset="utf-8"><title>{{ $invoice->title() }}</title>@include('pdf._styles')</head>
 <body>
 @include('pdf._footer')
-@include('pdf._header')
-
-<p class="doc-title">{{ $title }}</p>
-<div class="dates">
-    <div>Émise le {{ $issue->format('d/m/Y') }}</div>
-    @if (! $isCredit && $invoice->due_date?->gt($issue))<div>Échéance le {{ $invoice->due_date->format('d/m/Y') }}</div>@endif
-</div>
+@include('pdf._header', [
+    'docTitle' => $title,
+    'docDates' => array_filter(['Émise le '.$issue->format('d/m/Y'), ! $isCredit && $invoice->due_date?->gt($issue) ? 'Échéance le '.$invoice->due_date->format('d/m/Y') : null]),
+])
 @php($refs = array_filter([
     $isCredit && $invoice->parent ? 'Avoir se rapportant à la facture n° '.$invoice->parent->number.' du '.$invoice->parent->issue_date?->format('d/m/Y').'.' : null,
     $invoice->quote && ! $isCredit ? 'Selon devis n° '.$invoice->quote->number.($invoice->quote->signed_at ? ' signé le '.$invoice->quote->signed_at->format('d/m/Y') : '').'.' : null,
