@@ -28,12 +28,28 @@
         <p style="margin-bottom:0">Signé par {{ $quote->signer_name }} le {{ $quote->signed_at->format('d/m/Y à H:i') }}. Merci pour votre confiance !</p>
     </div>
 @elseif ($quote->isSignable())
+    <style>
+        .why{margin:12px 0 4px;background:#fffdf8;border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+        .why summary{cursor:pointer;font-weight:700;color:var(--teal-d);list-style:none;display:flex;align-items:center;gap:10px}
+        .why summary::-webkit-details-marker{display:none}
+        .why summary span{flex:none;width:26px;height:26px;border-radius:50%;background:var(--teal-d);color:#fff;font-family:Georgia,serif;font-style:italic;font-weight:700;display:flex;align-items:center;justify-content:center}
+        .why p{margin:10px 0 4px;font-size:.92rem}
+    </style>
     <div class="card action">
         <h2>Signer le devis</h2>
         <form method="post" action="{{ route('portal.quotes.sign', $quote) }}">
             @csrf
             <label for="signer_name">Votre nom et prénom</label>
             <input id="signer_name" type="text" name="signer_name" value="{{ old('signer_name', trim($client->first_name.' '.$client->last_name)) }}" required>
+            <div class="grid2">
+                <div><label for="birth_date">Date de naissance</label><input id="birth_date" type="date" name="birth_date" value="{{ old('birth_date', $client->birth_date?->format('Y-m-d')) }}" max="{{ now()->subDay()->format('Y-m-d') }}" required></div>
+                <div><label for="birth_place">Lieu de naissance</label><input id="birth_place" type="text" name="birth_place" value="{{ old('birth_place', $client->birth_place) }}" placeholder="Ville et département" required></div>
+            </div>
+            <details class="why">
+                <summary><span aria-hidden="true">i</span> Pourquoi je vous demande ces informations ?</summary>
+                <p>La mairie exige votre date et votre lieu de naissance sur le formulaire officiel (CERFA) du permis de construire ou de la déclaration préalable. En les donnant maintenant, vous n'aurez pas à me les renvoyer plus tard.</p>
+                <p>Elles servent uniquement à préparer votre dossier pour la mairie et ne sont transmises à personne d'autre. Vous pouvez à tout moment me demander de les consulter, de les corriger ou de les supprimer (RGPD).</p>
+            </details>
             <label class="check"><input type="checkbox" name="accept" value="1" required> <span>Bon pour accord : j'accepte ce devis de {{ money($quote->total_ttc) }} et ses conditions.</span></label>
             <button class="btn block" type="submit">Je signe le devis</button>
             <p class="muted" style="font-size:.85rem">Votre signature est enregistrée avec la date, l'heure et l'adresse de connexion. Une copie signée reste disponible dans votre espace.</p>

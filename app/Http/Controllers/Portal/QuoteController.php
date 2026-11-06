@@ -38,12 +38,25 @@ class QuoteController extends Controller
         $this->authorizeQuote($request, $quote);
         $data = $request->validate([
             'signer_name' => ['required', 'string', 'min:3', 'max:120'],
+            'birth_date' => ['required', 'date', 'before:today', 'after:1900-01-01'],
+            'birth_place' => ['required', 'string', 'min:2', 'max:120'],
             'accept' => ['accepted'],
-        ], ['accept.accepted' => 'Merci de cocher la case « Bon pour accord ».'], ['signer_name' => 'nom et prénom']);
+        ], [
+            'accept.accepted' => 'Merci de cocher la case « Bon pour accord ».',
+            'birth_date.required' => 'Merci d\'indiquer votre date de naissance.',
+            'birth_date.before' => 'La date de naissance doit être dans le passé.',
+            'birth_place.required' => 'Merci d\'indiquer votre lieu de naissance.',
+        ], ['signer_name' => 'nom et prénom', 'birth_date' => 'date de naissance', 'birth_place' => 'lieu de naissance']);
 
         if (! $quote->isSignable()) {
             return back()->withErrors(['signer_name' => 'Ce devis ne peut plus être signé. Contactez-moi pour en recevoir un nouveau.']);
         }
+
+        // Gardées sur la fiche client pour le CERFA : on ne les redemande plus ensuite.
+        $request->user('client')->forceFill([
+            'birth_date' => $data['birth_date'],
+            'birth_place' => trim($data['birth_place']),
+        ])->save();
 
         QuoteService::sign($quote, $data['signer_name'], $request->ip(), (string) $request->userAgent());
 
