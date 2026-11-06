@@ -114,10 +114,12 @@
         <p>Ces informations sont demandées par la mairie pour le formulaire officiel (CERFA).</p>
         <form method="post" action="{{ route('portal.dossiers.info', $dossier) }}">
             @csrf
+            @if (! $client->birth_date || ! $client->birth_place)
             <div class="grid2">
                 <div><label for="birth_date">Date de naissance</label><input id="birth_date" type="date" name="birth_date" value="{{ old('birth_date', $client->birth_date?->format('Y-m-d')) }}"></div>
                 <div><label for="birth_place">Lieu de naissance</label><input id="birth_place" type="text" name="birth_place" value="{{ old('birth_place', $client->birth_place) }}" placeholder="Ville et département"></div>
             </div>
+            @endif
             <label for="site_address">Adresse du terrain</label>
             <input id="site_address" type="text" name="site_address" value="{{ old('site_address', $dossier->site_address) }}">
             <div class="grid2">
