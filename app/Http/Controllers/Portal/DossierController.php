@@ -102,7 +102,11 @@ class DossierController extends Controller
 
         $client = $request->user('client');
         $client->fill(array_filter(collect($data)->only(['birth_date', 'birth_place', 'phone'])->all(), 'filled'))->save();
-        $dossier->fill(array_filter(collect($data)->only(['site_address', 'site_postal_code', 'site_city', 'cadastre_section', 'cadastre_number'])->all(), 'filled'))->save();
+        $dossier->fill(array_filter(collect($data)->only(['site_address', 'site_postal_code', 'site_city', 'cadastre_section', 'cadastre_number'])->all(), 'filled'));
+        if ($dossier->isDirty(['site_address', 'site_postal_code', 'site_city'])) {
+            $dossier->site_same_as_client = false; // le client a donné une autre adresse de terrain
+        }
+        $dossier->save();
 
         $dossier->log('infos_client', 'Le client a complété ses informations'.(filled($data['message'] ?? null) ? ' : « '.$data['message'].' »' : ''), true);
         Admin::notify(new AdminAlert("Informations reçues — {$dossier->reference}", "{$client->display_name} a complété ses informations."

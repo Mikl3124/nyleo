@@ -8,6 +8,9 @@ use App\Services\Communes;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
+use App\Filament\Resources\Clients\Pages\CreateClient;
+use App\Filament\Resources\Clients\Pages\EditClient;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -15,6 +18,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
@@ -63,10 +67,13 @@ class ClientResource extends Resource
                     'site' => 'Site nyleo.fr', 'autre' => 'Autre',
                 ]),
             ]),
-            Section::make('Adresse')->columns(3)->schema([
-                TextInput::make('address')->label('Adresse')->columnSpanFull(),
-                TextInput::make('postal_code')->label('Code postal'),
-                TextInput::make('city')->label('Commune')->columnSpan(2),
+            Group::make([
+                Section::make('Adresse')->columns(3)->schema([
+                    TextInput::make('address')->label('Adresse')->columnSpanFull(),
+                    TextInput::make('postal_code')->label('Code postal'),
+                    TextInput::make('city')->label('Commune')->columnSpan(2),
+                ]),
+                self::projectAddressSection(),
             ]),
             Section::make('Pour le CERFA')->columns(2)->collapsed()->schema([
                 DatePicker::make('birth_date')->label('Date de naissance'),
@@ -82,6 +89,45 @@ class ClientResource extends Resource
             ]),
             Textarea::make('notes')->label('Notes internes')->rows(3)->columnSpanFull(),
         ]);
+    }
+
+    /**
+     * Adresse du projet (le terrain) : elle appartient au dossier le plus récent du client.
+     * Sans dossier, le remplir crée le dossier ; laissé vide, rien n'est créé.
+     * Masquée dans la petite fenêtre « nouveau client » des dossiers et des devis, qui ont leur propre terrain.
+     */
+    public static function projectAddressSection(): Section
+    {
+        return Section::make('Adresse du projet')
+            ->description(fn (?Client $record) => ($dossier = $record?->currentDossier)
+                ? 'Dossier '.$dossier->reference.' : '.$dossier->title
+                : 'Le terrain où se font les travaux.')
+            ->visible(fn ($livewire) => $livewire instanceof CreateClient || $livewire instanceof EditClient)
+            ->relationship('currentDossier', condition: fn (?Client $record, Section $component) => $record?->currentDossier()->exists()
+                || ($state = $component->getChildSchema()->getRawState()) && (($state['site_same_as_client'] ?? false)
+                    || collect($state)->only(['site_address', 'site_postal_code', 'site_city', 'cadastre_section', 'cadastre_number'])->filter(fn ($v) => filled($v))->isNotEmpty()))
+            ->mutateRelationshipDataBeforeCreateUsing(function (array $data, Client $record): array {
+                $city = ($data['site_same_as_client'] ?? false) ? $record->city : ($data['site_city'] ?? null);
+
+                return [...$data, 'title' => 'Projet'.($city ? ' — '.$city : ''), 'procedure' => 'DP'];
+            })
+            ->columns(3)
+            ->schema(self::projectAddressFields());
+    }
+
+    /** Champs du terrain, partagés par la fiche client et la fiche dossier. */
+    public static function projectAddressFields(): array
+    {
+        $hiddenIfSame = fn (Get $get) => (bool) $get('site_same_as_client');
+
+        return [
+            Checkbox::make('site_same_as_client')->label('Identique à l\'adresse du client')->live()->columnSpanFull(),
+            TextInput::make('site_address')->label('Adresse du terrain')->columnSpanFull()->hidden($hiddenIfSame),
+            TextInput::make('site_postal_code')->label('Code postal')->hidden($hiddenIfSame),
+            TextInput::make('site_city')->label('Commune')->columnSpan(2)->hidden($hiddenIfSame),
+            TextInput::make('cadastre_section')->label('Section cadastrale')->placeholder('Ex. AB'),
+            TextInput::make('cadastre_number')->label('N° de parcelle')->placeholder('Ex. 756'),
+        ];
     }
 
     public static function table(Table $table): Table

@@ -25,6 +25,7 @@ class Dossier extends Model
             'status' => DossierStatus::class,
             'procedure' => Procedure::class,
             'abf' => 'boolean',
+            'site_same_as_client' => 'boolean',
             'is_individual_house' => 'boolean',
             'deposit_date' => 'date',
             'incomplete_notified_at' => 'date',
@@ -46,6 +47,18 @@ class Dossier extends Model
 
     protected static function booted(): void
     {
+        // « Identique à l'adresse du client » : le terrain reprend toujours l'adresse de la fiche client.
+        static::saving(function (Dossier $dossier) {
+            if ($dossier->site_same_as_client && $client = Client::find($dossier->client_id)) {
+                $dossier->site_address = $client->address;
+                $dossier->site_postal_code = $client->postal_code;
+                $dossier->site_city = $client->city;
+                if ($client->postal_code && ($dossier->isDirty('site_postal_code') || ! $dossier->department)) {
+                    $dossier->department = substr($client->postal_code, 0, 2);
+                }
+            }
+        });
+
         static::creating(function (Dossier $dossier) {
             if (! $dossier->reference) {
                 $year = now()->format('Y');
