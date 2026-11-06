@@ -44,14 +44,14 @@
             <input id="signer_name" type="text" name="signer_name" value="{{ old('signer_name', trim($client->first_name.' '.$client->last_name)) }}" required>
             <div class="grid2">
                 <div><label for="birth_date">Date de naissance</label><input id="birth_date" type="date" name="birth_date" value="{{ old('birth_date', $client->birth_date?->format('Y-m-d')) }}" max="{{ now()->subDay()->format('Y-m-d') }}" required></div>
-                <div><label for="birth_place">Lieu de naissance</label><input id="birth_place" type="text" name="birth_place" value="{{ old('birth_place', $client->birth_place) }}" placeholder="Ville et département" required></div>
+                <div>@include('portal.partials.birth-place', ['value' => old('birth_place', $client->birth_place), 'required' => true])</div>
             </div>
             <details class="why">
                 <summary><span aria-hidden="true">i</span> Pourquoi je vous demande ces informations ?</summary>
                 <p>La mairie exige votre date et votre lieu de naissance sur le formulaire officiel (CERFA) du permis de construire ou de la déclaration préalable. En les donnant maintenant, vous n'aurez pas à me les renvoyer plus tard.</p>
                 <p>Elles servent uniquement à préparer votre dossier pour la mairie et ne sont transmises à personne d'autre. Vous pouvez à tout moment me demander de les consulter, de les corriger ou de les supprimer (RGPD).</p>
             </details>
-            <label class="check"><input type="checkbox" name="accept" value="1" required> <span>Bon pour accord : j'accepte ce devis de {{ money($quote->total_ttc) }} et les <a href="{{ $company->cgvUrl() }}" target="_blank">conditions générales de vente</a>.</span></label>
+            <label class="check"><input type="checkbox" name="accept" value="1" required> <span>Bon pour accord : j'accepte ce devis de {{ money($quote->total_ttc) }} et les <a href="{{ $company->cgvUrl() }}" target="_blank">conditions générales de vente</a>, et j'autorise {{ $company->displayName() }} à déposer ma demande en mairie en mon nom, puis à en assurer le suivi jusqu'à la décision.</span></label>
             <label class="check"><input type="checkbox" name="early_start" value="1" @checked(old('early_start'))> <span>Je demande que le travail commence tout de suite, sans attendre la fin de mon délai de rétractation de 14 jours. Si je me rétracte ensuite, je paierai le travail déjà fait. Une fois les plans livrés, je ne pourrai plus me rétracter.</span></label>
             <p class="muted" style="font-size:.85rem;margin-top:-4px">Case facultative. Si vous ne la cochez pas, le travail commence après les 14 jours.</p>
             <button class="btn cta block" type="submit">Je signe le devis</button>

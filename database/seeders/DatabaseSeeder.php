@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
     {
         CompanySetting::current()->update([
             'phone' => '07 85 65 91 65',
+            'email' => 'mickael@nyleo.fr',
             'email_signature' => "Mickaël Delpech\n07 85 65 91 65",
             'payment_terms_text' => 'Paiement par virement bancaire ou par chèque, à réception de facture. Le dossier est déposé en mairie après règlement.',
         ]);

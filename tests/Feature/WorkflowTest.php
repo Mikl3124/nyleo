@@ -70,7 +70,8 @@ class WorkflowTest extends TestCase
         $link = ClientNotification::portalUrl($quote->client, route('portal.quotes.show', $quote, false));
         $this->get($link)->assertRedirect(route('portal.quotes.show', $quote));
         $this->get(route('portal.quotes.show', $quote))->assertOk()->assertSee('Je signe le devis')->assertSee('Pourquoi je vous demande ces informations')
-            ->assertSee('sans attendre la fin de mon délai de rétractation')->assertSee('href="'.route('cgv').'"', false);
+            ->assertSee('sans attendre la fin de mon délai de rétractation')->assertSee('à déposer ma demande en mairie en mon nom')->assertSee('href="'.route('cgv').'"', false);
+        $this->getJson(route('portal.communes', ['q' => 'sourz']))->assertOk()->assertJsonFragment(['label' => 'Sourzac (24 - Dordogne)']);
         $this->post(route('portal.quotes.sign', $quote), ['signer_name' => 'Jean Martin', 'accept' => '1'])
             ->assertSessionHasErrors(['birth_date', 'birth_place']);
         $this->post(route('portal.quotes.sign', $quote), ['signer_name' => 'Jean Martin', 'birth_date' => '1958-07-18', 'birth_place' => 'Périgueux (24)', 'accept' => '1', 'early_start' => '1'])
@@ -81,6 +82,8 @@ class WorkflowTest extends TestCase
         $quote->refresh();
         $this->assertSame(QuoteStatus::Signe, $quote->status);
         $this->assertNotNull($quote->signature_hash);
+        $this->assertNotNull($quote->terms_accepted_at);
+        $this->assertTrue($quote->terms_accepted_at->equalTo($quote->signed_at));
         $this->assertTrue($quote->early_start_requested);
         $this->assertTrue($quote->dossier->events()->where('type', 'demarrage_anticipe')->exists());
         Storage::disk('local')->assertExists($quote->signed_pdf_path);

@@ -6,6 +6,7 @@ use App\Enums\QuoteStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -28,8 +29,12 @@ class Client extends Authenticatable
 
     protected static function booted(): void
     {
-        // Partenaire choisi après coup : ses dossiers sans partenaire lui sont rattachés.
+        // L'adresse du client change : les terrains marqués « identique » suivent.
         static::saved(function (Client $client) {
+            if ($client->wasChanged(['address', 'postal_code', 'city'])) {
+                $client->dossiers()->where('site_same_as_client', true)->get()->each->save();
+            }
+            // Partenaire choisi après coup : ses dossiers sans partenaire lui sont rattachés.
             if ($client->partner_id && $client->wasChanged('partner_id')) {
                 $client->dossiers()->whereNull('partner_id')->update(['partner_id' => $client->partner_id]);
             }
@@ -44,6 +49,12 @@ class Client extends Authenticatable
     public function dossiers(): HasMany
     {
         return $this->hasMany(Dossier::class);
+    }
+
+    /** Le dossier le plus récent : son adresse de projet s'affiche sur la fiche client. */
+    public function currentDossier(): HasOne
+    {
+        return $this->hasOne(Dossier::class)->latestOfMany();
     }
 
     public function quotes(): HasMany

@@ -87,11 +87,7 @@ class DossierResource extends Resource
                 Textarea::make('description')->label('Description du projet')->rows(3)->columnSpanFull(),
             ]),
             Section::make('Terrain')->columns(3)->schema([
-                TextInput::make('site_address')->label('Adresse du terrain')->columnSpanFull(),
-                TextInput::make('site_postal_code')->label('Code postal'),
-                TextInput::make('site_city')->label('Commune')->columnSpan(2),
-                TextInput::make('cadastre_section')->label('Section cadastrale'),
-                TextInput::make('cadastre_number')->label('N° de parcelle'),
+                ...ClientResource::projectAddressFields(),
                 TextInput::make('land_area')->label('Surface du terrain')->numeric()->suffix('m²'),
                 Toggle::make('abf')->label('Secteur protégé (ABF)')->helperText('Ajoute 1 mois au délai d\'instruction.'),
                 Toggle::make('is_individual_house')->label('Maison individuelle ou annexe')->default(true),
