@@ -29,7 +29,7 @@
     <meta property="og:description" content="{{ $description }}">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta name="theme-color" content="#1d3f91">
-    <meta property="og:image" content="{{ asset('img/og-nyleo.png') }}">
+    <meta property="og:image" content="{{ asset('img/og-nyleo.png').'?v=2' }}">
     <meta name="geo.region" content="FR-NAQ">
     <meta name="geo.placename" content="{{ $base['name'] }}">
     <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
@@ -46,7 +46,7 @@
         'telephone' => $company->phone,
         'email' => $company->email,
         'logo' => asset('img/logo-nyleo.png'),
-        'image' => asset('img/og-nyleo.png'),
+        'image' => asset('img/og-nyleo.png').'?v=2',
         'priceRange' => '€€',
         'address' => $company->city ? ['@type' => 'PostalAddress', 'streetAddress' => $company->address, 'postalCode' => $company->postal_code, 'addressLocality' => $company->city, 'addressCountry' => 'FR'] : ['@type' => 'PostalAddress', 'addressLocality' => $base['name'], 'postalCode' => $base['cp'][0] ?? null, 'addressRegion' => 'Dordogne', 'addressCountry' => 'FR'],
         'areaServed' => [['@type' => 'AdministrativeArea', 'name' => 'Dordogne'], ['@type' => 'AdministrativeArea', 'name' => 'Gironde']],
@@ -66,7 +66,7 @@
     <div class="wrap">
         <a class="brand" href="{{ route('home') }}" aria-label="{{ $company->displayName() }}, accueil">
             @include('site.partials.logo')
-            <span><b>{{ \Illuminate\Support\Str::lower($company->displayName()) }}</b><small>Plans &amp; permis · 24 · 33</small></span>
+            <span><b>{{ $company->displayName() }}</b><small>Plans &amp; permis · 24 · 33</small></span>
         </a>
         <nav class="nav" aria-label="Menu principal">
             @foreach ($nav as $r => $l)<a href="{{ route($r) }}" @if (request()->routeIs($r) || ($r === 'site.areas' && request()->routeIs('site.area', 'site.town'))) aria-current="page" @endif>{{ $l }}</a>@endforeach
@@ -95,7 +95,7 @@
     <div class="wrap">
         <div class="foot-grid">
             <div>
-                <a class="brand" href="{{ route('home') }}">@include('site.partials.logo')<span><b>{{ \Illuminate\Support\Str::lower($company->displayName()) }}</b><small>Plans &amp; permis · 24 · 33</small></span></a>
+                <a class="brand" href="{{ route('home') }}">@include('site.partials.logo')<span><b>{{ $company->displayName() }}</b><small>Plans &amp; permis · 24 · 33</small></span></a>
                 <p style="margin-top:18px;max-width:24em">Plans et dossiers de déclaration préalable et de permis de construire, dessinés depuis {{ $base['name'] }}, en Dordogne, pour les particuliers de Dordogne et de Gironde.</p>
                 @if ($tel)<p><a href="tel:{{ $tel }}" style="font-family:var(--display);font-stretch:115%;font-weight:800;font-size:1.4rem;color:#fff">{{ $company->phone }}</a></p>@endif
             </div>

@@ -34,6 +34,14 @@ class SiteTest extends TestCase
         $this->get('/sitemap.xml')->assertOk()->assertHeader('Content-Type', 'application/xml')->assertSee(route('site.pc'));
     }
 
+    public function test_brand_is_always_written_with_a_capital_n(): void
+    {
+        \App\Models\CompanySetting::current()->update(['trade_name' => 'nyleo']);
+
+        $this->get('/')->assertOk()->assertSee('<b>Nyleo</b>', false)->assertDontSee('<b>nyleo</b>', false);
+        $this->get('/espace/connexion')->assertOk()->assertSee('<b>Nyleo</b>', false);
+    }
+
     public function test_town_search_leads_to_the_town_page_or_to_the_quote_form(): void
     {
         $this->get('/secteurs/recherche?q=perigueux')->assertRedirect(route('site.town', ['dordogne', 'perigueux']));
