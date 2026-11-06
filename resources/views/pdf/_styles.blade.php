@@ -1,16 +1,25 @@
 @php
-    $color = preg_match('/^#[0-9a-fA-F]{6}$/', $company['pdf_color'] ?? '') ? $company['pdf_color'] : '#94C13D';
+    // Couleurs du site nyleo.fr : bleu de Prusse (réglable dans les Paramètres) et ocre.
+    $color = preg_match('/^#[0-9a-fA-F]{6}$/', $company['pdf_color'] ?? '') ? $company['pdf_color'] : '#1D3F91';
+    $accent = '#E8A92B';
+    $ink = '#101C36';
 @endphp
 <style>
     @page { margin: 40px 46px 110px 46px; }
-    body { font-family: DejaVu Sans, sans-serif; font-size: 9.5px; color: #2b3036; line-height: 1.45; }
+    body { font-family: DejaVu Sans, sans-serif; font-size: 9.5px; color: #2b3346; line-height: 1.45; }
     table { border-collapse: collapse; }
-    .head { width: 100%; margin-bottom: 22px; }
+    .head { width: 100%; }
     .head td { vertical-align: top; }
-    .party-name { font-size: 12px; font-weight: bold; color: #1f2328; margin-bottom: 8px; }
+    .head td.brand { padding-top: 2px; }
+    .head td.issuer { text-align: right; }
+    .accent { height: 0; border-top: 2px solid {{ $accent }}; margin: 14px 0 16px; }
+    .head2 { width: 100%; margin-bottom: 18px; }
+    .head2 td { vertical-align: top; width: 50%; }
+    .head2 td.client { padding-left: 14px; border-left: 3px solid {{ $color }}; }
+    .label { font-size: 7.5px; letter-spacing: 1.2px; text-transform: uppercase; color: {{ $color }}; font-weight: bold; margin-bottom: 4px; }
+    .party-name { font-size: 12px; font-weight: bold; color: {{ $ink }}; margin-bottom: 8px; }
     .party-line { font-size: 9.5px; color: #3d434a; }
-    .logo { width: 70px; padding-right: 14px; }
-    .doc-title { font-size: 19px; font-weight: bold; color: #1f2328; margin: 0 0 12px; }
+    .doc-title { font-size: 19px; font-weight: bold; color: {{ $color }}; margin: 0 0 8px; }
     .dates { font-size: 10px; color: #3d434a; margin-bottom: 14px; }
     .dates div { margin-bottom: 4px; }
     .note { font-size: 9.5px; color: #3d434a; margin: -8px 0 14px; }
@@ -37,13 +46,13 @@
     table.totals td.v { text-align: right; }
     table.totals tr.sep td { border-bottom: 1px solid #d5dde5; }
     table.totals tr.grand td { font-weight: bold; padding-top: 10px; }
-    .sign { border: 1px solid #d5dde5; border-radius: 6px; padding: 14px 18px; height: 90px; margin-top: 16px; margin-left: 52%; font-size: 10px; }
-    .sign strong { color: #2b3036; }
+    .sign { border: 1px solid #d5dde5; border-top: 3px solid {{ $accent }}; border-radius: 6px; padding: 14px 18px; height: 90px; margin-top: 16px; margin-left: 52%; font-size: 10px; }
+    .sign strong { color: {{ $ink }}; }
     .sign .small { font-size: 8px; color: #6b7480; margin-top: 6px; }
     .terms { margin-top: 22px; font-size: 8.5px; color: #8a929c; }
     .terms .t { font-weight: bold; margin-bottom: 3px; }
     .paid { margin-top: 10px; font-size: 9px; color: #3d434a; }
-    .footer { position: fixed; bottom: -80px; left: 0; right: 0; height: 80px; border-top: 1px solid #d5dde5; padding-top: 12px; font-size: 8.5px; color: #8a929c; }
+    .footer { position: fixed; bottom: -80px; left: 0; right: 0; height: 80px; border-top: 2px solid {{ $color }}; padding-top: 12px; font-size: 8.5px; color: #8a929c; }
     .footer table td { vertical-align: top; padding-right: 30px; }
     .footer .t { font-weight: bold; }
 </style>

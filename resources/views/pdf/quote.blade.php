@@ -10,13 +10,10 @@
 <html lang="fr"><head><meta charset="utf-8"><title>Devis {{ $number }}</title>@include('pdf._styles')</head>
 <body>
 @include('pdf._footer')
-@include('pdf._header')
-
-<p class="doc-title">Devis {{ $number }}</p>
-<div class="dates">
-    <div>Émis le {{ ($quote->issue_date ?? now())->format('d/m/Y') }}</div>
-    @if ($quote->valid_until)<div>Valide jusqu'au {{ $quote->valid_until->format('d/m/Y') }}</div>@endif
-</div>
+@include('pdf._header', [
+    'docTitle' => 'Devis '.$number,
+    'docDates' => array_filter(['Émis le '.($quote->issue_date ?? now())->format('d/m/Y'), $quote->valid_until ? "Valide jusqu'au ".$quote->valid_until->format('d/m/Y') : null]),
+])
 @if ($quote->subject || $quote->dossier?->siteAddress())
     <div class="note">
         @if ($quote->subject)<strong>Objet :</strong> {{ $quote->subject }}<br>@endif

@@ -32,4 +32,18 @@ class PdfModelTest extends TestCase
         $this->assertSame(count(DefaultCatalog::items()), CatalogItem::count());
         $this->assertSame('Texte modifié par Mickaël', CatalogItem::first()->description);
     }
+
+    public function test_quote_pdf_uses_the_site_colours_and_logo(): void
+    {
+        $client = \App\Models\Client::create(['last_name' => 'Martin', 'email' => 'm@example.com']);
+        $quote = \App\Models\Quote::create(['client_id' => $client->id]);
+        $company = \App\Models\CompanySetting::current()->snapshot();
+
+        $html = view('pdf.quote', ['quote' => $quote->load('lines'), 'company' => $company, 'client' => $client->snapshot()])->render();
+
+        $this->assertStringContainsString('#1D3F91', $html);
+        $this->assertStringContainsString('#E8A92B', $html);
+        $this->assertStringContainsString(public_path('img/logo-nyleo-horizontal.png'), $html);
+        $this->assertStringNotContainsString('#94C13D', $html);
+    }
 }
