@@ -28,7 +28,12 @@ class EditClient extends EditRecord
 
     protected function getHeaderActions(): array
     {
-        return [ClientResource::portalLinkAction(), DeleteAction::make()];
+        return [
+            ClientResource::newQuoteAction(),
+            ClientResource::newInvoiceAction(),
+            ClientResource::portalLinkAction(),
+            DeleteAction::make(),
+        ];
     }
 
     protected function getFooterWidgets(): array
