@@ -50,7 +50,7 @@
                 <p>La mairie exige votre date et votre lieu de naissance sur le formulaire officiel (CERFA) du permis de construire ou de la déclaration préalable. En les donnant maintenant, vous n'aurez pas à me les renvoyer plus tard.</p>
                 <p>Elles servent uniquement à préparer votre dossier pour la mairie et ne sont transmises à personne d'autre. Vous pouvez à tout moment me demander de les consulter, de les corriger ou de les supprimer (RGPD).</p>
             </details>
-            <label class="check"><input type="checkbox" name="accept" value="1" required> <span>Bon pour accord : j'accepte ce devis de {{ money($quote->total_ttc) }} et ses conditions.</span></label>
+            <label class="check"><input type="checkbox" name="accept" value="1" required> <span>Bon pour accord : j'accepte ce devis de {{ money($quote->total_ttc) }} et les <a href="{{ $company->cgvUrl() }}" target="_blank">conditions générales de vente</a>.</span></label>
             <button class="btn cta block" type="submit">Je signe le devis</button>
             <p class="muted" style="font-size:.85rem">Votre signature est enregistrée avec la date, l'heure et l'adresse de connexion. Une copie signée reste disponible dans votre espace.</p>
         </form>
