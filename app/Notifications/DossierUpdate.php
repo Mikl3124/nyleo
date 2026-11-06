@@ -11,11 +11,15 @@ class DossierUpdate extends ClientNotification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $mail = $this->message($notifiable, $this->subject.' — '.$this->dossier->title);
-        foreach (array_filter($this->lines) as $line) {
+        $lines = array_values(array_filter($this->lines));
+        $mail = $this->message($notifiable, $this->subject.' — '.$this->dossier->title, $this->subject, 'Votre dossier '.$this->dossier->reference);
+        foreach ($lines as $line) {
             $mail->line($line);
         }
+        $mail->action($this->button, self::portalUrl($notifiable, route('portal.dossiers.show', $this->dossier, false)));
 
-        return $mail->action($this->button, self::portalUrl($notifiable, route('portal.dossiers.show', $this->dossier, false)));
+        $this->recap($mail, ['Projet' => $this->dossier->title, 'Référence' => $this->dossier->reference]);
+
+        return $lines ? $this->preheader($mail, strip_tags(str_replace('**', '', $lines[0]))) : $mail;
     }
 }

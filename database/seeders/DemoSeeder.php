@@ -23,7 +23,7 @@ class DemoSeeder extends Seeder
         User::firstOrCreate(['email' => 'demo@nyleo.fr'], ['name' => 'Démo', 'password' => 'demo-nyleo']);
         CompanySetting::current()->update([
             'company_name' => 'Mickaël Delpech', 'legal_form' => 'Entrepreneur individuel', 'siret' => '000 000 000 00000',
-            'address' => '1 rue de l\'Exemple', 'postal_code' => '24700', 'city' => 'Montpon-Ménestérol', 'email' => 'contact@nyleo.fr',
+            'address' => '1 rue de l\'Exemple', 'postal_code' => '24700', 'city' => 'Montpon-Ménestérol', 'email' => 'mickael@nyleo.fr',
             'iban' => 'FR76 1234 5678 9012 3456 7890 123', 'bic' => 'QNTOFRP1XXX', 'cheque_order' => 'Mickaël Delpech',
         ]);
 

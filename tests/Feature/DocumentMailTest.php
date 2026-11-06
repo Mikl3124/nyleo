@@ -38,10 +38,10 @@ class DocumentMailTest extends TestCase
         $this->admin = User::factory()->create(['email' => 'mickael@example.com']);
         CompanySetting::current()->update([
             'company_name' => 'M-GREEN', 'iban' => 'FR76 1234', 'cheque_order' => 'M-GREEN',
-            'quote_next_number' => 134, 'invoice_next_number' => 117, 'email' => 'contact@nyleo.fr',
+            'quote_next_number' => 134, 'invoice_next_number' => 117, 'email' => 'mickael@nyleo.fr',
             'email_signature' => "Mickaël Delpech\n07 85 65 91 65",
         ]);
-        config(['mail.from.address' => 'contact@nyleo.fr']);
+        config(['mail.from.address' => 'mickael@nyleo.fr']);
     }
 
     private function makeQuote(): Quote
@@ -85,8 +85,8 @@ class DocumentMailTest extends TestCase
         Mail::assertSent(DocumentMail::class, function (DocumentMail $m) use ($quote) {
             $names = array_map(fn ($a) => $a->as, $m->attachments());
 
-            return $m->hasTo('jean@example.com') && $m->hasCc('marie@example.com') && $m->hasBcc('mickael@example.com')
-                && $m->hasReplyTo('mickael@example.com')
+            return $m->hasTo('jean@example.com') && $m->hasCc('marie@example.com') && $m->hasBcc('mickael@nyleo.fr')
+                && $m->hasReplyTo('mickael@nyleo.fr')
                 && $m->mailSubject === 'Mon objet'
                 && $m->buttonLabel === 'Lire et signer mon devis'
                 && in_array("Devis-{$quote->number}.pdf", $names, true)

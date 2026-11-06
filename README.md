@@ -36,7 +36,7 @@ php artisan test
 ## Mise en ligne avec Laravel Forge
 
 1. Site `nyleo.fr`, PHP 8.3+, base MySQL, dépôt `Mikl3124/nyleo`, branche `master`.
-2. Variables d'environnement : `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://nyleo.fr`, `APP_LOCALE=fr`, base MySQL, `QUEUE_CONNECTION=database`, et un service d'envoi d'e-mails (`MAIL_MAILER`, `MAIL_HOST`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS=contact@nyleo.fr`, `MAIL_FROM_NAME=Nyleo`), `NYLEO_ADMIN_EMAIL`.
+2. Variables d'environnement : `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://nyleo.fr`, `APP_LOCALE=fr`, base MySQL, `QUEUE_CONNECTION=database`, et un service d'envoi d'e-mails (`MAIL_MAILER`, `MAIL_HOST`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS=mickael@nyleo.fr`, `MAIL_FROM_NAME="Mickael - Nyleo"`), `NYLEO_ADMIN_EMAIL`.
 3. Script de déploiement :
    ```sh
    cd $FORGE_SITE_PATH

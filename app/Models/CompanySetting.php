@@ -21,6 +21,7 @@ class CompanySetting extends Model
     {
         return static::query()->firstOrCreate([], [
             'trade_name' => 'Nyleo',
+            'email' => 'mickael@nyleo.fr',
             'payment_terms_days' => 0,
             'quote_footer' => 'Ce devis concerne uniquement de la prestation de service.',
             'payment_terms_text' => 'Paiement par virement bancaire ou par chèque.',

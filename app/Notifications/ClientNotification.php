@@ -4,6 +4,8 @@ namespace App\Notifications;
 
 use App\Models\Client;
 use App\Models\CompanySetting;
+use App\Models\Dossier;
+use App\Services\DocumentMailer;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -29,15 +31,78 @@ abstract class ClientNotification extends Notification implements ShouldQueue
         ]));
     }
 
-    protected function message(Client $client, string $subject): MailMessage
+    /** « Bonjour Monsieur Martin, », « Bonjour Jean Martin, » ou « Bonjour, ». */
+    public static function greeting(Client $client): string
+    {
+        $name = $client->civility
+            ? trim($client->civility.' '.$client->last_name)
+            : trim($client->first_name.' '.$client->last_name);
+
+        return 'Bonjour'.($name !== '' ? ' '.$name : '').',';
+    }
+
+    /**
+     * Base commune : objet, titre, salutation, signature, ligne d'aide et adresse de réponse
+     * (les réponses vont à l'adresse des paramètres, mickael@nyleo.fr).
+     */
+    protected function message(Client $client, string $subject, ?string $title = null, ?string $eyebrow = null): MailMessage
     {
         $settings = CompanySetting::current();
-
-        return (new MailMessage)
+        $mail = (new MailMessage)
             ->subject($subject)
-            ->greeting('Bonjour '.trim(($client->civility ? $client->civility.' ' : '').$client->last_name).',')
+            ->greeting(self::greeting($client))
             ->salutation(new HtmlString(
-                'Cordialement,<br>'.nl2br(e($settings->email_signature ?: $settings->displayName()))
+                'Cordialement,<br>'."\n".nl2br(e($settings->email_signature ?: $settings->displayName()))
             ));
+        $mail->viewData = [
+            'title' => $title,
+            'eyebrow' => $eyebrow,
+            'help' => $settings->phone && ! str_contains(preg_replace('/\D/', '', (string) $settings->email_signature), preg_replace('/\D/', '', $settings->phone))
+                ? "Une question ? Appelez-moi au {$settings->phone}, ou répondez simplement à cet e-mail."
+                : 'Une question ? Répondez simplement à cet e-mail ou appelez-moi.',
+        ];
+        if ($reply = DocumentMailer::replyAddress()) {
+            $mail->replyTo($reply);
+        }
+
+        return $mail;
+    }
+
+    /** Récapitulatif affiché sous le texte (libellé => valeur ; les valeurs vides sont masquées). */
+    protected function recap(MailMessage $mail, array $rows): MailMessage
+    {
+        $mail->viewData['recap'] = $rows;
+
+        return $mail;
+    }
+
+    protected function preheader(MailMessage $mail, string $text): MailMessage
+    {
+        $mail->viewData['preheader'] = $text;
+
+        return $mail;
+    }
+
+    /** Encadré ocre (moyens de paiement…). */
+    protected function panel(MailMessage $mail, string $title, array $lines): MailMessage
+    {
+        $mail->viewData['panelTitle'] = $title;
+        $mail->viewData['panelLines'] = array_values(array_filter($lines));
+
+        return $mail;
+    }
+
+    protected static function project(?Dossier $dossier): ?string
+    {
+        return $dossier ? trim($dossier->title.($dossier->reference ? " ({$dossier->reference})" : '')) : null;
+    }
+
+    /** Lignes « par virement… / par chèque… » reprises dans les factures et les rappels. */
+    protected static function paymentLines(CompanySetting $s, string $reference): array
+    {
+        return [
+            $s->iban ? '**Par virement** : IBAN '.$s->iban.($s->bic ? ' (BIC '.$s->bic.')' : '').", en indiquant la référence **{$reference}**." : null,
+            $s->cheque_order ? "**Par chèque** à l'ordre de ".$s->cheque_order.($s->cheque_address ? ', à envoyer à : '.str_replace("\n", ', ', $s->cheque_address) : '').'.' : null,
+        ];
     }
 }
