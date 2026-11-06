@@ -39,6 +39,10 @@
     table.bottom { width: 100%; margin-top: 16px; }
     table.bottom td { vertical-align: top; }
     .pill { background: {{ $color }}; color: #fff; font-weight: bold; font-size: 10px; padding: 7px 12px; border-radius: 5px; width: 230px; }
+    table.qr { margin-top: 12px; border-collapse: collapse; }
+    table.qr td { vertical-align: middle; padding: 0; }
+    table.qr td.qr-img img { width: 84px; height: 84px; display: block; }
+    table.qr td.qr-text { font-size: 8.5px; color: #3d434a; padding-left: 10px; width: 150px; }
     .pill-text { font-size: 10px; padding: 10px 0 0 0; color: #3d434a; }
     table.totals { width: 100%; }
     table.totals td { padding: 5px 10px; font-size: 10px; }
