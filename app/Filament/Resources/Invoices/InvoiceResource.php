@@ -117,6 +117,7 @@ class InvoiceResource extends Resource
             ->recordActions([
                 self::paymentAction(),
                 EditAction::make()->label('Ouvrir'),
+                self::deleteAction(),
             ]);
     }
 
@@ -136,6 +137,38 @@ class InvoiceResource extends Resource
             ->action(function (Invoice $record, array $data) {
                 InvoiceService::addPayment($record, (float) $data['amount'], $data['method'], $data['paid_at'], $data['reference'] ?? null);
                 Notification::make()->title('Paiement enregistré, le client a reçu une confirmation')->success()->send();
+            });
+    }
+
+    /** Suppression définitive, même d'une facture émise (phase de test), avec paiements et avoirs. */
+    public static function deleteAction(): Action
+    {
+        return Action::make('deleteInvoice')
+            ->label('Supprimer')
+            ->icon(Heroicon::OutlinedTrash)
+            ->color('danger')
+            ->requiresConfirmation()
+            ->modalHeading(fn (Invoice $record) => 'Supprimer '.$record->title().' ?')
+            ->modalDescription(function (Invoice $record) {
+                if ($record->isDraft()) {
+                    return 'Le brouillon sera supprimé définitivement.';
+                }
+                $linked = [];
+                if ($n = $record->payments()->count()) {
+                    $linked[] = $n.' paiement(s)';
+                }
+                if ($n = $record->creditNotes()->count()) {
+                    $linked[] = $n.' avoir(s)';
+                }
+
+                return 'La facture'.($linked ? ', ses '.implode(' et ses ', $linked) : '').' et son PDF seront supprimés définitivement. '
+                    .'À réserver aux essais : une vraie facture émise ne se supprime pas, on l\'annule par un avoir.';
+            })
+            ->modalSubmitActionLabel('Oui, supprimer')
+            ->action(function (Invoice $record) {
+                $title = $record->title();
+                InvoiceService::delete($record);
+                Notification::make()->title($title.' supprimée')->success()->send();
             });
     }
 

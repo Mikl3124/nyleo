@@ -34,6 +34,7 @@ class InvoicesRelationManager extends RelationManager
             ->recordActions([
                 InvoiceResource::paymentAction(),
                 Action::make('open')->label('Ouvrir')->url(fn ($record) => InvoiceResource::getUrl('edit', ['record' => $record])),
+                InvoiceResource::deleteAction(),
             ]);
     }
 }
