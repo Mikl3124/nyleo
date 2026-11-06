@@ -1,6 +1,6 @@
 @extends('layouts.site')
 @section('title', 'Votre projet : déclaration préalable ou permis de construire ?')
-@section('description', "Véranda, extension, piscine, abri, carport, maison, fenêtres, panneaux solaires, clôture, grange : la démarche d'urbanisme projet par projet, en Dordogne et en Gironde.")
+@section('description', "Véranda, extension, piscine, abri, carport, maison, fenêtres, panneaux solaires, clôture, grange : la démarche d'urbanisme projet par projet, en Dordogne et dans les départements voisins.")
 @section('content')
 @include('site.partials.page-hero', [
     'crumbs' => 'Vos projets', 'kicker' => 'Projet par projet',

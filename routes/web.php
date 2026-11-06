@@ -14,8 +14,8 @@ Route::controller(SiteController::class)->group(function () {
     Route::get('/projets/{project}', 'project')->where('project', '[a-z0-9-]+')->name('site.project');
     Route::get('/secteurs', 'areas')->name('site.areas');
     Route::get('/secteurs/recherche', 'find')->name('site.find');
-    Route::get('/secteurs/{department}', 'area')->whereIn('department', ['dordogne', 'gironde'])->name('site.area');
-    Route::get('/secteurs/{department}/{town}', 'town')->whereIn('department', ['dordogne', 'gironde'])->where('town', '[a-z0-9-]+')->name('site.town');
+    Route::get('/secteurs/{department}', 'area')->whereIn('department', \App\Support\Geo::departmentSlugs())->name('site.area');
+    Route::get('/secteurs/{department}/{town}', 'town')->whereIn('department', \App\Support\Geo::departmentSlugs())->where('town', '[a-z0-9-]+')->name('site.town');
     Route::get('/qui-suis-je', 'about')->name('site.about');
     Route::get('/questions-frequentes', 'faq')->name('site.faq');
     Route::get('/contact', 'contact')->name('site.contact');

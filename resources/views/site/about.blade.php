@@ -1,6 +1,6 @@
 @extends('layouts.site')
 @section('title', 'Qui suis-je')
-@section('description', "Mickaël Delpech, dessinateur basé à Sourzac (Dordogne) : plans de déclaration préalable et de permis de construire pour les particuliers de Dordogne et de Gironde.")
+@section('description', "Mickaël Delpech, dessinateur basé à Sourzac (Dordogne) : plans de déclaration préalable et de permis de construire pour les particuliers de Dordogne et des départements voisins.")
 @php
     $base = \App\Support\Geo::base();
     $c = \App\Models\CompanySetting::current();
@@ -14,7 +14,7 @@
     'jobTitle' => 'Dessinateur en bâtiment',
     'worksFor' => ['@id' => url('/').'#entreprise'],
     'workLocation' => ['@type' => 'Place', 'name' => $base['name'].', Dordogne'],
-    'knowsAbout' => ['Déclaration préalable de travaux', 'Permis de construire', "Règles d'urbanisme en Dordogne et en Gironde"],
+    'knowsAbout' => ['Déclaration préalable de travaux', 'Permis de construire', "Règles d'urbanisme en Dordogne et dans les départements voisins"],
     'url' => url('/qui-suis-je'),
 ]), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>
 @endpush
@@ -29,7 +29,7 @@
         <div style="max-width:820px">
             <h2>Pourquoi faire appel à moi</h2>
             <p class="lead">Un dossier d'urbanisme, c'est une dizaine de pièces, un long formulaire et des règles qui changent d'une commune à l'autre. Mon travail, c'est de vous enlever tout ça.</p>
-            <p>Je travaille depuis {{ $base['name'] }}, dans la vallée de l'Isle, entre Périgueux et Libourne. Je connais les règlements d'urbanisme et les services instructeurs de Dordogne et de Gironde, et je sais ce qu'ils attendent. Je reste votre seul interlocuteur du premier appel jusqu'à la décision de la mairie.</p>
+            <p>Je travaille depuis {{ $base['name'] }}, dans la vallée de l'Isle, entre Périgueux et Libourne. Je connais les règlements d'urbanisme et les services instructeurs de Dordogne et des départements voisins, et je sais ce qu'ils attendent. Je reste votre seul interlocuteur du premier appel jusqu'à la décision de la mairie.</p>
             <p>Je travaille avec les particuliers, et aussi avec les artisans et installateurs (vérandas, pergolas, piscines) qui me confient les dossiers de leurs clients. Si la surface de plancher ou l'emprise au sol dépasse 150 m², ou si le projet est porté par une société (SCI…), je travaille avec un architecte partenaire, qui signe le projet.</p>
             <div class="values">
                 <div><b>Un seul interlocuteur</b><span>Vous parlez à la personne qui dessine vos plans.</span></div>

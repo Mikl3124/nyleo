@@ -25,7 +25,7 @@ class ProjectGuides
             'name' => 'Véranda', 'icon' => 'veranda', 'sim' => 'extension', 'proc' => 'DP ou PC',
             'line' => "Accolée à la maison, la surface créée décide de la démarche.",
             'title' => 'Véranda : déclaration préalable ou permis de construire ?',
-            'description' => "Véranda de 5 à 20 m², jusqu'à 40 m² en zone urbaine d'un PLU, ou plus : quelle démarche, quelles pièces, quel délai. Dossier déposé pour vous en Dordogne et en Gironde.",
+            'description' => "Véranda de 5 à 20 m², jusqu'à 40 m² en zone urbaine d'un PLU, ou plus : quelle démarche, quelles pièces, quel délai. Dossier déposé pour vous en Dordogne et dans les départements voisins.",
             'h1' => 'Véranda : <span class="hl">déclaration préalable</span> ou permis ?',
             'lead' => "Une véranda accolée à la maison est une extension : c'est sa surface qui décide de la démarche. Je dessine les plans, je remplis le formulaire et je dépose le dossier en mairie à votre place.",
             'rules' => [
@@ -58,7 +58,7 @@ class ProjectGuides
             'name' => 'Extension, garage accolé', 'icon' => 'extension', 'sim' => 'extension', 'proc' => 'DP ou PC',
             'line' => "Jusqu'à 40 m² en déclaration préalable en zone urbaine d'un PLU.",
             'title' => "Extension de maison : quelle autorisation d'urbanisme ?",
-            'description' => "Agrandir sa maison ou accoler un garage : seuils de 20 et 40 m², règle des 150 m², pièces et délais. Plans et dossier déposés pour vous en Dordogne et en Gironde.",
+            'description' => "Agrandir sa maison ou accoler un garage : seuils de 20 et 40 m², règle des 150 m², pièces et délais. Plans et dossier déposés pour vous en Dordogne et dans les départements voisins.",
             'h1' => 'Agrandir votre maison : <span class="hl">la bonne démarche</span>',
             'lead' => "Pièce en plus, garage accolé, surélévation : je vous dis au téléphone quelle autorisation s'applique, puis je dessine et je dépose le dossier en votre nom.",
             'rules' => [
@@ -89,7 +89,7 @@ class ProjectGuides
             'name' => 'Piscine', 'icon' => 'piscine', 'sim' => 'piscine', 'proc' => 'DP',
             'line' => "Bassin de plus de 10 m² et jusqu'à 100 m² : déclaration préalable.",
             'title' => 'Piscine : faut-il une déclaration préalable ?',
-            'description' => "Piscine de plus de 10 m², jusqu'à 100 m², abri de plus de 1,80 m : quelle démarche, quelles pièces, quel délai. Dossier de déclaration préalable déposé pour vous en Dordogne et Gironde.",
+            'description' => "Piscine de plus de 10 m², jusqu'à 100 m², abri de plus de 1,80 m : quelle démarche, quelles pièces, quel délai. Dossier de déclaration préalable déposé pour vous en Dordogne et départements voisins.",
             'h1' => 'Piscine : <span class="hl">déclaration préalable</span> ou rien du tout ?',
             'lead' => "Pour une piscine enterrée ou semi-enterrée, c'est la surface du bassin et la hauteur de l'abri qui comptent. Je prépare le dossier et je le dépose en mairie pour vous.",
             'rules' => [
@@ -120,7 +120,7 @@ class ProjectGuides
             'name' => 'Abri de jardin, carport, pergola', 'icon' => 'pergola', 'sim' => 'construction', 'proc' => 'DP',
             'line' => "De 5 à 20 m², déclaration préalable. Au-delà, permis.",
             'title' => 'Abri de jardin, carport, pergola : quelle démarche ?',
-            'description' => "Abri de jardin, carport, pergola couverte ou garage séparé : seuils de 5 et 20 m², pièces, délais. Déclaration préalable préparée et déposée pour vous en Dordogne et en Gironde.",
+            'description' => "Abri de jardin, carport, pergola couverte ou garage séparé : seuils de 5 et 20 m², pièces, délais. Déclaration préalable préparée et déposée pour vous en Dordogne et dans les départements voisins.",
             'h1' => 'Abri, carport, pergola : <span class="hl">la règle des 5 et 20 m²</span>',
             'lead' => "Une construction séparée de la maison suit une règle simple, fondée sur son emprise au sol. Je vous confirme la démarche, je dessine les plans et je dépose la déclaration.",
             'rules' => [
@@ -148,7 +148,7 @@ class ProjectGuides
             'name' => 'Maison individuelle', 'icon' => 'maison', 'sim' => 'maison', 'proc' => 'PC',
             'line' => "Plans complets du permis, notice et insertion paysagère.",
             'title' => 'Permis de construire de maison individuelle : plans et dossier',
-            'description' => "Plans du permis de construire de votre maison jusqu'à 150 m² : plan de masse, coupes, façades, notice, insertion, CERFA 13406. Dépôt et suivi en Dordogne et en Gironde.",
+            'description' => "Plans du permis de construire de votre maison jusqu'à 150 m² : plan de masse, coupes, façades, notice, insertion, CERFA 13406. Dépôt et suivi en Dordogne et dans les départements voisins.",
             'h1' => 'Votre maison neuve : <span class="hl">les plans du permis</span>',
             'lead' => "Je dessine les plans du permis de construire de votre maison, je rédige la notice et je dépose le dossier en mairie en votre nom, jusqu'à la décision.",
             'rules' => [
@@ -179,7 +179,7 @@ class ProjectGuides
             'name' => 'Façade, fenêtres, toiture', 'icon' => 'facade', 'sim' => 'aspect', 'proc' => 'DP',
             'line' => "Ouvertures, menuiseries, enduit, couverture, isolation.",
             'title' => 'Fenêtres, façade, toiture : faut-il une déclaration préalable ?',
-            'description' => "Créer une fenêtre, changer les menuiseries, isoler par l'extérieur, refaire la toiture ou l'enduit : quand la déclaration préalable est obligatoire. Dossier déposé pour vous en Dordogne et Gironde.",
+            'description' => "Créer une fenêtre, changer les menuiseries, isoler par l'extérieur, refaire la toiture ou l'enduit : quand la déclaration préalable est obligatoire. Dossier déposé pour vous en Dordogne et départements voisins.",
             'h1' => "Modifier l'aspect de la maison : <span class=\"hl\">la déclaration préalable</span>",
             'lead' => "Dès que les travaux changent l'aspect extérieur de la maison, une déclaration préalable est demandée. Je prépare les façades avant et après, et je dépose le dossier.",
             'rules' => [
@@ -207,7 +207,7 @@ class ProjectGuides
             'name' => 'Panneaux solaires', 'icon' => 'solaire', 'sim' => 'aspect', 'proc' => 'DP',
             'line' => "En toiture, une déclaration préalable est demandée.",
             'title' => 'Panneaux solaires : déclaration préalable en mairie',
-            'description' => "Panneaux photovoltaïques en toiture ou au sol : quand une déclaration préalable est obligatoire, quelles pièces fournir, quel délai. Dossier déposé pour vous en Dordogne et en Gironde.",
+            'description' => "Panneaux photovoltaïques en toiture ou au sol : quand une déclaration préalable est obligatoire, quelles pièces fournir, quel délai. Dossier déposé pour vous en Dordogne et dans les départements voisins.",
             'h1' => 'Panneaux solaires : <span class="hl">la déclaration préalable</span>',
             'lead' => "Des panneaux en toiture changent l'aspect de la maison : une déclaration préalable est demandée. Je prépare le dossier pour vous ou pour votre installateur.",
             'rules' => [
@@ -234,7 +234,7 @@ class ProjectGuides
             'name' => 'Clôture, portail', 'icon' => 'cloture', 'sim' => 'cloture', 'proc' => 'DP',
             'line' => "Déclaration seulement si la commune ou un monument l'impose.",
             'title' => 'Clôture et portail : faut-il une déclaration préalable ?',
-            'description' => "Clôture, mur de clôture ou portail : quand la déclaration préalable est obligatoire (PLU, délibération, monument historique), quelles pièces fournir. Dossier déposé pour vous en Dordogne et Gironde.",
+            'description' => "Clôture, mur de clôture ou portail : quand la déclaration préalable est obligatoire (PLU, délibération, monument historique), quelles pièces fournir. Dossier déposé pour vous en Dordogne et départements voisins.",
             'h1' => 'Clôture et portail : <span class="hl">ça dépend de la commune</span>',
             'lead' => "Une clôture ne demande pas toujours de démarche : tout dépend de votre commune et de la situation du terrain. Je vérifie, puis je prépare la déclaration si elle est exigée.",
             'rules' => [
@@ -262,7 +262,7 @@ class ProjectGuides
             'name' => 'Grange, changement de destination', 'icon' => 'home', 'sim' => 'extension', 'proc' => 'DP ou PC',
             'line' => "Grange ou séchoir en logement : possible sous conditions.",
             'title' => 'Transformer une grange en maison : changement de destination',
-            'description' => "Grange, séchoir, chai ou garage transformé en logement : déclaration préalable ou permis, règles en zone agricole ou naturelle, pièces du dossier. Dordogne et Gironde.",
+            'description' => "Grange, séchoir, chai ou garage transformé en logement : déclaration préalable ou permis, règles en zone agricole ou naturelle, pièces du dossier. Dordogne et départements voisins.",
             'h1' => 'Grange, séchoir, chai : <span class="hl">le changement de destination</span>',
             'lead' => "Transformer un bâtiment agricole ou un garage en logement change sa destination. Je vérifie que c'est possible sur votre terrain, puis je monte le dossier adapté.",
             'rules' => [

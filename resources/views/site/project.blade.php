@@ -21,7 +21,7 @@
             'description' => $guide['description'],
             'serviceType' => count($procs) === 1 ? $labels[$procs[0]] : 'Déclaration préalable ou permis de construire',
             'provider' => ['@id' => url('/').'#entreprise'],
-            'areaServed' => [['@type' => 'AdministrativeArea', 'name' => 'Dordogne'], ['@type' => 'AdministrativeArea', 'name' => 'Gironde']],
+            'areaServed' => collect(\App\Support\SiteContent::DEPARTMENTS)->map(fn ($d) => ['@type' => 'AdministrativeArea', 'name' => $d['name']])->values()->all(),
             'url' => url()->current(),
         ]),
         ['@type' => 'FAQPage', 'mainEntity' => collect($guide['faq'])->map(fn ($f) => ['@type' => 'Question', 'name' => $f[0], 'acceptedAnswer' => ['@type' => 'Answer', 'text' => $f[1]]])->all()],
@@ -31,7 +31,7 @@
 @section('content')
 @include('site.partials.page-hero', [
     'crumbs' => ['Vos projets' => route('site.projects'), $guide['name']],
-    'kicker' => $guide['name'].' · Dordogne et Gironde',
+    'kicker' => $guide['name'].' · Dordogne et départements voisins',
     'h1' => $guide['h1'],
     'lead' => $guide['lead'],
     'cta' => ($tel ? '<a class="btn cta" href="tel:'.e($tel).'">Appeler le '.e($c->phone).'</a>' : '').'<a class="btn ghost" href="'.route('site.contact', ['demarche' => $demarche]).'">Devis gratuit</a>',
@@ -79,7 +79,7 @@
     <div class="wrap">
         <div class="sec-head row"><div><span class="eyebrow">Autres projets</span><h2>Vous avez un autre projet ?</h2></div><a class="link-arrow" href="{{ route('site.projects') }}">Tous les projets @include('site.partials.icon', ['name' => 'arrow'])</a></div>
         @include('site.partials.project-cards', ['guides' => ProjectGuides::others($guide['slug'], 3)])
-        <h3 style="font-size:1.1rem;margin-top:36px">{{ $guide['name'] }} en Dordogne et en Gironde</h3>
+        <h3 style="font-size:1.1rem;margin-top:36px">{{ $guide['name'] }} en Dordogne et dans les départements voisins</h3>
         <ul class="near">@foreach ($towns as $t)<li><a href="{{ Geo::url($t) }}">{{ $t['name'] }}</a></li>@endforeach<li><a href="{{ route('site.areas') }}">Toutes les communes</a></li></ul>
     </div>
 </section>

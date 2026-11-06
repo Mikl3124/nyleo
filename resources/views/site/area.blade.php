@@ -8,22 +8,23 @@
     $stats = \App\Support\TownFacts::department($slug);
     $byEpci = $pages->groupBy(fn ($t) => $t['epci'] ?: 'Autres communes')->sortByDesc(fn ($g) => $g->sum('pop'));
     $label = ['PLUi' => 'PLU intercommunal', 'PLU' => 'PLU communal', 'CC' => 'carte communale', 'RNU' => 'règlement national (RNU)'];
-    $in = 'en '.$dep['name'];
+    $in = Geo::inDep($slug);
+    $of = Geo::ofDep($slug);
     $depFaq = array_values(array_filter([
         $stats ? ["Quelles communes ont un PLU {$in} ?", collect(['PLUi', 'PLU', 'CC', 'RNU'])->filter(fn ($k) => ! empty($stats['types'][$k]))->map(fn ($k) => $stats['types'][$k].' '.($stats['types'][$k] > 1 ? 'communes' : 'commune').' '.($k === 'RNU' ? 'relèvent du' : 'ont un').' '.$label[$k])->implode(', ').". Le type de document change les seuils : sans PLU, une extension de plus de 20 m² demande un permis de construire." ] : null,
         ["Combien de temps pour obtenir une déclaration préalable {$in} ?", "Un mois après le dépôt d'un dossier complet, deux mois si le terrain est dans les abords d'un monument historique ou dans un site patrimonial remarquable. Le permis de construire d'une maison demande deux mois, trois avec l'avis de l'Architecte des Bâtiments de France."],
-        ["Intervenez-vous dans toute la {$dep['name']} ?", "Oui. Mon bureau est à {$base['name']} (24) et je travaille à distance pour les {$all->count()} communes du département : un appel, vos photos et le cadastre suffisent dans la plupart des cas."],
+        ["Intervenez-vous dans {$dep['all']} ?", "Oui. Mon bureau est à {$base['name']} (24) et je travaille à distance pour les {$all->count()} communes du département : un appel, vos photos et le cadastre suffisent dans la plupart des cas."],
     ]));
 @endphp
 @push('head')
 <script type="application/ld+json">{!! json_encode(['@@context' => 'https://schema.org', '@type' => 'FAQPage', 'mainEntity' => collect($depFaq)->map(fn ($f) => ['@type' => 'Question', 'name' => $f[0], 'acceptedAnswer' => ['@type' => 'Answer', 'text' => $f[1]]])->all()], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>
 @endpush
-@section('title', 'Permis de construire et déclaration préalable en '.$dep['name'].' ('.$dep['code'].')')
-@section('description', "Plans et dépôt de vos dossiers de déclaration préalable et de permis de construire dans les {$all->count()} communes de {$dep['name']}, par un dessinateur basé à {$base['name']}.")
+@section('title', 'Permis de construire et déclaration préalable '.$in.' ('.$dep['code'].')')
+@section('description', "Plans et dépôt de vos dossiers de déclaration préalable et de permis de construire dans les {$all->count()} communes {$of}, par un dessinateur basé à {$base['name']}.")
 @section('content')
 @include('site.partials.page-hero', [
     'crumbs' => ['Secteurs' => route('site.areas'), $dep['name']], 'kicker' => 'Département '.$dep['code'],
-    'h1' => 'Plans et permis <span class="hl">en '.e($dep['name']).'</span>',
+    'h1' => 'Plans et permis <span class="hl">'.e($in).'</span>',
     'lead' => $content['intro'],
     'cta' => '<a class="btn cta" href="'.route('site.contact').'">Demander un devis</a>',
 ])
@@ -39,7 +40,7 @@
             <h2 style="margin-top:36px">Trouvez votre commune</h2>
             <p class="muted">Les communes en bleu foncé ont leur page. Pour toutes les autres, j'interviens aussi.</p>
             @include('site.partials.town-finder', ['slug' => $slug])
-            <h3 style="margin-top:32px">Bon à savoir en {{ $dep['name'] }}</h3>
+            <h3 style="margin-top:32px">Bon à savoir {{ $in }}</h3>
             <ul class="ticks-list">@foreach ($content['tips'] as [$t, $d])<li>@include('site.partials.icon', ['name' => 'check'])<span><b>{{ $t }}</b><span>{{ $d }}</span></span></li>@endforeach</ul>
         </div>
         <div class="map-card">
@@ -81,7 +82,7 @@
 @endif
 <section>
     <div class="wrap">
-        <div class="sec-head"><span class="eyebrow">Communes</span><h2>Les principales communes de {{ $dep['name'] }}, par intercommunalité</h2></div>
+        <div class="sec-head"><span class="eyebrow">Communes</span><h2>Les principales communes {{ $of }}, par intercommunalité</h2></div>
         <div class="town-groups">
         @foreach ($byEpci as $epci => $group)
             <div class="epci-group">

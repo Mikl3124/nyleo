@@ -19,7 +19,7 @@
 <div class="band"><div class="wrap"><span class="label">Plans &amp; permis · Dordogne · Gironde</span>@if ($tel)<span>Une question ? <a href="tel:{{ $tel }}">{{ $phone }}</a></span>@endif</div></div>
 <header class="top">
     <div class="wrap">
-        <a class="logo" href="{{ url('/') }}">@include('site.partials.logo')<span><b>Nyleo</b><small>Plans &amp; permis · 24 · 33</small></span></a>
+        <a class="logo" href="{{ url('/') }}">@include('site.partials.logo')<span><b>Nyleo</b><small>Plans &amp; permis · Sud-Ouest</small></span></a>
     </div>
 </header>
 <main>

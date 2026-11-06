@@ -1,5 +1,5 @@
 """
-Génère resources/data/geo.json (communes de Dordogne et de Gironde, cartes SVG).
+Génère resources/data/geo.json (communes de Dordogne et des départements voisins, cartes SVG).
 
 Sources (Licence Ouverte Etalab) :
   - contours : https://github.com/gregoiredavid/france-geojson (IGN / Etalab)
@@ -11,8 +11,18 @@ import json, math, re, sys, unicodedata
 SRC, OUT = sys.argv[1], sys.argv[2]
 LAT0, LON0 = 45.0, 0.0
 KX, KY = 111.32 * math.cos(math.radians(LAT0)), 110.57
-DEPS = {'24': ('dordogne', 'Dordogne', 'departements/24-dordogne'), '33': ('gironde', 'Gironde', 'departements/33-gironde')}
-PAGE_MIN_POP = {'24': 1000, '33': 1000}  # build_seo.py affine ensuite la liste (communes patrimoniales)
+# La Dordogne et tous ses départements limitrophes (ordre d'affichage du site).
+DEPS = {
+    '24': ('dordogne', 'Dordogne', 'departements/24-dordogne'),
+    '33': ('gironde', 'Gironde', 'departements/33-gironde'),
+    '16': ('charente', 'Charente', 'departements/16-charente'),
+    '17': ('charente-maritime', 'Charente-Maritime', 'departements/17-charente-maritime'),
+    '87': ('haute-vienne', 'Haute-Vienne', 'departements/87-haute-vienne'),
+    '19': ('correze', 'Corrèze', 'departements/19-correze'),
+    '46': ('lot', 'Lot', 'departements/46-lot'),
+    '47': ('lot-et-garonne', 'Lot-et-Garonne', 'departements/47-lot-et-garonne'),
+}
+PAGE_MIN_POP = {code: 1000 for code in DEPS}  # build_seo.py affine ensuite la liste (communes patrimoniales)
 BASE = '24543'  # Sourzac
 
 
@@ -146,9 +156,12 @@ for f in fr:
     code = f['properties']['code']
     if code in ('2A', '2B') or code.isdigit() and int(code) <= 95 or code in ('2A', '2B'):
         france[code] = path(f['geometry'], 2.5, min_area=40)
-both = [dep_outlines['24'], dep_outlines['33']]
-out['region'] = {'viewBox': vb(bbox(both), 6), 'neighbours': {k: v for k, v in france.items() if k in ('16', '17', '19', '46', '47', '40', '87', '24', '33')}}
-out['region']['neighbours'] = {k: path(next(f for f in fr if f['properties']['code'] == k)['geometry'], 0.6) for k in ('16', '17', '19', '46', '47', '40', '87')}
+# Carte du rayon d'action : les départements couverts, et autour ceux qui les bordent.
+AROUND = ('85', '79', '86', '36', '23', '63', '15', '12', '82', '32', '40', '81', '03', '18', '37', '49', '44', '64', '65', '31', '48', '43')
+out['region'] = {'viewBox': vb(bbox(list(dep_outlines.values())), 8),
+                 'neighbours': {k: path(next(f for f in fr if f['properties']['code'] == k)['geometry'], 1.4) for k in AROUND},
+                 # Contours allégés pour la carte d'ensemble (les pages départements gardent le tracé fin).
+                 'outlines': {DEPS[code][0]: path(json.load(open(f"{SRC}/departement-{code}-{DEPS[code][0]}.geojson"))['geometry'], 0.7) for code in DEPS}}
 out['france'] = {'viewBox': vb(bbox(list(france.values())), 10), 'paths': france}
 
 # Ville de base (Sourzac)

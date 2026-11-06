@@ -1,10 +1,10 @@
 @extends('layouts.site')
-@section('title', 'Déclaration préalable de travaux en Dordogne et Gironde')
-@section('description', "Dossier de déclaration préalable complet (DP1 à DP8, CERFA 13703) pour véranda, pergola, carport, piscine, clôture ou façade, déposé en votre nom en Dordogne et en Gironde.")
+@section('title', 'Déclaration préalable de travaux en Dordogne et départements voisins')
+@section('description', "Dossier de déclaration préalable complet (DP1 à DP8, CERFA 13703) pour véranda, pergola, carport, piscine, clôture ou façade, déposé en votre nom en Dordogne et dans les départements voisins.")
 @include('site.partials.service-ld', ['name' => 'Dossier de déclaration préalable', 'description' => "Plans et dossier complet de déclaration préalable (DP1 à DP8, CERFA 13703), déposé en mairie au nom du client et suivi jusqu'à la décision."])
 @section('content')
 @include('site.partials.page-hero', [
-    'crumbs' => 'Déclaration préalable', 'kicker' => 'CERFA n° 13703 · Dordogne et Gironde',
+    'crumbs' => 'Déclaration préalable', 'kicker' => 'CERFA n° 13703 · Dordogne et départements voisins',
     'h1' => 'Déclaration préalable : <em>votre dossier complet</em>, déposé pour vous.',
     'lead' => "Pour une véranda, une pergola, un carport, une piscine, une clôture ou un changement de façade, je prépare toutes les pièces et je dépose la déclaration en mairie en votre nom.",
     'cta' => '<a class="btn cta" href="'.route('site.contact').'?demarche=DP">Demander un devis</a>',

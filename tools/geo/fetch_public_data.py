@@ -1,5 +1,5 @@
 """
-Collecte des données publiques ouvertes par commune (Dordogne, Gironde) pour les pages villes.
+Collecte des données publiques ouvertes par commune (Dordogne et départements voisins) pour les pages villes.
 
 Sorties dans tools/geo/sources/ (JSON compact, une clé par code INSEE de resources/data/geo.json) :
   urbanisme.json            Géoportail de l'urbanisme (API GPU : documents en vigueur de la commune et de son EPCI, RNU)
@@ -19,7 +19,8 @@ import csv, hashlib, io, json, os, re, sys, time, unicodedata, urllib.error, url
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT = os.path.join(ROOT, 'tools', 'geo', 'sources')
 CACHE = os.path.expanduser('~/.cache/nyleo-public-data')
-DEPS = ('24', '33')
+# Départements de resources/data/geo.json : la Dordogne et ses voisins.
+DEPS = tuple(d['code'] for d in json.load(open(os.path.join(ROOT, 'resources', 'data', 'geo.json'), encoding='utf-8'))['departments'].values())
 YEARS = ('2021', '2022', '2023', '2024', '2025')
 UA = 'nyleo.fr collecte donnees publiques (contact: mickael.delpech@gmail.com)'
 MIN_INTERVAL = 0.2  # 5 requêtes/s au plus

@@ -1,11 +1,11 @@
 <div class="deps">
-    @foreach (['dordogne', 'gironde'] as $slug)
+    @foreach (\App\Support\Geo::departmentSlugs() as $slug)
         @php($d = \App\Support\Geo::department($slug))
         <article class="dep-card">
             <div>
                 <span class="code">Département {{ $d['code'] }}</span>
                 <h3>{{ $d['name'] }}</h3>
-                <ul>@foreach (\App\Support\Geo::pages($slug)->take(8) as $t)<li><a href="{{ \App\Support\Geo::url($t) }}">{{ $t['name'] }}</a></li>@endforeach</ul>
+                <ul>@foreach (\App\Support\Geo::pages($slug)->take(6) as $t)<li><a href="{{ \App\Support\Geo::url($t) }}">{{ $t['name'] }}</a></li>@endforeach</ul>
                 <a class="btn ghost sm" href="{{ route('site.area', $slug) }}">Les {{ \App\Support\Geo::communes($slug)->count() }} communes</a>
             </div>
             <a href="{{ route('site.area', $slug) }}" aria-label="Carte de {{ $d['name'] }}">
