@@ -69,10 +69,11 @@ class WorkflowTest extends TestCase
         // Le client se connecte avec son lien magique et signe
         $link = ClientNotification::portalUrl($quote->client, route('portal.quotes.show', $quote, false));
         $this->get($link)->assertRedirect(route('portal.quotes.show', $quote));
-        $this->get(route('portal.quotes.show', $quote))->assertOk()->assertSee('Je signe le devis')->assertSee('Pourquoi je vous demande ces informations');
+        $this->get(route('portal.quotes.show', $quote))->assertOk()->assertSee('Je signe le devis')->assertSee('Pourquoi je vous demande ces informations')
+            ->assertSee('sans attendre la fin de mon délai de rétractation')->assertSee('href="'.route('cgv').'"', false);
         $this->post(route('portal.quotes.sign', $quote), ['signer_name' => 'Jean Martin', 'accept' => '1'])
             ->assertSessionHasErrors(['birth_date', 'birth_place']);
-        $this->post(route('portal.quotes.sign', $quote), ['signer_name' => 'Jean Martin', 'birth_date' => '1958-07-18', 'birth_place' => 'Périgueux (24)', 'accept' => '1'])
+        $this->post(route('portal.quotes.sign', $quote), ['signer_name' => 'Jean Martin', 'birth_date' => '1958-07-18', 'birth_place' => 'Périgueux (24)', 'accept' => '1', 'early_start' => '1'])
             ->assertRedirect(route('portal.dossiers.show', $quote->dossier));
         $this->assertSame('Périgueux (24)', $quote->client->fresh()->birth_place);
         $this->assertSame('1958-07-18', $quote->client->fresh()->birth_date->format('Y-m-d'));
@@ -80,6 +81,8 @@ class WorkflowTest extends TestCase
         $quote->refresh();
         $this->assertSame(QuoteStatus::Signe, $quote->status);
         $this->assertNotNull($quote->signature_hash);
+        $this->assertTrue($quote->early_start_requested);
+        $this->assertTrue($quote->dossier->events()->where('type', 'demarrage_anticipe')->exists());
         Storage::disk('local')->assertExists($quote->signed_pdf_path);
         $this->assertSame(DossierStatus::PiecesAttendues, $quote->dossier->fresh()->status);
 

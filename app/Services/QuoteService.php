@@ -49,18 +49,19 @@ class QuoteService
     }
 
     /** Signature simple par le client depuis son espace (nom saisi + case « bon pour accord »). */
-    public static function sign(Quote $quote, string $signerName, ?string $ip, ?string $userAgent): Quote
+    public static function sign(Quote $quote, string $signerName, ?string $ip, ?string $userAgent, bool $earlyStart = false): Quote
     {
         if (! $quote->isSignable()) {
             throw new RuntimeException('Ce devis ne peut plus être signé.');
         }
 
-        DB::transaction(function () use ($quote, $signerName, $ip, $userAgent) {
+        DB::transaction(function () use ($quote, $signerName, $ip, $userAgent, $earlyStart) {
             $signedAt = now();
             $quote->forceFill([
                 'status' => QuoteStatus::Signe,
                 'signed_at' => $signedAt,
                 'signer_name' => $signerName,
+                'early_start_requested' => $earlyStart,
                 'signer_ip' => $ip,
                 'signer_user_agent' => $userAgent,
                 'signature_hash' => hash('sha256', implode('|', [
@@ -74,6 +75,9 @@ class QuoteService
             if ($dossier = $quote->dossier) {
                 $dossier->update(['status' => DossierStatus::PiecesAttendues]);
                 $dossier->log('devis_signe', "Devis {$quote->number} signé en ligne par {$signerName}", true);
+                $dossier->log('demarrage_anticipe', $earlyStart
+                    ? 'Le client demande de commencer sans attendre la fin du délai de rétractation de 14 jours'
+                    : 'Le client n\'a pas demandé de commencer avant la fin du délai de rétractation de 14 jours');
             }
 
             if ((float) $quote->deposit_percent > 0) {
@@ -84,7 +88,8 @@ class QuoteService
 
         Admin::notify(new AdminAlert(
             "Devis {$quote->number} signé",
-            "{$signerName} vient de signer le devis {$quote->number} (".money($quote->total_ttc).').',
+            "{$signerName} vient de signer le devis {$quote->number} (".money($quote->total_ttc).'). '
+                .($earlyStart ? 'Il demande de commencer tout de suite.' : 'Il n\'a pas demandé de commencer avant la fin du délai de rétractation de 14 jours.'),
             $quote->dossier ? route('filament.admin.resources.dossiers.view', $quote->dossier) : null,
         ));
 

@@ -35,6 +35,7 @@
         Signé le : {{ $quote->signed_at->timezone('Europe/Paris')->format('d/m/Y à H:i') }}<br>
         Par : <strong>{{ $quote->signer_name }}</strong>
         <div class="small">Signature électronique{{ $quote->signer_ip ? " depuis l'adresse IP ".$quote->signer_ip : '' }}<br>Empreinte SHA-256 : {{ \Illuminate\Support\Str::limit($quote->signature_hash, 32, '…') }}</div>
+        @if ($quote->early_start_requested)<div class="small">Le client a demandé que la prestation commence avant la fin du délai de rétractation de 14 jours (article L221-25 du Code de la consommation).</div>@endif
     @else
         Signé le :
     @endif
