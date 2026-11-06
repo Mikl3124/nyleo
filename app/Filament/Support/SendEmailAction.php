@@ -10,6 +10,7 @@ use App\Models\Invoice;
 use App\Models\Quote;
 use App\Services\DocumentMailer;
 use App\Support\EmailTemplates;
+use App\Support\MailCopy;
 use Closure;
 use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
@@ -86,7 +87,8 @@ class SendEmailAction
                 Grid::make(3)->schema([
                     Toggle::make('attach_pdf')->label('Joindre le PDF'),
                     Toggle::make('include_link')->label('Bouton de signature / espace client'),
-                    Toggle::make('copy_to_me')->label('M\'envoyer une copie'),
+                    // Inutile quand la copie cachée automatique est activée dans les Paramètres.
+                    Toggle::make('copy_to_me')->label('M\'envoyer une copie')->visible(fn () => MailCopy::address() === null),
                 ]),
                 CheckboxList::make('documents')->label('Documents du dossier à joindre')
                     ->options($documents)->visible($documents !== [])->columns(1)->bulkToggleable(),

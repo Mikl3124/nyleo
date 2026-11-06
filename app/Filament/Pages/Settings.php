@@ -100,6 +100,12 @@ class Settings extends Page
                     TextInput::make('reminder_interval_days')->label('Jours entre deux relances')->numeric()->required(),
                     TextInput::make('reminder_max')->label('Nombre maximum de relances')->numeric()->required(),
                     TextInput::make('quote_reminder_days')->label('Relance devis non signé après (jours)')->numeric()->required(),
+                    Toggle::make('bcc_enabled')->label('Recevoir en copie cachée chaque e-mail envoyé aux clients')->live()->columnSpanFull()
+                        ->helperText('Devis, factures, relances, étapes du dossier. Jamais pour les liens de connexion ni les mots de passe.'),
+                    TextInput::make('bcc_email')->label('Adresse de la copie')->email()->columnSpanFull()
+                        ->placeholder(fn () => CompanySetting::current()->email ?: 'mickael@nyleo.fr')
+                        ->helperText('Laisse vide pour utiliser l\'adresse e-mail de l\'entreprise.')
+                        ->visible(fn (Get $get) => (bool) $get('bcc_enabled')),
                     Textarea::make('email_signature')->label('Signature des e-mails')->rows(3)->columnSpanFull()
                         ->placeholder("Mickaël Delpech\n07 85 65 91 65"),
                 ]),
