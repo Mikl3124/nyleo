@@ -15,7 +15,10 @@ class DossierController extends Controller
     public function index(Request $request)
     {
         $client = $request->user('client');
-        $dossiers = $client->dossiers()->latest()->get();
+        // Les dossiers qui attendent le client d'abord.
+        $dossiers = $client->dossiers()->latest()->get()
+            ->each(fn ($d) => $d->setAttribute('client_todo', $d->clientTodo()))
+            ->sortBy(fn ($d) => $d->client_todo ? 0 : 1)->values();
 
         if ($dossiers->count() === 1) {
             return redirect()->route('portal.dossiers.show', $dossiers->first());
@@ -30,7 +33,7 @@ class DossierController extends Controller
         $dossier->load(['quotes' => fn ($q) => $q->whereNotIn('status', ['brouillon'])->latest(),
             'invoices' => fn ($q) => $q->whereNotNull('number')->latest(),
             'documents' => fn ($q) => $q->where('visible_to_client', true)->latest(),
-            'events' => fn ($q) => $q->where('visible_to_client', true)->latest()->limit(15)]);
+            'events' => fn ($q) => $q->where('visible_to_client', true)->latest()->limit(30)]);
 
         return view('portal.dossier', [
             'client' => $request->user('client'),
@@ -46,7 +49,12 @@ class DossierController extends Controller
         $request->validate([
             'files' => ['required', 'array', 'max:20'],
             'files.*' => ['file', 'max:20480', 'mimes:jpg,jpeg,png,heic,heif,webp,pdf'],
-        ], [], ['files' => 'fichiers', 'files.*' => 'fichier']);
+        ], [
+            'files.required' => 'Choisissez au moins une photo ou un document.',
+            'files.max' => 'Vous pouvez envoyer 20 fichiers au maximum à la fois.',
+            'files.*.max' => 'Un fichier dépasse 20 Mo : envoyez-le seul ou par e-mail.',
+            'files.*.mimes' => 'Seules les photos et les PDF sont acceptés.',
+        ], ['files' => 'fichiers', 'files.*' => 'fichier']);
 
         foreach ($request->file('files') as $file) {
             $path = $file->store('dossiers/'.$dossier->id, 'local');
@@ -62,11 +70,19 @@ class DossierController extends Controller
             ]);
         }
         $n = count($request->file('files'));
-        $dossier->log('upload_client', "Le client a envoyé {$n} fichier(s)", true);
+        $dossier->log('upload_client', $n > 1 ? "{$n} photos ou documents reçus" : 'Une photo ou un document reçu', true);
         Admin::notify(new AdminAlert("Nouveaux fichiers — {$dossier->reference}", "{$dossier->client->display_name} a envoyé {$n} fichier(s).",
             route('filament.admin.resources.dossiers.view', $dossier), mail: false));
 
-        return back()->with('status', 'Merci, vos fichiers ont bien été envoyés.');
+        $message = $n > 1 ? "Merci, vos {$n} fichiers ont bien été envoyés." : 'Merci, votre fichier a bien été envoyé.';
+        // Envoi par la zone glisser-déposer (JavaScript) : la page se recharge ensuite et affiche le message.
+        if ($request->expectsJson()) {
+            session()->flash('status', $message);
+
+            return response()->json(['message' => $message]);
+        }
+
+        return back()->with('status', $message);
     }
 
     public function updateInfo(Request $request, Dossier $dossier)

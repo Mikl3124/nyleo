@@ -19,6 +19,8 @@ class InvoicesRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->emptyStateHeading('Aucune facture pour ce dossier')
+            ->emptyStateDescription(null)
             ->columns([
                 TextColumn::make('number')->label('N°')->placeholder('Brouillon'),
                 TextColumn::make('type')->label('Type')->formatStateUsing(fn (InvoiceType $state) => $state->label()),
