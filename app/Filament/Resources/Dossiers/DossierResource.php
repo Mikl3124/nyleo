@@ -5,10 +5,10 @@ namespace App\Filament\Resources\Dossiers;
 use App\Enums\DossierStatus;
 use App\Enums\Procedure;
 use App\Filament\Resources\Clients\ClientResource;
+use App\Filament\Widgets\TodoDossiers;
 use App\Models\Dossier;
 use BackedEnum;
 use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -53,14 +53,14 @@ class DossierResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        $n = Dossier::whereIn('status', [DossierStatus::Incomplet->value, DossierStatus::PlansValides->value])->count();
+        $n = TodoDossiers::todoQuery()->count();
 
         return $n ? (string) $n : null;
     }
 
     public static function getNavigationBadgeTooltip(): ?string
     {
-        return 'Dossiers à déposer ou à compléter';
+        return 'Dossiers qui attendent une action de votre part';
     }
 
     public static function form(Schema $schema): Schema
@@ -102,7 +102,10 @@ class DossierResource extends Resource
                 Section::make('Projet')->columnSpan(2)->columns(2)->schema([
                     TextEntry::make('client.full_name')->label('Client')
                         ->url(fn (Dossier $r) => ClientResource::getUrl('edit', ['record' => $r->client_id])),
-                    TextEntry::make('client.phone')->label('Téléphone')->placeholder('—'),
+                    TextEntry::make('client.phone')->label('Téléphone')->placeholder('—')
+                        ->color('primary')->url(fn (Dossier $r) => $r->client?->phone ? 'tel:'.preg_replace('/[^\d+]/', '', $r->client->phone) : null),
+                    TextEntry::make('client.email')->label('E-mail')->placeholder('—')->copyable()->color('primary')
+                        ->url(fn (Dossier $r) => $r->client?->email ? 'mailto:'.$r->client->email : null),
                     TextEntry::make('procedure')->label('Procédure')->formatStateUsing(fn (Procedure $state) => $state->label()),
                     TextEntry::make('nature')->label('Nature')->formatStateUsing(fn ($state) => self::NATURES[$state] ?? $state)->placeholder('—'),
                     TextEntry::make('site')->label('Terrain')->state(fn (Dossier $r) => $r->siteAddress() ?: '—'),
@@ -112,16 +115,19 @@ class DossierResource extends Resource
                     TextEntry::make('internal_notes')->label('Notes internes')->columnSpanFull()->placeholder('—'),
                 ]),
                 Section::make('Suivi')->columnSpan(1)->schema([
+                    TextEntry::make('next')->label('Prochaine étape')->weight('bold')
+                        ->state(fn (Dossier $r) => $r->nextAction() ?? $r->waitingFor() ?? 'Rien à faire')
+                        ->color(fn (Dossier $r) => $r->nextAction() ? 'warning' : 'gray'),
                     TextEntry::make('status')->label('Statut')->badge()
                         ->formatStateUsing(fn (DossierStatus $state) => $state->label())->color(fn (DossierStatus $state) => $state->color()),
-                    TextEntry::make('deposit_date')->label('Déposé le')->date('d/m/Y')->placeholder('Pas encore déposé'),
-                    TextEntry::make('deposit_number')->label('N° de dossier mairie')->placeholder('—'),
-                    TextEntry::make('decision_due_date')->label('Décision attendue au plus tard')->date('d/m/Y')->placeholder('—')
+                    TextEntry::make('deposit_date')->label('Déposé le')->date('d/m/Y')->visible(fn (Dossier $r) => (bool) $r->deposit_date),
+                    TextEntry::make('deposit_number')->label('N° de dossier mairie')->placeholder('—')->visible(fn (Dossier $r) => (bool) $r->deposit_date),
+                    TextEntry::make('decision_due_date')->visible(fn (Dossier $r) => (bool) $r->deposit_date)->label('Décision attendue au plus tard')->date('d/m/Y')->placeholder('—')
                         ->color(fn (Dossier $r) => $r->decision_due_date?->isPast() && $r->status === DossierStatus::EnInstruction ? 'danger' : null)
                         ->helperText(fn (Dossier $r) => $r->deposit_date ? "Délai de droit commun : {$r->instructionMonths()} mois. Sans réponse à cette date, l'autorisation est tacite (sauf exceptions)." : null),
                     TextEntry::make('incomplete_deadline')->label('Pièces à fournir avant le')->date('d/m/Y')
                         ->visible(fn (Dossier $r) => $r->status === DossierStatus::Incomplet)->color('warning'),
-                    IconEntry::make('abf')->label('Secteur ABF')->boolean(),
+                    IconEntry::make('abf')->label('Secteur ABF')->boolean()->visible(fn (Dossier $r) => $r->abf),
                 ]),
             ]),
         ]);
@@ -139,7 +145,10 @@ class DossierResource extends Resource
                 TextColumn::make('site_city')->label('Commune')->searchable()->description(fn (Dossier $r) => $r->department ? "({$r->department})" : null),
                 TextColumn::make('status')->label('Statut')->badge()
                     ->formatStateUsing(fn (DossierStatus $state) => $state->label())->color(fn (DossierStatus $state) => $state->color()),
-                TextColumn::make('decision_due_date')->label('Décision au plus tard')->date('d/m/Y')->sortable()->toggleable(),
+                TextColumn::make('next')->label('Prochaine étape')->wrap()
+                    ->state(fn (Dossier $r) => $r->nextAction() ?? $r->waitingFor())
+                    ->color(fn (Dossier $r) => $r->nextAction() ? 'warning' : 'gray'),
+                TextColumn::make('decision_due_date')->label('Décision au plus tard')->date('d/m/Y')->sortable()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')->label('Mis à jour')->since()->sortable(),
             ])
             ->filters([
@@ -158,7 +167,8 @@ class DossierResource extends Resource
                         };
                     }),
             ])
-            ->recordActions([ViewAction::make(), EditAction::make()]);
+            ->recordUrl(fn (Dossier $r) => self::getUrl('view', ['record' => $r]))
+            ->recordActions([EditAction::make()]);
     }
 
     public static function getRelations(): array

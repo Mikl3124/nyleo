@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Dossiers\Pages;
 
+use App\Enums\DocumentCategory;
 use App\Enums\DossierStatus;
 use App\Filament\Resources\Clients\ClientResource;
 use App\Filament\Resources\Dossiers\DossierResource;
@@ -39,7 +40,8 @@ class ViewDossier extends ViewRecord
         $dir = 'dossiers/'.$d->id;
 
         return [
-            Action::make('newQuote')->label('Nouveau devis')->icon(Heroicon::OutlinedDocumentPlus)->color('gray')
+            Action::make('newQuote')->label('Faire le devis')->icon(Heroicon::OutlinedDocumentPlus)
+                ->color(fn () => $d->status === DossierStatus::Nouveau ? 'primary' : 'gray')
                 ->visible(fn () => in_array($d->status, [DossierStatus::Nouveau, DossierStatus::DevisEnvoye], true))
                 ->url(fn () => QuoteResource::getUrl('create', ['client' => $d->client_id, 'dossier' => $d->id])),
 
@@ -48,6 +50,30 @@ class ViewDossier extends ViewRecord
                 ->action(function () use ($d) {
                     $d->update(['status' => DossierStatus::PlansEnCours]);
                     $d->log('plans_en_cours', 'Réalisation des plans en cours', true);
+                }),
+
+            // Mettre les plans en ligne et demander la validation du client en une seule étape.
+            Action::make('sendPlans')->label('Envoyer les plans')->icon(Heroicon::OutlinedPaperAirplane)->color('primary')
+                ->visible(fn () => in_array($d->status, [DossierStatus::DevisSigne, DossierStatus::PiecesAttendues, DossierStatus::PlansEnCours], true))
+                ->modalHeading('Envoyer les plans au client')
+                ->modalDescription('Le client reçoit un e-mail et valide les plans ou demande une modification en un clic. À la validation, la facture part automatiquement.')
+                ->modalSubmitActionLabel('Envoyer au client')
+                ->schema([
+                    FileUpload::make('file')->label('Plans (PDF)')->disk('local')->directory($dir)->preserveFilenames()
+                        ->acceptedFileTypes(['application/pdf'])->maxSize(51200)->required()->storeFileNamesIn('original_name'),
+                    TextInput::make('name')->label('Nom affiché')->default(fn () => 'Plans '.$d->procedure->value.' '.mb_strtolower(DossierResource::NATURES[$d->nature] ?? ''))->required(),
+                    Textarea::make('message')->label('Message au client (facultatif)')->rows(2),
+                ])
+                ->action(function (array $data) use ($d) {
+                    $plan = $d->documents()->create([
+                        'category' => DocumentCategory::Plan,
+                        'name' => trim($data['name']),
+                        'path' => $data['file'],
+                        'original_name' => $data['original_name'] ?? null,
+                        'uploaded_by' => 'admin',
+                    ]);
+                    DossierWorkflow::submitPlans($plan, $data['message'] ?? null);
+                    Notification::make()->title('Plans envoyés au client')->success()->send();
                 }),
 
             Action::make('deposit')->label('Déposé en mairie')->icon(Heroicon::OutlinedBuildingLibrary)->color('primary')
@@ -114,7 +140,7 @@ class ViewDossier extends ViewRecord
                 Action::make('client')->label('Fiche client')->icon(Heroicon::OutlinedUser)
                     ->url(fn () => ClientResource::getUrl('edit', ['record' => $d->client_id])),
             ])->label('Plus')->button()->color('gray'),
-            EditAction::make(),
+            EditAction::make()->color('gray'),
         ];
     }
 }

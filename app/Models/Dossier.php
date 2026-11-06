@@ -103,6 +103,38 @@ class Dossier extends Model
         return $this->deposit_date?->copy()->addMonthsNoOverflow($this->instructionMonths());
     }
 
+    /**
+     * Ce que Mickaël doit faire maintenant sur ce dossier (null = on attend le client ou la mairie, ou dossier clos).
+     * Source unique pour le tableau de bord, la liste et la fiche dossier.
+     */
+    public function nextAction(): ?string
+    {
+        return match ($this->status) {
+            DossierStatus::Nouveau => 'Rappeler le client et faire le devis',
+            DossierStatus::DevisSigne, DossierStatus::PiecesAttendues => 'Récupérer les pièces et démarrer les plans',
+            DossierStatus::PlansEnCours => 'Finir les plans et les envoyer au client',
+            DossierStatus::PlansValides => 'Déposer en mairie (vérifier le paiement)',
+            DossierStatus::Incomplet => 'Fournir les pièces à la mairie'.($this->incomplete_deadline ? ' avant le '.$this->incomplete_deadline->format('d/m/Y') : ''),
+            DossierStatus::EnInstruction => $this->decision_due_date && $this->decision_due_date->lte(now()->addDays(7))
+                ? 'Décision attendue le '.$this->decision_due_date->format('d/m/Y').' : appeler la mairie'
+                : null,
+            default => null,
+        };
+    }
+
+    /** Qui a la main : utile pour savoir pourquoi un dossier n'avance pas. */
+    public function waitingFor(): ?string
+    {
+        return match ($this->status) {
+            DossierStatus::DevisEnvoye => 'Le client doit signer le devis',
+            DossierStatus::PlansAValider => 'Le client doit valider les plans',
+            DossierStatus::Depose, DossierStatus::EnInstruction => $this->decision_due_date
+                ? 'La mairie doit répondre avant le '.$this->decision_due_date->format('d/m/Y')
+                : 'La mairie instruit le dossier',
+            default => null,
+        };
+    }
+
     public function signedQuote(): ?Quote
     {
         return $this->quotes()->where('status', 'signe')->latest('signed_at')->first();

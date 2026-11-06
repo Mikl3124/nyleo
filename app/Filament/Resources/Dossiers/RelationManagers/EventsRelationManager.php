@@ -16,6 +16,8 @@ class EventsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->emptyStateHeading('Aucun événement pour le moment')
+            ->emptyStateDescription(null)
             ->defaultSort('created_at', 'desc')
             ->paginated([10, 25, 50])
             ->columns([

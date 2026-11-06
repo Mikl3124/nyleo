@@ -45,6 +45,8 @@ class DocumentsRelationManager extends RelationManager
     {
         return $table
             ->defaultSort('created_at', 'desc')
+            ->emptyStateHeading('Aucun document pour le moment')
+            ->emptyStateDescription('Les photos envoyées par le client, les plans, le récépissé et l\'arrêté apparaîtront ici.')
             ->columns([
                 TextColumn::make('name')->label('Document')->formatStateUsing(fn (Document $r) => $r->displayName())
                     ->description(fn (Document $r) => $r->client_feedback ? '« '.$r->client_feedback.' »' : null),
