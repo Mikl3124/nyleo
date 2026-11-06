@@ -2,10 +2,22 @@
 
 use App\Http\Controllers\Admin\DownloadController;
 use App\Http\Controllers\Portal;
+use App\Http\Controllers\Site\SiteController;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'site.home')->name('home');
+// Site vitrine
+Route::controller(SiteController::class)->group(function () {
+    Route::get('/', 'home')->name('home');
+    Route::get('/declaration-prealable', 'dp')->name('site.dp');
+    Route::get('/permis-de-construire', 'pc')->name('site.pc');
+    Route::get('/tarifs', 'pricing')->name('site.pricing');
+    Route::get('/secteurs/{department}', 'area')->whereIn('department', ['dordogne', 'gironde'])->name('site.area');
+    Route::get('/questions-frequentes', 'faq')->name('site.faq');
+    Route::get('/contact', 'contact')->name('site.contact');
+    Route::get('/sitemap.xml', 'sitemap')->name('sitemap');
+});
 Route::view('/mentions-legales', 'site.legal')->name('legal');
+Route::view('/confidentialite', 'site.privacy')->name('privacy');
 Route::post('/demande', [Portal\RequestController::class, 'store'])->middleware('throttle:5,10')->name('site.request');
 
 // Téléchargements du back-office (protégés par la connexion admin)
