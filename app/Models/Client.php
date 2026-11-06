@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\QuoteStatus;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -33,7 +34,16 @@ class Client extends Authenticatable
             if ($client->wasChanged(['address', 'postal_code', 'city'])) {
                 $client->dossiers()->where('site_same_as_client', true)->get()->each->save();
             }
+            // Partenaire choisi après coup : ses dossiers sans partenaire lui sont rattachés.
+            if ($client->partner_id && $client->wasChanged('partner_id')) {
+                $client->dossiers()->whereNull('partner_id')->update(['partner_id' => $client->partner_id]);
+            }
         });
+    }
+
+    public function partner(): BelongsTo
+    {
+        return $this->belongsTo(Partner::class);
     }
 
     public function dossiers(): HasMany
