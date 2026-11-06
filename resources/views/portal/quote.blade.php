@@ -26,6 +26,7 @@
     <div class="card done">
         <h2>✓ Devis signé</h2>
         <p style="margin-bottom:0">Signé par {{ $quote->signer_name }} le {{ $quote->signed_at->format('d/m/Y à H:i') }}. Merci pour votre confiance !</p>
+        @if ($quote->early_start_requested)<p class="muted" style="margin:8px 0 0">Vous avez demandé que le travail commence avant la fin du délai de rétractation.</p>@endif
     </div>
 @elseif ($quote->isSignable())
     <style>
@@ -51,6 +52,8 @@
                 <p>Elles servent uniquement à préparer votre dossier pour la mairie et ne sont transmises à personne d'autre. Vous pouvez à tout moment me demander de les consulter, de les corriger ou de les supprimer (RGPD).</p>
             </details>
             <label class="check"><input type="checkbox" name="accept" value="1" required> <span>Bon pour accord : j'accepte ce devis de {{ money($quote->total_ttc) }} et les <a href="{{ $company->cgvUrl() }}" target="_blank">conditions générales de vente</a>.</span></label>
+            <label class="check"><input type="checkbox" name="early_start" value="1" @checked(old('early_start'))> <span>Je demande que le travail commence tout de suite, sans attendre la fin de mon délai de rétractation de 14 jours. Si je me rétracte ensuite, je paierai le travail déjà fait. Une fois les plans livrés, je ne pourrai plus me rétracter.</span></label>
+            <p class="muted" style="font-size:.85rem;margin-top:-4px">Case facultative. Si vous ne la cochez pas, le travail commence après les 14 jours.</p>
             <button class="btn cta block" type="submit">Je signe le devis</button>
             <p class="muted" style="font-size:.85rem">Votre signature est enregistrée avec la date, l'heure et l'adresse de connexion. Une copie signée reste disponible dans votre espace.</p>
         </form>

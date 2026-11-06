@@ -23,6 +23,7 @@ class Quote extends Model
             'sent_at' => 'datetime',
             'viewed_at' => 'datetime',
             'signed_at' => 'datetime',
+            'early_start_requested' => 'boolean',
             'refused_at' => 'datetime',
             'last_reminder_at' => 'datetime',
             'client_snapshot' => 'array',

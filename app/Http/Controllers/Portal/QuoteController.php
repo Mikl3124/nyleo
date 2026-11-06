@@ -41,6 +41,7 @@ class QuoteController extends Controller
             'birth_date' => ['required', 'date', 'before:today', 'after:1900-01-01'],
             'birth_place' => ['required', 'string', 'min:2', 'max:120'],
             'accept' => ['accepted'],
+            'early_start' => ['nullable', 'boolean'],
         ], [
             'accept.accepted' => 'Merci de cocher la case « Bon pour accord ».',
             'birth_date.required' => 'Merci d\'indiquer votre date de naissance.',
@@ -58,7 +59,7 @@ class QuoteController extends Controller
             'birth_place' => trim($data['birth_place']),
         ])->save();
 
-        QuoteService::sign($quote, $data['signer_name'], $request->ip(), (string) $request->userAgent());
+        QuoteService::sign($quote, $data['signer_name'], $request->ip(), (string) $request->userAgent(), $request->boolean('early_start'));
 
         return redirect()->route('portal.dossiers.show', $quote->dossier_id ?? 0)
             ->with('status', 'Merci, votre devis est signé ! Je vous recontacte très vite pour la suite.');
