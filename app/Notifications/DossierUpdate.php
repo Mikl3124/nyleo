@@ -2,12 +2,15 @@
 
 namespace App\Notifications;
 
+use App\Models\Document;
 use App\Models\Dossier;
+use App\Support\MailTracking;
 use Illuminate\Notifications\Messages\MailMessage;
 
 class DossierUpdate extends ClientNotification
 {
-    public function __construct(public Dossier $dossier, public string $subject, public array $lines, public string $button = 'Voir mon dossier') {}
+    /** $document : plans (ou autre PDF) proposés en téléchargement direct sous le bouton. */
+    public function __construct(public Dossier $dossier, public string $subject, public array $lines, public string $button = 'Voir mon dossier', public ?Document $document = null) {}
 
     public function toMail(object $notifiable): MailMessage
     {
@@ -17,6 +20,11 @@ class DossierUpdate extends ClientNotification
             $mail->line($line);
         }
         $mail->action($this->button, self::portalUrl($notifiable, route('portal.dossiers.show', $this->dossier, false)));
+
+        if ($this->document) {
+            $this->downloads($mail, [['label' => 'Télécharger « '.$this->document->displayName().' » (PDF)', 'url' => MailTracking::downloadUrl($this->document)]]);
+        }
+        $this->track($mail, $notifiable, ['dossier' => $this->dossier->id, 'document' => $this->document?->id]);
 
         $this->recap($mail, ['Projet' => $this->dossier->title, 'Référence' => $this->dossier->reference]);
 

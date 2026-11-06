@@ -24,6 +24,7 @@ class Quote extends Model
             'viewed_at' => 'datetime',
             'signed_at' => 'datetime',
             'early_start_requested' => 'boolean',
+            'terms_accepted_at' => 'datetime',
             'refused_at' => 'datetime',
             'last_reminder_at' => 'datetime',
             'client_snapshot' => 'array',
@@ -89,5 +90,15 @@ class Quote extends Model
     public function displayNumber(): string
     {
         return $this->number ?: 'Brouillon #'.$this->id;
+    }
+
+    public function emailMessages(): HasMany
+    {
+        return $this->hasMany(EmailMessage::class);
+    }
+
+    public function activities(): HasMany
+    {
+        return $this->hasMany(ClientActivity::class);
     }
 }

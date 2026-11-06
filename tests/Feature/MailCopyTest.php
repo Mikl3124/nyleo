@@ -45,7 +45,14 @@ class MailCopyTest extends TestCase
         Mail::to('jean@example.com')->send(new DocumentMail('Devis', "Bonjour,\n\nVoici le devis."));
 
         $this->assertCount(2, $this->sent);
-        $this->assertSame(['mickael@nyleo.fr'], $this->bcc(0));
+        // E-mail suivi (relance) : la copie part à part, sans pixel ni lien suivi, pour ne pas compter les ouvertures de Mickaël.
+        $this->assertSame([], $this->bcc(0));
+        $copies = collect(Mail::mailer()->getSymfonyTransport()->messages())
+            ->map(fn ($m) => $m->getOriginalMessage())
+            ->filter(fn ($m) => ($m->getTo()[0] ?? null)?->getAddress() === 'mickael@nyleo.fr');
+        $this->assertCount(1, $copies);
+        $this->assertStringNotContainsString('/m/', $copies->first()->getHtmlBody());
+        // E-mail non suivi : copie cachée classique.
         $this->assertSame(['mickael@nyleo.fr'], $this->bcc(1));
     }
 

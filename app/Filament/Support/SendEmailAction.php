@@ -37,7 +37,7 @@ class SendEmailAction
             ->modalHeading(($isDraft ? 'Envoyer le devis ' : 'Renvoyer le devis ').$quote->displayNumber())
             ->modalDescription($isDraft ? 'Le devis reçoit son numéro et ne sera plus modifiable.' : null)
             ->fillForm(fn () => self::defaults($quote->client->email, EmailTemplates::forQuote($quote), $quote->dossier, false)
-                + ['include_link' => $quote->status !== QuoteStatus::Signe])
+                + ['include_link' => true])
             ->action(function (array $data) use ($quote, $before, $after) {
                 $before && $before();
                 self::run(fn () => DocumentMailer::sendQuote($quote->refresh(), $data), 'Devis envoyé à '.$data['to']);
@@ -55,7 +55,7 @@ class SendEmailAction
             ->modalHeading(($isDraft ? 'Émettre et envoyer : ' : 'Envoyer : ').$invoice->title())
             ->modalDescription($isDraft ? 'La facture reçoit son numéro définitif et ne pourra plus être modifiée (seulement annulée par un avoir).' : null)
             ->fillForm(fn () => self::defaults($invoice->client->email, EmailTemplates::forInvoice($invoice), $invoice->dossier,
-                $invoice->type === InvoiceType::Facture) + ['include_link' => false])
+                $invoice->type === InvoiceType::Facture) + ['include_link' => true])
             ->action(function (array $data) use ($invoice, $before, $after) {
                 $before && $before();
                 self::run(fn () => DocumentMailer::sendInvoice($invoice->refresh(), $data), $invoice->type->label().' envoyée à '.$data['to']);
@@ -84,13 +84,14 @@ class SendEmailAction
                 TextInput::make('subject')->label('Objet')->required()->maxLength(250),
                 Textarea::make('body')->label('Message')->rows(14)->required()
                     ->helperText('Ta signature est ajoutée automatiquement à la fin. Une ligne commençant par « - » devient une puce.'),
-                Grid::make(3)->schema([
-                    Toggle::make('attach_pdf')->label('Joindre le PDF'),
-                    Toggle::make('include_link')->label('Bouton de signature / espace client'),
+                Grid::make(['default' => 1, 'md' => 2])->schema([
+                    Toggle::make('include_link')->label('Bouton « Consulter » (en ligne)'),
+                    Toggle::make('include_downloads')->label('Boutons « Télécharger le PDF »'),
+                    Toggle::make('attach_pdf')->label('Joindre aussi le PDF à l\'e-mail'),
                     // Inutile quand la copie cachée automatique est activée dans les Paramètres.
                     Toggle::make('copy_to_me')->label('M\'envoyer une copie')->visible(fn () => MailCopy::address() === null),
                 ]),
-                CheckboxList::make('documents')->label('Documents du dossier à joindre')
+                CheckboxList::make('documents')->label('Documents du dossier à joindre (avec un bouton « Télécharger »)')
                     ->options($documents)->visible($documents !== [])->columns(1)->bulkToggleable(),
                 FileUpload::make('attachments')->label('Autres pièces jointes')
                     ->multiple()->disk('local')->directory('email-attachments')->visibility('private')
@@ -111,6 +112,7 @@ class SendEmailAction
             'subject' => $template['subject'],
             'body' => $template['body'],
             'attach_pdf' => true,
+            'include_downloads' => true,
             'copy_to_me' => true,
             'documents' => $plan ? [$plan] : [],
             'attachments' => [],

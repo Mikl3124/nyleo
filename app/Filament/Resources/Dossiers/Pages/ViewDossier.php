@@ -8,6 +8,7 @@ use App\Filament\Resources\Clients\ClientResource;
 use App\Filament\Resources\Dossiers\DossierResource;
 use App\Filament\Resources\Dossiers\PieceRequestActions;
 use App\Filament\Resources\Quotes\QuoteResource;
+use App\Filament\Widgets\ClientTrackingWidget;
 use App\Models\Dossier;
 use App\Notifications\PortalLink;
 use App\Services\DossierWorkflow;
@@ -145,5 +146,10 @@ class ViewDossier extends ViewRecord
             ])->label('Plus')->button()->color('gray'),
             EditAction::make()->color('gray'),
         ];
+    }
+
+    protected function getFooterWidgets(): array
+    {
+        return [ClientTrackingWidget::class];
     }
 }

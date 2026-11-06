@@ -4,11 +4,14 @@ namespace App\Filament\Resources\Invoices;
 
 use App\Enums\InvoiceStatus;
 use App\Enums\InvoiceType;
+use App\Filament\Resources\Clients\ClientResource;
+use App\Filament\Resources\Quotes\QuoteResource;
 use App\Filament\Support\LineItems;
 use App\Models\Dossier;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\InvoiceService;
+use App\Support\TrackingSummary;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
@@ -71,6 +74,9 @@ class InvoiceResource extends Resource
                 Select::make('client_id')->label('Client')->relationship('client', 'last_name')
                     ->getOptionLabelFromRecordUsing(fn ($record) => $record->full_name)
                     ->searchable(['last_name', 'first_name', 'company_name', 'email'])->preload()->required()->live()
+                    ->editOptionForm(fn (Schema $schema) => ClientResource::form($schema))
+                    ->editOptionModalHeading('Modifier le client')
+                    ->helperText(fn (Get $get) => QuoteResource::clientSummary($get('client_id')))
                     ->afterStateUpdated(fn (Set $set) => $set('dossier_id', null)),
                 Select::make('dossier_id')->label('Dossier')
                     ->options(fn (Get $get) => Dossier::where('client_id', $get('client_id'))->get()
@@ -91,6 +97,7 @@ class InvoiceResource extends Resource
     {
         return $table
             ->defaultSort('created_at', 'desc')
+            ->modifyQueryUsing(fn (Builder $query) => TrackingSummary::withAggregates($query))
             ->columns([
                 TextColumn::make('number')->label('N°')->placeholder('Brouillon')->searchable()->sortable(),
                 TextColumn::make('type')->label('Type')->badge()->formatStateUsing(fn (InvoiceType $state) => $state->label())
@@ -104,6 +111,7 @@ class InvoiceResource extends Resource
                 TextColumn::make('due_date')->label('Échéance')->date('d/m/Y')->sortable()
                     ->color(fn (Invoice $r) => $r->due_date?->isPast() && in_array($r->status, [InvoiceStatus::Emise, InvoiceStatus::PartiellementPayee], true) ? 'danger' : null),
                 TextColumn::make('reminder_count')->label('Relances')->toggleable(isToggledHiddenByDefault: true),
+                TrackingSummary::column(),
             ])
             ->filters([
                 SelectFilter::make('status')->label('Statut')->options(InvoiceStatus::options()),

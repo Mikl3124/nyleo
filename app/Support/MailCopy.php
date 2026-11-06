@@ -32,20 +32,27 @@ class MailCopy
         return filter_var($email, FILTER_VALIDATE_EMAIL) ? $email : null;
     }
 
-    /** Ajoute la copie cachée au message ; renvoie true si elle a été ajoutée. */
-    public static function apply(Email $message, array $data = []): bool
+    /** Adresse de copie à utiliser pour ce message, ou null (désactivée, exclue, déjà destinataire). */
+    public static function addressFor(Email $message, array $data = []): ?string
     {
         $notification = $data['__laravel_notification'] ?? null;
         if ($notification && collect(self::EXCLUDED)->contains(fn ($c) => is_a($notification, $c, true))) {
-            return false;
+            return null;
         }
         if (! $address = self::address()) {
-            return false;
+            return null;
         }
 
         $already = collect([...$message->getTo(), ...$message->getCc(), ...$message->getBcc()])
             ->contains(fn (Address $a) => strcasecmp($a->getAddress(), $address) === 0);
-        if ($already) {
+
+        return $already ? null : $address;
+    }
+
+    /** Ajoute la copie cachée au message ; renvoie true si elle a été ajoutée. */
+    public static function apply(Email $message, array $data = []): bool
+    {
+        if (! $address = self::addressFor($message, $data)) {
             return false;
         }
 

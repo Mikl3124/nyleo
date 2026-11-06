@@ -7,6 +7,10 @@
 </x-mail::button>
 @endif
 
+@if ($downloads)
+<x-mail::downloads :items="$downloads" />
+
+@endif
 Cordialement,<br>
 {!! nl2br(e($signature)) !!}
 

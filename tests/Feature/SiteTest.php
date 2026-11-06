@@ -103,7 +103,7 @@ class SiteTest extends TestCase
         $this->assertGreaterThan(700, substr_count($sitemap, '<loc>'));
         $this->assertStringContainsString(route('site.pc.area', 'haute-vienne'), $sitemap);
         // La carte du rayon d'action montre les huit départements, et chacun mène à sa page.
-        $home = $this->get('/')->assertSee('Carte du rayon d', false)->getContent();
+        $home = $this->get('/')->assertSee('Carte du rayon d', false)->assertDontSee('communes avec leur page')->assertDontSee('Cercles :')->assertDontSee('class="ring"', false)->getContent();
         foreach (\App\Support\Geo::departmentSlugs() as $d) {
             $this->assertStringContainsString('href="'.route('site.pc.area', $d).'"', $home);
         }
@@ -223,13 +223,33 @@ class SiteTest extends TestCase
         $this->get('/contact?commune[]=a&demarche[]=DP')->assertOk();
     }
 
-    public function test_request_form_redirects_back_to_the_page_it_came_from(): void
+    public function test_request_form_leads_to_a_confirmation_screen_with_a_recap(): void
     {
         $this->from(route('site.contact'))->post(route('site.request'), [
-            'last_name' => 'Martin', 'email' => 'martin@example.org', 'phone' => '0600000000',
-            'procedure' => 'DP', 'nature' => 'pergola', 'site_city' => 'Bergerac',
-        ])->assertRedirect(route('site.contact').'#demande');
+            'last_name' => 'Martin', 'first_name' => 'Jeanne', 'email' => 'martin@example.org', 'phone' => '06 00 00 00 00',
+            'procedure' => 'DP', 'nature' => 'pergola', 'site_city' => 'Bergerac (24100)', 'description' => 'Pergola au fond du jardin',
+        ])->assertRedirect(route('site.request.thanks'));
 
         $this->assertDatabaseHas('dossiers', ['site_city' => 'Bergerac', 'procedure' => 'DP']);
+
+        $html = $this->get(route('site.request.thanks'))->assertOk()
+            ->assertSee('Merci Jeanne, votre demande est bien reçue')
+            ->assertSee('Pergola, carport, abri')->assertSee('Déclaration préalable')
+            ->assertSee('Bergerac (24100)')->assertSee('martin@example.org')->assertSee('Pergola au fond du jardin')
+            ->assertSee(route('site.project', 'abri-de-jardin-carport-pergola'))
+            ->assertSee('<meta name="robots" content="noindex">', false)
+            ->assertDontSee('id="demande"', false)
+            ->getContent();
+
+        $this->assertStringContainsString("48\u{00A0}h ouvrées", $html); // « 48 » et « h » ne se séparent jamais
+        $this->assertStringNotContainsString('€', $html);
+
+        // Rechargement : le récapitulatif reste affiché.
+        $this->get(route('site.request.thanks'))->assertOk()->assertSee('Bergerac (24100)');
+    }
+
+    public function test_confirmation_screen_without_a_request_goes_back_to_the_form(): void
+    {
+        $this->get(route('site.request.thanks'))->assertRedirect(route('site.contact'));
     }
 }

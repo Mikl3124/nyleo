@@ -29,6 +29,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 use UnitEnum;
 
 class DossierResource extends Resource
@@ -84,11 +85,7 @@ class DossierResource extends Resource
                 Textarea::make('description')->label('Description du projet')->rows(3)->columnSpanFull(),
             ]),
             Section::make('Terrain')->columns(3)->schema([
-                TextInput::make('site_address')->label('Adresse du terrain')->columnSpanFull(),
-                TextInput::make('site_postal_code')->label('Code postal'),
-                TextInput::make('site_city')->label('Commune')->columnSpan(2),
-                TextInput::make('cadastre_section')->label('Section cadastrale'),
-                TextInput::make('cadastre_number')->label('N° de parcelle'),
+                ...ClientResource::projectAddressFields(),
                 TextInput::make('land_area')->label('Surface du terrain')->numeric()->suffix('m²'),
                 Toggle::make('abf')->label('Secteur protégé (ABF)')->helperText('Ajoute 1 mois au délai d\'instruction.'),
                 Toggle::make('is_individual_house')->label('Maison individuelle ou annexe')->default(true),
@@ -217,25 +214,35 @@ class DossierResource extends Resource
         return $table
             ->defaultSort('updated_at', 'desc')
             ->columns([
+                // Liste compacte : toutes les colonnes doivent tenir sur un écran d'ordinateur.
+                // Les textes longs sont coupés à 2 lignes, le texte complet s'affiche au survol et sur la fiche.
                 TextColumn::make('reference')->label('Réf.')->searchable()->sortable(),
-                TextColumn::make('title')->label('Projet')->searchable()->limit(40)
-                    ->description(fn (Dossier $r) => $r->client?->display_name),
-                TextColumn::make('procedure')->label('Proc.')->badge()->formatStateUsing(fn (Procedure $state) => $state->value === 'PC_ARCHI' ? 'PC + archi' : $state->value),
-                TextColumn::make('site_city')->label('Commune')->searchable()->description(fn (Dossier $r) => $r->department ? "({$r->department})" : null),
+                TextColumn::make('title')->label('Projet')->searchable(['title', 'site_city'])->limit(26)
+                    ->tooltip(fn (Dossier $r) => mb_strlen((string) $r->title) > 26 ? $r->title : null)
+                    // Client et commune sous le titre : une colonne de moins, la commune reste cherchable.
+                    ->description(fn (Dossier $r) => Str::limit(collect([$r->client?->display_name, $r->site_city])->filter()->implode(' · '), 30)),
+                TextColumn::make('procedure')->label('Proc.')->badge()->formatStateUsing(fn (Procedure $state) => $state->value === 'PC_ARCHI' ? 'PC + archi' : $state->value)
+                    ->toggleable(),
+                TextColumn::make('site_city')->label('Commune')->searchable()->limit(18)
+                    ->formatStateUsing(fn (Dossier $r, $state) => $r->department ? "{$state} ({$r->department})" : $state)->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('status')->label('Statut')->badge()
                     ->formatStateUsing(fn (DossierStatus $state) => $state->label())->color(fn (DossierStatus $state) => $state->color()),
-                TextColumn::make('next')->label('Prochaine étape')->wrap()
+                TextColumn::make('next')->label('Prochaine étape')->wrap()->lineClamp(2)
                     ->state(fn (Dossier $r) => $r->nextAction() ?? $r->waitingFor())
-                    ->color(fn (Dossier $r) => $r->nextAction() ? 'warning' : 'gray'),
+                    ->tooltip(fn (Dossier $r) => $r->nextAction() ?? $r->waitingFor())
+                    ->color(fn (Dossier $r) => $r->nextAction() ? 'warning' : 'gray')
+                    ->extraAttributes(['class' => 'nyleo-col-next']),
                 TextColumn::make('follow_up_at')->label('Relance')->date('d/m')->sortable()->placeholder('—')
                     ->color(fn (Dossier $r) => $r->isFollowUpDue() ? 'danger' : null)
                     ->weight(fn (Dossier $r) => $r->isFollowUpDue() ? 'bold' : null),
                 TextColumn::make('priority')->label('Priorité')->badge()->sortable()->toggleable(isToggledHiddenByDefault: true)
                     ->formatStateUsing(fn (Priority $state) => $state->label())->color(fn (Priority $state) => $state->color()),
-                TextColumn::make('prescriber')->label('Prescripteur')->searchable()->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('prescriber')->label('Prescripteur')->searchable()->limit(20)->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('legacy_ref')->label('Ancien n°')->searchable()->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('decision_due_date')->label('Décision au plus tard')->date('d/m/Y')->sortable()->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')->label('Mis à jour')->since()->sortable(),
+                TextColumn::make('decision_due_date')->label('Décision')->date('d/m/y')->sortable()->placeholder('—')
+                    ->tooltip('Décision de la mairie au plus tard')->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('updated_at')->label('Modifié')->date('d/m')->sortable()
+                    ->tooltip(fn (Dossier $r) => $r->updated_at?->diffForHumans())->toggleable(),
             ])
             ->filters([
                 SelectFilter::make('status')->label('Statut')->options(DossierStatus::options())->multiple(),
@@ -263,7 +270,7 @@ class DossierResource extends Resource
                     }),
             ])
             ->recordUrl(fn (Dossier $r) => self::getUrl('view', ['record' => $r]))
-            ->recordActions([EditAction::make()]);
+            ->recordActions([EditAction::make()->iconButton()->tooltip('Modifier')]);
     }
 
     public static function getRelations(): array

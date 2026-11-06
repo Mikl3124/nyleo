@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Quote;
+use App\Support\MailTracking;
 use Illuminate\Notifications\Messages\MailMessage;
 
 class QuoteReminder extends ClientNotification
@@ -24,6 +25,9 @@ class QuoteReminder extends ClientNotification
             'Montant' => money($q->total_ttc),
             'Valable jusqu\'au' => $q->valid_until?->format('d/m/Y'),
         ]);
+
+        $this->downloads($mail, [['label' => 'Télécharger le devis (PDF)', 'url' => MailTracking::downloadUrl($q)]]);
+        $this->track($mail, $notifiable, ['quote' => $q->id, 'dossier' => $q->dossier_id]);
 
         return $this->preheader($mail, 'Votre devis vous attend : vous pouvez le signer en un clic.');
     }

@@ -20,3 +20,9 @@ Application Laravel 13 + Filament 5 de gestion de l'activité de dessinateur (DP
 
 - La ponctuation ne doit jamais se retrouver seule en début de ligne. `App\Support\Typography` met une espace insécable avant « : ; ! ? », dans les guillemets « », entre un nombre et son unité (€, m², km, %), dans les milliers et les numéros de téléphone.
 - Appliqué partout automatiquement : pages HTML (middleware `FrenchTypography`, site, espace client et admin), PDF (`PdfService`), e-mails (écouteur `MessageSending` dans `AppServiceProvider`). Les textes écrits en JavaScript passent par `nb()` (simulateur). Écrire les textes normalement, avec des espaces simples.
+
+## Suivi des e-mails clients
+
+- Les e-mails clients marqués par `App\Support\MailTracking::tag()` (devis, factures, plans, relances) reçoivent un pixel d'ouverture et des liens suivis (`/m/{token}/…`) au moment de l'envoi. Les Cci (dont la copie automatique de Mickaël) partent dans un exemplaire séparé, sans suivi, avec `?copie=1` sur les liens.
+- Actions du client dans `client_activities` via `App\Services\ClientTracking::record()` : jamais pour un admin connecté, la copie de Mickaël ou un robot. Affichage : `ClientTrackingWidget` (devis, facture, dossier, client) et colonne « Suivi client » (`TrackingSummary`).
+- « Télécharger le PDF » : lien signé `files.download`, sans connexion, valable 120 jours.

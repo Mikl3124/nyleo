@@ -6,6 +6,7 @@ use App\Models\Client;
 use App\Models\CompanySetting;
 use App\Models\Dossier;
 use App\Services\DocumentMailer;
+use App\Support\MailTracking;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -81,6 +82,20 @@ abstract class ClientNotification extends Notification implements ShouldQueue
         $mail->viewData['preheader'] = $text;
 
         return $mail;
+    }
+
+    /** Boutons « Télécharger le PDF » sous le bouton principal : [['label' => ..., 'url' => ...], ...]. */
+    protected function downloads(MailMessage $mail, array $items): MailMessage
+    {
+        $mail->viewData['downloads'] = array_values(array_filter($items));
+
+        return $mail;
+    }
+
+    /** Suivi de l'e-mail (ouverture, clics) rattaché au client et au document concerné. */
+    protected function track(MailMessage $mail, object $notifiable, array $context): MailMessage
+    {
+        return MailTracking::tag($mail, $context + ['client' => $notifiable->id ?? null]);
     }
 
     /** Encadré ocre (moyens de paiement…). */

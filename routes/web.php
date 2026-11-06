@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\Admin\DownloadController;
+use App\Http\Controllers\MailTrackingController;
 use App\Http\Controllers\Portal;
 use App\Http\Controllers\Site\SiteController;
+use App\Support\Geo;
 use Illuminate\Support\Facades\Route;
 
 // Site vitrine
@@ -16,12 +18,12 @@ Route::controller(SiteController::class)->group(function () {
     Route::get('/secteurs/recherche', 'find')->name('site.find');
     // Une page par démarche : déclaration préalable et permis de construire, par département et par commune.
     foreach (['dp' => '/declaration-prealable', 'pc' => '/permis-de-construire'] as $kind => $prefix) {
-        Route::get($prefix.'/{department}', 'area')->whereIn('department', \App\Support\Geo::departmentSlugs())->defaults('kind', $kind)->name("site.{$kind}.area");
-        Route::get($prefix.'/{department}/{town}', 'town')->whereIn('department', \App\Support\Geo::departmentSlugs())->where('town', '[a-z0-9-]+')->defaults('kind', $kind)->name("site.{$kind}.town");
+        Route::get($prefix.'/{department}', 'area')->whereIn('department', Geo::departmentSlugs())->defaults('kind', $kind)->name("site.{$kind}.area");
+        Route::get($prefix.'/{department}/{town}', 'town')->whereIn('department', Geo::departmentSlugs())->where('town', '[a-z0-9-]+')->defaults('kind', $kind)->name("site.{$kind}.town");
     }
     // Anciennes adresses des secteurs : redirection permanente vers la page du permis de construire.
-    Route::get('/secteurs/{department}', 'legacyArea')->whereIn('department', \App\Support\Geo::departmentSlugs());
-    Route::get('/secteurs/{department}/{town}', 'legacyTown')->whereIn('department', \App\Support\Geo::departmentSlugs())->where('town', '[a-z0-9-]+');
+    Route::get('/secteurs/{department}', 'legacyArea')->whereIn('department', Geo::departmentSlugs());
+    Route::get('/secteurs/{department}/{town}', 'legacyTown')->whereIn('department', Geo::departmentSlugs())->where('town', '[a-z0-9-]+');
     Route::get('/qui-suis-je', 'about')->name('site.about');
     Route::get('/questions-frequentes', 'faq')->name('site.faq');
     Route::get('/contact', 'contact')->name('site.contact');
@@ -34,6 +36,12 @@ Route::view('/mentions-legales', 'site.legal')->name('legal');
 Route::view('/confidentialite', 'site.privacy')->name('privacy');
 Route::view('/cgv', 'site.cgv')->name('cgv');
 Route::post('/demande', [Portal\RequestController::class, 'store'])->middleware('throttle:5,10')->name('site.request');
+Route::get('/demande/merci', [Portal\RequestController::class, 'thanks'])->name('site.request.thanks');
+
+// Suivi des e-mails clients (ouverture, clics) et « Télécharger le PDF » sans connexion (lien signé).
+Route::get('/m/{token}/o.gif', [MailTrackingController::class, 'open'])->where('token', '[A-Za-z0-9]{40}')->name('mail.open');
+Route::get('/m/{token}/l/{link}', [MailTrackingController::class, 'click'])->where(['token' => '[A-Za-z0-9]{40}', 'link' => '[0-9]+'])->name('mail.click');
+Route::get('/fichiers/{kind}/{id}', [Portal\FileController::class, 'download'])->whereIn('kind', ['devis', 'facture', 'document'])->whereNumber('id')->middleware('signed')->name('files.download');
 
 // Téléchargements du back-office (protégés par la connexion admin)
 Route::middleware('auth:web')->prefix('admin-fichiers')->name('admin.')->group(function () {
@@ -62,6 +70,7 @@ Route::prefix('espace')->name('portal.')->group(function () {
         Route::get('devis/{quote}', [Portal\QuoteController::class, 'show'])->name('quotes.show');
         Route::get('devis/{quote}/pdf', [Portal\QuoteController::class, 'pdf'])->name('quotes.pdf');
         Route::post('devis/{quote}/signer', [Portal\QuoteController::class, 'sign'])->name('quotes.sign');
+        Route::get('communes', Portal\CommuneController::class)->middleware('throttle:120,1')->name('communes');
         Route::get('factures/{invoice}/pdf', [Portal\InvoiceController::class, 'pdf'])->name('invoices.pdf');
     });
 });

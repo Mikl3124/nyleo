@@ -27,7 +27,7 @@ class Typography
         $text = preg_replace([
             '/(?<=\S)[ \t]+(?=[:;!?»])/u',                                  // mot : … / mot ? / mot »
             '/«[ \t]+/u',                                                     // « mot
-            '/(?<=\d)[ \t]+(?=(?:€|%|m²|m2|km|kWc|ha)(?![\p{L}\d]))/u',     // 400 € · 20 m²
+            '/(?<=\d)[ \t]+(?=(?:€|%|m²|m2|km|kWc|ha|h|min|jours?|mois|ans?)(?![\p{L}\d]))/u',     // 400 € · 20 m² · 48 h · 10 jours
         ], [$n, '«'.$n, $n], $text) ?? $text;
 
         // Milliers : 1 500 ou 12 000 000 (pas les blocs d'un IBAN ou d'une référence).
