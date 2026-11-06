@@ -12,17 +12,6 @@ class SiteContent
      */
     public const TOWN_NOTES = [];
 
-    /**
-     * Options du catalogue à 0 € qui sont vraiment gratuites (affichées « 0 € » sur la page Tarifs).
-     * Les autres lignes à 0 € restent affichées « Sur devis ».
-     */
-    public const FREE_OPTIONS = ['complement de dossier demande par la mairie'];
-
-    public static function isFreeOption(string $label): bool
-    {
-        return in_array(\Illuminate\Support\Str::lower(\Illuminate\Support\Str::ascii(trim($label))), self::FREE_OPTIONS, true);
-    }
-
     public const DEPARTMENTS = [
         'dordogne' => [
             'name' => 'Dordogne', 'code' => '24',
@@ -58,7 +47,7 @@ class SiteContent
 
     /** Couloirs « vous / moi » pour chaque étape. */
     public const LANES = [
-        ['Devis', ['Vous m\'appelez et décrivez votre projet', 'Cinq minutes au téléphone'], ['Je vérifie la démarche et vous envoie le devis', 'Prix fixe, par e-mail']],
+        ['Devis', ['Vous m\'appelez et décrivez votre projet', 'Cinq minutes au téléphone'], ['Je vérifie la démarche et vous envoie le devis', 'Clair et détaillé, par e-mail']],
         ['Signature', ['Vous signez en ligne', 'Un clic, sans code SMS'], ['Je vous demande photos et mesures', 'Liste simple, au cas par cas']],
         ['Plans', ['Vous relisez et validez', 'Deux versions comprises'], ['Je dessine toutes les pièces', 'Situation, masse, coupe, façades, insertion']],
         ['Dépôt', ['Vous réglez la facture', 'Virement ou chèque'], ['Je dépose le dossier en votre nom', 'En ligne ou en mairie, récépissé envoyé']],
@@ -66,7 +55,7 @@ class SiteContent
     ];
 
     public const STEPS = [
-        ['Un appel pour comprendre votre projet', "On en parle simplement au téléphone. Je vérifie quelle démarche s'applique et je vous envoie un devis clair, au prix fixe."],
+        ['Un appel pour comprendre votre projet', "On en parle simplement au téléphone. Je vérifie quelle démarche s'applique et je vous envoie un devis clair."],
         ['Vous signez le devis en ligne', "Un clic depuis votre espace, sans code par SMS. Vous m'envoyez ensuite quelques photos et les mesures utiles."],
         ['Je dessine les plans', "Plan de situation, plan de masse, coupes, façades, insertion paysagère. Deux versions sont comprises pour vos corrections."],
         ['Je dépose le dossier en votre nom', "Sur la plateforme en ligne de la mairie ou au guichet. Vous recevez le récépissé de dépôt dans votre espace."],
@@ -102,7 +91,7 @@ class SiteContent
         ['Faut-il un architecte ?', "Oui si la surface de plancher ou l'emprise au sol de la maison (existant compris, garage non compté) dépasse 150 m², ou si le permis est demandé par une société (SCI…). Sinon, je prépare tout le dossier. Dans ces cas, je travaille avec un architecte partenaire qui signe le projet."],
         ['Devez-vous vous déplacer chez moi ?', "Dans la plupart des cas, non : vos photos, quelques mesures et le cadastre suffisent. Si un relevé sur place est nécessaire, je vous le dis avant le devis."],
         ['Que se passe-t-il si la mairie demande des pièces en plus ?', "Je reprends les pièces demandées et je dépose les compléments dans le délai imparti. Si la demande vient d'une erreur de ma part, c'est sans frais."],
-        ['Le prix comprend-il la taxe d\'aménagement ?', "Non. La taxe d'aménagement et la redevance d'archéologie préventive sont des taxes dues à l'administration après l'accord. Je peux vous en donner une estimation."],
+        ['Quelles taxes prévoir après l\'accord ?', "La taxe d'aménagement et la redevance d'archéologie préventive sont des taxes dues à l'administration après l'accord. Je peux vous en donner une estimation."],
         ['L\'étude thermique RE2020 est-elle comprise ?', "Non. Pour une maison neuve, l'attestation RE2020 est exigée au dépôt du permis. Elle est réalisée à part par un bureau d'études thermiques."],
         ['Comment payer ?', "Par virement ou par chèque. Les coordonnées figurent sur la facture et dans votre espace client. Le dossier est déposé en mairie après règlement."],
         ['Une fois l\'accord obtenu, que dois-je faire ?', "Affichez le panneau sur le terrain, visible de la rue, pendant toute la durée des travaux. Les voisins disposent de deux mois de recours à partir du premier jour d'affichage. L'autorisation est valable trois ans et peut être prolongée deux fois d'un an."],

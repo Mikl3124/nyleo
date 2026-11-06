@@ -159,8 +159,8 @@
 <section class="stone">
     <div class="wrap">
         <div class="sec-head"><span class="eyebrow">Simulateur</span><h2>Quelle démarche pour votre projet {{ $a }} ?</h2></div>
-        @include('site.partials.simulator', ['prices' => $prices])
-        <p style="margin-top:18px">En savoir plus : <a href="{{ route('site.dp') }}">la déclaration préalable</a>, <a href="{{ route('site.pc') }}">le permis de construire</a>, <a href="{{ route('site.pricing') }}">mes tarifs</a>.</p>
+        @include('site.partials.simulator')
+        <p style="margin-top:18px">En savoir plus : <a href="{{ route('site.dp') }}">la déclaration préalable</a> et <a href="{{ route('site.pc') }}">le permis de construire</a>.</p>
         <h3 style="font-size:1.1rem;margin-top:24px">Votre projet {{ $a }} : quelle démarche ?</h3>
         <ul class="near">@foreach (\App\Support\ProjectGuides::all() as $g)<li><a href="{{ route('site.project', $g['slug']) }}">{{ $g['name'] }}</a></li>@endforeach</ul>
     </div>

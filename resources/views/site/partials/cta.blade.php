@@ -5,7 +5,7 @@
             <div>
                 <span class="eyebrow" style="color:var(--ochre)">Devis gratuit · réponse sous 48 h</span>
                 <h2>Parlons de votre projet</h2>
-                <p>Un appel suffit pour savoir quelle démarche s'applique et combien ça coûte. Sans engagement.</p>
+                <p>Un appel suffit pour savoir quelle démarche s'applique et ce qu'il faut préparer. Sans engagement.</p>
             </div>
             <div>
                 @if ($c->phone)<a class="big-phone" href="tel:{{ preg_replace('/\s+/', '', $c->phone) }}">{{ $c->phone }}</a>@endif

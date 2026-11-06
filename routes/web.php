@@ -10,7 +10,6 @@ Route::controller(SiteController::class)->group(function () {
     Route::get('/', 'home')->name('home');
     Route::get('/declaration-prealable', 'dp')->name('site.dp');
     Route::get('/permis-de-construire', 'pc')->name('site.pc');
-    Route::get('/tarifs', 'pricing')->name('site.pricing');
     Route::get('/projets', 'projects')->name('site.projects');
     Route::get('/projets/{project}', 'project')->where('project', '[a-z0-9-]+')->name('site.project');
     Route::get('/secteurs', 'areas')->name('site.areas');
@@ -23,6 +22,8 @@ Route::controller(SiteController::class)->group(function () {
     Route::get('/sitemap.xml', 'sitemap')->name('sitemap');
     Route::get('/communes.json', 'communes')->name('site.communes');
 });
+// Les tarifs ne sont plus publiés : l'ancienne page mène à la demande de devis.
+Route::permanentRedirect('/tarifs', '/contact');
 Route::view('/mentions-legales', 'site.legal')->name('legal');
 Route::view('/confidentialite', 'site.privacy')->name('privacy');
 Route::post('/demande', [Portal\RequestController::class, 'store'])->middleware('throttle:5,10')->name('site.request');

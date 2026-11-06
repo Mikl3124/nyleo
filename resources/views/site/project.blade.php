@@ -4,14 +4,9 @@
     use App\Support\ProjectGuides;
     $c = \App\Models\CompanySetting::current();
     $tel = $c->phone ? preg_replace('/\s+/', '', $c->phone) : null;
-    $fmt = fn ($p) => $p ? number_format($p, 0, ',', ' ').' €' : null;
     $procs = $guide['proc'] === 'DP ou PC' ? ['DP', 'PC'] : [$guide['proc']];
     $labels = ['DP' => 'Déclaration préalable', 'PC' => 'Permis de construire'];
     $demarche = count($procs) === 1 ? $procs[0] : 'AUTRE';
-    $offers = collect($procs)->filter(fn ($p) => ! empty($prices[$p]))->map(fn ($p) => [
-        '@type' => 'Offer', 'name' => $labels[$p].' : '.mb_strtolower($guide['name']), 'priceCurrency' => 'EUR',
-        'priceSpecification' => ['@type' => 'PriceSpecification', 'minPrice' => $prices[$p], 'priceCurrency' => 'EUR'],
-    ])->values()->all();
     $towns = Geo::pages()->sortByDesc('pop')->take(12)->sortBy('name');
 @endphp
 @section('title', $guide['title'])
@@ -28,7 +23,6 @@
             'provider' => ['@id' => url('/').'#entreprise'],
             'areaServed' => [['@type' => 'AdministrativeArea', 'name' => 'Dordogne'], ['@type' => 'AdministrativeArea', 'name' => 'Gironde']],
             'url' => url()->current(),
-            'offers' => $offers ?: null,
         ]),
         ['@type' => 'FAQPage', 'mainEntity' => collect($guide['faq'])->map(fn ($f) => ['@type' => 'Question', 'name' => $f[0], 'acceptedAnswer' => ['@type' => 'Answer', 'text' => $f[1]]])->all()],
     ],
@@ -54,9 +48,9 @@
         <p class="muted" style="margin-top:12px">Règles générales du Code de l'urbanisme. Le règlement de votre zone peut être plus strict : je le vérifie pour votre terrain avant le devis.</p>
         <div class="offer-boxes">
             @foreach ($procs as $p)
-                <div class="box{{ $loop->first ? ' ochre' : '' }}"><span class="muted">{{ $labels[$p] }}, dossier complet</span><div class="price"><small>à partir de</small><b>{{ $fmt($prices[$p] ?? null) ?? 'Sur devis' }}</b></div><a class="link-arrow" href="{{ route($p === 'DP' ? 'site.dp' : 'site.pc') }}" style="margin-top:8px">Le dossier en détail @include('site.partials.icon', ['name' => 'arrow'])</a></div>
+                <div class="box{{ $loop->first ? ' ochre' : '' }}"><span class="muted">{{ $p === 'DP' ? 'CERFA n° 13703' : 'CERFA n° 13406' }}</span><h3 style="margin:6px 0 10px">{{ $labels[$p] }}</h3><a class="link-arrow" href="{{ route($p === 'DP' ? 'site.dp' : 'site.pc') }}">Le dossier en détail @include('site.partials.icon', ['name' => 'arrow'])</a></div>
             @endforeach
-            <div class="box"><b>Un doute sur la démarche ?</b><p class="muted" style="margin:6px 0 14px">Cinq minutes au téléphone suffisent pour vous répondre, gratuitement.</p>@if ($tel)<a class="btn cta sm" href="tel:{{ $tel }}">@include('site.partials.icon', ['name' => 'phone']) {{ $c->phone }}</a>@else<a class="btn cta sm" href="{{ route('site.contact', ['demarche' => $demarche]) }}">Me décrire mon projet</a>@endif</div>
+            <div class="box"><b>Un doute sur la démarche ?</b><p class="muted" style="margin:6px 0 14px">Cinq minutes au téléphone suffisent pour vous répondre.</p>@if ($tel)<a class="btn cta sm" href="tel:{{ $tel }}">@include('site.partials.icon', ['name' => 'phone']) {{ $c->phone }}</a>@else<a class="btn cta sm" href="{{ route('site.contact', ['demarche' => $demarche]) }}">Me décrire mon projet</a>@endif</div>
         </div>
     </div>
 </section>
@@ -71,7 +65,7 @@
 <section>
     <div class="wrap">
         <div class="sec-head"><span class="eyebrow">Simulateur</span><h2>Vérifiez votre cas en 10 secondes</h2></div>
-        @include('site.partials.simulator', ['prices' => $prices, 'preset' => $guide['sim']])
+        @include('site.partials.simulator', ['preset' => $guide['sim']])
     </div>
 </section>
 <section class="stone">

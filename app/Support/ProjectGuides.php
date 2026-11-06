@@ -8,7 +8,7 @@ use Illuminate\Support\Collection;
  * Guides « quelle démarche pour mon projet » (véranda, piscine, abri…), pages /projets/{slug}.
  *
  * Elles répondent aux recherches des particuliers (« permis véranda 30 m² », « piscine déclaration
- * préalable »…) et renvoient vers les pages DP, PC, tarifs et villes. Règles du Code de l'urbanisme
+ * préalable »…) et renvoient vers les pages DP, PC et villes. Règles du Code de l'urbanisme
  * en vigueur en 2026, formulées avec prudence : le règlement de la zone peut être plus strict.
  * Ne jamais inventer de chiffres ni d'avis clients.
  */
@@ -172,7 +172,7 @@ class ProjectGuides
             'faq' => [
                 ['Travaillez-vous avec les constructeurs ?', "Je dessine les plans du permis pour les particuliers qui font construire avec un maçon ou en auto-construction. Si vous signez un contrat de construction avec un constructeur, c'est en général lui qui dépose le permis."],
                 ['Et si ma maison dépasse 150 m² ?', "Le recours à un architecte est obligatoire. Je travaille avec un architecte partenaire qui signe le projet : vous gardez un seul interlocuteur."],
-                ['Que coûte le permis en taxes ?', "La taxe d'aménagement et la redevance d'archéologie préventive sont dues après l'accord, selon la surface et la commune. Je peux vous en donner une estimation avec le devis."],
+                ['Quelles taxes prévoir pour le permis ?', "La taxe d'aménagement et la redevance d'archéologie préventive sont dues après l'accord, selon la surface et la commune. Je peux vous en donner une estimation avec le devis."],
             ],
         ],
         'facade-fenetres-toiture' => [
@@ -273,7 +273,7 @@ class ProjectGuides
             'sections' => [
                 ['En zone agricole ou naturelle', [
                     "En zone A ou N d'un PLU, seul un bâtiment repéré par le PLU comme pouvant changer de destination peut devenir un logement. La commission départementale (CDPENAF en zone agricole, CDNPS en zone naturelle) donne ensuite son avis sur le dossier.",
-                    "En Dordogne, beaucoup de granges et de séchoirs à tabac sont dans ce cas. Je vérifie le plan de zonage et la liste des bâtiments repérés avant le devis, pour ne pas vous faire payer un dossier voué au refus.",
+                    "En Dordogne, beaucoup de granges et de séchoirs à tabac sont dans ce cas. Je vérifie le plan de zonage et la liste des bâtiments repérés avant le devis, pour ne pas monter un dossier voué au refus.",
                 ]],
                 ['Ce que le dossier doit montrer', [
                     "L'état existant et le projet : façades avant et après, nouvelles ouvertures, plan de masse avec l'accès, les réseaux et l'assainissement. Hors du tout-à-l'égout, l'attestation du SPANC est demandée pour le permis.",

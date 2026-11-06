@@ -10,7 +10,6 @@
         'site.pc' => 'Permis de construire',
         'site.projects' => 'Projets',
         'site.areas' => 'Secteurs',
-        'site.pricing' => 'Tarifs',
         'site.about' => 'Qui suis-je',
         'site.faq' => 'Questions',
     ];
@@ -30,7 +29,7 @@
     <meta property="og:description" content="{{ $description }}">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta name="theme-color" content="#1d3f91">
-    <meta property="og:image" content="{{ asset('img/og-nyleo.png').'?v=2' }}">
+    <meta property="og:image" content="{{ asset('img/og-nyleo.png').'?v=3' }}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="{{ $company->displayName() }}, plans de permis de construire et de déclaration préalable en Dordogne et Gironde">
@@ -55,8 +54,7 @@
             'telephone' => $company->phone,
             'email' => $company->email,
             'logo' => asset('img/logo-nyleo.png'),
-            'image' => asset('img/og-nyleo.png').'?v=2',
-            'priceRange' => '€€',
+            'image' => asset('img/og-nyleo.png').'?v=3',
             'founder' => ['@id' => url('/qui-suis-je').'#mickael'],
             'address' => $company->city ? array_filter(['@type' => 'PostalAddress', 'streetAddress' => $company->address, 'postalCode' => $company->postal_code, 'addressLocality' => $company->city, 'addressCountry' => 'FR']) : ['@type' => 'PostalAddress', 'addressLocality' => $base['name'], 'postalCode' => $base['cp'][0] ?? null, 'addressRegion' => 'Dordogne', 'addressCountry' => 'FR'],
             'areaServed' => [['@type' => 'AdministrativeArea', 'name' => 'Dordogne'], ['@type' => 'AdministrativeArea', 'name' => 'Gironde']],
@@ -120,7 +118,6 @@
                 <ul>
                     <li><a href="{{ route('site.dp') }}">Déclaration préalable</a></li>
                     <li><a href="{{ route('site.pc') }}">Permis de construire</a></li>
-                    <li><a href="{{ route('site.pricing') }}">Tarifs</a></li>
                     <li><a href="{{ route('site.faq') }}">Questions fréquentes</a></li>
                     <li><a href="{{ route('site.about') }}">Qui suis-je</a></li>
                 </ul>
