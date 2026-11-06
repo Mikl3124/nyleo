@@ -70,7 +70,7 @@ class DossierResource extends Resource
                 Select::make('client_id')->label('Client')->relationship('client', 'last_name')
                     ->getOptionLabelFromRecordUsing(fn ($record) => $record->full_name)
                     ->searchable(['last_name', 'first_name', 'company_name', 'email'])->preload()->required()
-                    ->createOptionForm(fn (Schema $s) => ClientResource::form($s)),
+                    ->createOptionForm(fn (Schema $schema) => ClientResource::form($schema)),
                 TextInput::make('title')->label('Intitulé')->placeholder('Ex. Véranda 20 m² — Le Bouscat')->required(),
                 Select::make('procedure')->label('Procédure')->options(Procedure::options())->default('DP')->required(),
                 Select::make('nature')->label('Nature des travaux')->options(self::NATURES),

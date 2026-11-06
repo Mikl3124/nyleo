@@ -59,7 +59,7 @@ class QuoteResource extends Resource
                 Select::make('client_id')->label('Client')->relationship('client', 'last_name')
                     ->getOptionLabelFromRecordUsing(fn ($record) => $record->full_name)
                     ->searchable(['last_name', 'first_name', 'company_name', 'email'])->preload()->required()->live()
-                    ->createOptionForm(fn (Schema $s) => ClientResource::form($s))
+                    ->createOptionForm(fn (Schema $schema) => ClientResource::form($schema))
                     ->afterStateUpdated(fn (Set $set) => $set('dossier_id', null)),
                 Select::make('dossier_id')->label('Dossier')
                     ->options(fn (Get $get) => Dossier::where('client_id', $get('client_id'))->get()
