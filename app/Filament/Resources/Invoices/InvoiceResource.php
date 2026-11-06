@@ -32,6 +32,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\HtmlString;
 use UnitEnum;
 
 class InvoiceResource extends Resource
@@ -99,17 +100,31 @@ class InvoiceResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->modifyQueryUsing(fn (Builder $query) => TrackingSummary::withAggregates($query))
             ->columns([
-                TextColumn::make('number')->label('N°')->placeholder('Brouillon')->searchable()->sortable(),
+                // Liste compacte : toutes les colonnes tiennent sur un écran d'ordinateur, sans défiler.
+                // « Avoir » passe sous le numéro, le montant réglé sous le montant quand il reste un solde.
+                TextColumn::make('number')->label('N°')->placeholder('Brouillon')->searchable()->sortable()
+                    ->description(fn (Invoice $r) => $r->isCreditNote() ? 'Avoir' : null),
                 TextColumn::make('type')->label('Type')->badge()->formatStateUsing(fn (InvoiceType $state) => $state->label())
-                    ->color(fn (InvoiceType $state) => $state === InvoiceType::Avoir ? 'danger' : 'gray'),
-                TextColumn::make('client.last_name')->label('Client')->formatStateUsing(fn ($record) => $record->client?->display_name)->searchable(),
-                TextColumn::make('total_ttc')->label('Montant')->formatStateUsing(fn ($state, $record) => ($record->isCreditNote() ? '− ' : '').money($state))->sortable(),
-                TextColumn::make('amount_paid')->label('Réglé')->formatStateUsing(fn ($state) => money($state))->toggleable(),
+                    ->color(fn (InvoiceType $state) => $state === InvoiceType::Avoir ? 'danger' : 'gray')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('client.last_name')->label('Client')->formatStateUsing(fn ($record) => $record->client?->display_name)->searchable()
+                    ->limit(28),
+                TextColumn::make('total_ttc')->label('Montant')->formatStateUsing(fn ($state, $record) => ($record->isCreditNote() ? '− ' : '').money($state))->sortable()
+                    ->description(fn (Invoice $r) => $r->status === InvoiceStatus::PartiellementPayee ? 'Réglé '.money($r->amount_paid) : null),
+                TextColumn::make('amount_paid')->label('Réglé')->formatStateUsing(fn ($state) => money($state))->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('status')->label('Statut')->badge()
-                    ->formatStateUsing(fn (InvoiceStatus $state) => $state->label())->color(fn (InvoiceStatus $state) => $state->color()),
-                TextColumn::make('issue_date')->label('Émise le')->date('d/m/Y')->sortable(),
-                TextColumn::make('due_date')->label('Échéance')->date('d/m/Y')->sortable()
-                    ->color(fn (Invoice $r) => $r->due_date?->isPast() && in_array($r->status, [InvoiceStatus::Emise, InvoiceStatus::PartiellementPayee], true) ? 'danger' : null),
+                    ->formatStateUsing(fn (InvoiceStatus $state) => $state->shortLabel())->color(fn (InvoiceStatus $state) => $state->color())
+                    ->tooltip(fn (Invoice $r) => $r->status->label()),
+                TextColumn::make('issue_date')->label('Émise le')->date('d/m/y')->sortable()->placeholder('—')
+                    // L'échéance passe sous la date d'émission, en rouge et en gras quand elle est dépassée.
+                    ->description(fn (Invoice $r) => match (true) {
+                        ! $r->due_date => null,
+                        self::isOverdue($r) => new HtmlString('<span style="color:var(--danger-600);font-weight:700">Échue le '.$r->due_date->format('d/m').'</span>'),
+                        default => 'Échéance '.$r->due_date->format('d/m'),
+                    }),
+                TextColumn::make('due_date')->label('Échéance')->date('d/m/y')->sortable()->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->color(fn (Invoice $r) => self::isOverdue($r) ? 'danger' : null),
                 TextColumn::make('reminder_count')->label('Relances')->toggleable(isToggledHiddenByDefault: true),
                 TrackingSummary::column(),
             ])
@@ -123,10 +138,16 @@ class InvoiceResource extends Resource
                     ),
             ])
             ->recordActions([
-                self::paymentAction(),
-                EditAction::make()->label('Ouvrir'),
-                self::deleteAction(),
+                self::paymentAction()->iconButton()->tooltip('Encaisser un paiement'),
+                EditAction::make()->label('Ouvrir')->iconButton()->tooltip('Ouvrir'),
+                self::deleteAction()->iconButton()->tooltip('Supprimer'),
             ]);
+    }
+
+    /** Échéance dépassée et pas encore payée en totalité. */
+    public static function isOverdue(Invoice $r): bool
+    {
+        return (bool) $r->due_date?->isPast() && in_array($r->status, [InvoiceStatus::Emise, InvoiceStatus::PartiellementPayee], true);
     }
 
     public static function paymentAction(): Action
