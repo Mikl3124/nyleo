@@ -11,7 +11,9 @@
     // L'envoi de photos est facultatif : jamais une étape, jamais bloquant, possible tant que le dossier est ouvert.
     $canUpload = ! in_array($dossier->status->value, ['accorde', 'refuse', 'abandonne']);
     // Une seule action ocre par écran : la première chose à faire.
-    $cta = $pendingQuote ? 'quote' : ($plansToValidate->isNotEmpty() ? 'plans' : ($unpaid->isNotEmpty() ? 'pay' : ($needsInfo ? 'info' : null)));
+    // Demande de pièces de la mairie qui attend des documents du client.
+    $mairieRequests = $dossier->pieceRequests->filter(fn ($pr) => $pr->isOpen() && $pr->waiting_on?->value === 'client');
+    $cta = $pendingQuote ? 'quote' : ($plansToValidate->isNotEmpty() ? 'plans' : ($unpaid->isNotEmpty() ? 'pay' : ($mairieRequests->isNotEmpty() ? 'mairie' : ($needsInfo ? 'info' : null))));
     $keys = array_keys($steps);
     $currentIndex = (int) array_search($current, $keys);
     $closed = $current === 'decision';
@@ -47,6 +49,15 @@
 @endif
 
 {{-- Ce que j'attends du client : une carte par chose à faire, la première en ocre --}}
+@foreach ($mairieRequests as $pr)
+    <section class="card action">
+        <h2>À faire : envoyer les documents demandés par la mairie</h2>
+        <p>La mairie a demandé des compléments{{ $pr->requested_at ? ' le '.$pr->requested_at->format('d/m/Y') : '' }}. J'ai besoin de votre aide pour :</p>
+        @if ($pr->pieces)<p><strong>{!! nl2br(e($pr->pieces)) !!}</strong></p>@endif
+        @if ($pr->deadline)<p class="muted">Merci de me les envoyer avant le {{ $pr->deadline->copy()->subDays(15)->format('d/m/Y') }} : la mairie attend la réponse avant le {{ $pr->deadline->format('d/m/Y') }}.</p>@endif
+        <a class="btn {{ $cta === 'mairie' && $loop->first ? 'cta' : '' }} block" href="#envoyer">Envoyer mes documents</a>
+    </section>
+@endforeach
 @if ($pendingQuote)
     <div class="card action">
         <h2>À faire : signer votre devis</h2>
