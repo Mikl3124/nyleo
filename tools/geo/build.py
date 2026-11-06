@@ -12,7 +12,7 @@ SRC, OUT = sys.argv[1], sys.argv[2]
 LAT0, LON0 = 45.0, 0.0
 KX, KY = 111.32 * math.cos(math.radians(LAT0)), 110.57
 DEPS = {'24': ('dordogne', 'Dordogne', 'departements/24-dordogne'), '33': ('gironde', 'Gironde', 'departements/33-gironde')}
-PAGE_MIN_POP = {'24': 1500, '33': 2500}
+PAGE_MIN_POP = {'24': 1000, '33': 1000}  # build_seo.py affine ensuite la liste (communes patrimoniales)
 BASE = '24543'  # Sourzac
 
 

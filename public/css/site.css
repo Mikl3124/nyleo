@@ -494,3 +494,24 @@ html.js .steps-nav{display:flex}
 }
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.btn,.project{transition:none}}
 h3[tabindex="-1"]:focus{outline:none}
+
+/* Pages villes : mairie, monuments, délais */
+.mairie-card{margin-top:24px;padding:20px 22px;border:1px solid var(--line);border-radius:var(--r);background:var(--paper)}
+.mairie-card p{margin:8px 0 0}
+.mh-list{list-style:none;padding:0;margin:16px 0 0;display:grid;gap:0}
+.mh-list li{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:.94rem}
+.mh-list small{color:var(--ink-3);font-family:var(--mono);font-size:.72rem;white-space:nowrap;text-transform:uppercase;letter-spacing:.06em}
+.table-wrap{overflow-x:auto}
+.delays{width:100%;border-collapse:collapse;background:var(--paper);border:1px solid var(--line);border-radius:var(--r);font-size:.96rem}
+.delays th,.delays td{padding:14px 18px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.delays thead th{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.delays tbody th{font-weight:700}
+.delays td{font-family:var(--display);font-weight:700;white-space:nowrap}
+.sources{margin-top:28px;font-size:.85rem}
+.epci-group{margin-top:28px}
+.epci-group h3{font-size:1.05rem;margin-bottom:4px}
+.epci-group p{margin:0 0 10px;font-size:.9rem}
+.bars{list-style:none;margin:0;padding:22px;display:grid;gap:12px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg)}
+.bars li{display:grid;grid-template-columns:3.2em 1fr 3.4em;align-items:center;gap:12px;font-family:var(--mono);font-size:.85rem}
+.bars i{display:block;height:14px;border-radius:7px;background:var(--blue)}
+.bars b{text-align:right;font-family:var(--display)}
