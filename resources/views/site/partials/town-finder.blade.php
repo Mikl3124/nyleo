@@ -6,6 +6,7 @@
     {{-- Liste des communes chargée au premier clic : la page reste légère. --}}
     <datalist id="finder-list" data-src="{{ route('site.communes', isset($slug) ? ['dep' => $slug] : []) }}"></datalist>
     @isset($slug)<input type="hidden" name="dep" value="{{ $slug }}">@endisset
+    @isset($kind)<input type="hidden" name="type" value="{{ $kind }}">@endisset
     <button class="btn blue" type="submit">@include('site.partials.icon', ['name' => 'search']) Trouver</button>
 </form>
 <script>

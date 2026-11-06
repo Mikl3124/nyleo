@@ -80,7 +80,7 @@
         <div class="sec-head row"><div><span class="eyebrow">Autres projets</span><h2>Vous avez un autre projet ?</h2></div><a class="link-arrow" href="{{ route('site.projects') }}">Tous les projets @include('site.partials.icon', ['name' => 'arrow'])</a></div>
         @include('site.partials.project-cards', ['guides' => ProjectGuides::others($guide['slug'], 3)])
         <h3 style="font-size:1.1rem;margin-top:36px">{{ $guide['name'] }} en Dordogne et dans les départements voisins</h3>
-        <ul class="near">@foreach ($towns as $t)<li><a href="{{ Geo::url($t) }}">{{ $t['name'] }}</a></li>@endforeach<li><a href="{{ route('site.areas') }}">Toutes les communes</a></li></ul>
+        <ul class="near">@foreach ($towns as $t)<li><a href="{{ Geo::url($t, $guide['proc'] === 'PC' ? 'pc' : 'dp') }}">{{ $t['name'] }}</a></li>@endforeach<li><a href="{{ route('site.areas') }}">Toutes les communes</a></li></ul>
     </div>
 </section>
 @include('site.partials.cta')

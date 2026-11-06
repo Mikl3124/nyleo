@@ -14,8 +14,14 @@ Route::controller(SiteController::class)->group(function () {
     Route::get('/projets/{project}', 'project')->where('project', '[a-z0-9-]+')->name('site.project');
     Route::get('/secteurs', 'areas')->name('site.areas');
     Route::get('/secteurs/recherche', 'find')->name('site.find');
-    Route::get('/secteurs/{department}', 'area')->whereIn('department', \App\Support\Geo::departmentSlugs())->name('site.area');
-    Route::get('/secteurs/{department}/{town}', 'town')->whereIn('department', \App\Support\Geo::departmentSlugs())->where('town', '[a-z0-9-]+')->name('site.town');
+    // Une page par démarche : déclaration préalable et permis de construire, par département et par commune.
+    foreach (['dp' => '/declaration-prealable', 'pc' => '/permis-de-construire'] as $kind => $prefix) {
+        Route::get($prefix.'/{department}', 'area')->whereIn('department', \App\Support\Geo::departmentSlugs())->defaults('kind', $kind)->name("site.{$kind}.area");
+        Route::get($prefix.'/{department}/{town}', 'town')->whereIn('department', \App\Support\Geo::departmentSlugs())->where('town', '[a-z0-9-]+')->defaults('kind', $kind)->name("site.{$kind}.town");
+    }
+    // Anciennes adresses des secteurs : redirection permanente vers la page du permis de construire.
+    Route::get('/secteurs/{department}', 'legacyArea')->whereIn('department', \App\Support\Geo::departmentSlugs());
+    Route::get('/secteurs/{department}/{town}', 'legacyTown')->whereIn('department', \App\Support\Geo::departmentSlugs())->where('town', '[a-z0-9-]+');
     Route::get('/qui-suis-je', 'about')->name('site.about');
     Route::get('/questions-frequentes', 'faq')->name('site.faq');
     Route::get('/contact', 'contact')->name('site.contact');

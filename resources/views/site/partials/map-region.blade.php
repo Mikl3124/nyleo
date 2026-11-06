@@ -15,7 +15,7 @@
     <desc id="map-r-d">Le bureau est à {{ $base['name'] }}, en Dordogne. J'interviens {{ $g::inDep('dordogne') }} et dans les départements voisins : {{ $deps->pluck('name')->except(0)->implode(', ') }}. Cercles de 50, 100 et 150 km autour du bureau.</desc>
     @foreach ($region['neighbours'] as $p)<path class="neigh" d="{{ $p }}"/>@endforeach
     @foreach ($deps as $d)
-        <a href="{{ route('site.area', $d['slug']) }}" aria-label="{{ $d['name'] }}"><path class="dep{{ $d['slug'] === 'dordogne' ? ' home' : ' alt' }}" d="{{ $region['outlines'][$d['slug']] ?? $d['outline'] }}"/></a>
+        <a href="{{ $g::areaUrl($d['slug']) }}" aria-label="{{ $d['name'] }}"><path class="dep{{ $d['slug'] === 'dordogne' ? ' home' : ' alt' }}" d="{{ $region['outlines'][$d['slug']] ?? $d['outline'] }}"/></a>
     @endforeach
     @foreach ([50, 100, 150] as $r)
         <circle class="ring" cx="{{ $base['x'] }}" cy="{{ $base['y'] }}" r="{{ $r }}"/>

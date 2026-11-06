@@ -46,12 +46,26 @@ class SiteController extends Controller
         return view('site.areas');
     }
 
-    public function town(string $department, string $town)
+    /** Page d'une commune pour une démarche (dp ou pc). */
+    public function town(string $department, string $town, string $kind)
     {
         $commune = Geo::find($department, $town);
         abort_unless($commune && $commune['page'], 404);
 
-        return view('site.town', ['town' => $commune]);
+        return view('site.town-'.Geo::kind($kind), ['town' => $commune, 'kind' => Geo::kind($kind)]);
+    }
+
+    public function legacyTown(string $department, string $town)
+    {
+        $commune = Geo::find($department, $town);
+        abort_unless($commune && $commune['page'], 404);
+
+        return redirect(Geo::url($commune), 301);
+    }
+
+    public function legacyArea(string $department)
+    {
+        return redirect(Geo::areaUrl($department), 301);
     }
 
     /** Recherche de commune : sa page si elle existe, sinon le formulaire de devis prérempli. */
@@ -60,6 +74,7 @@ class SiteController extends Controller
         $raw = is_string($request->query('q')) ? mb_substr($request->query('q'), 0, 120) : '';
         $cp = preg_match('/\((\d{5})\)/', $raw, $m) ? $m[1] : null;
         $dep = in_array($request->query('dep'), Geo::departmentSlugs(), true) ? $request->query('dep') : null;
+        $kind = Geo::kind(is_string($request->query('type')) ? $request->query('type') : null);
         $q = self::searchKey(preg_replace('/\(.*$/s', '', $raw));
 
         $lookup = function (?string $dep) use ($q, $cp) {
@@ -83,7 +98,7 @@ class SiteController extends Controller
                 ->with('commune_status', 'J\'interviens '.Geo::a($exact->first()['name']).' : décrivez-moi votre projet ci-dessous.');
         }
         if ($commune && $commune['page']) {
-            return redirect(Geo::url($commune));
+            return redirect(Geo::url($commune, $kind));
         }
         if ($commune) {
             return redirect()->route('site.contact', ['commune' => $commune['name'].' ('.($commune['cp'][0] ?? '').')'])
@@ -110,11 +125,12 @@ class SiteController extends Controller
         return view('site.about');
     }
 
-    public function area(string $department)
+    /** Page d'un département pour une démarche (dp ou pc). */
+    public function area(string $department, string $kind)
     {
         abort_unless(isset(SiteContent::DEPARTMENTS[$department]), 404);
 
-        return view('site.area', ['slug' => $department, 'dep' => Geo::department($department), 'content' => SiteContent::DEPARTMENTS[$department]]);
+        return view('site.area-'.Geo::kind($kind), ['slug' => $department, 'kind' => Geo::kind($kind), 'dep' => Geo::department($department), 'content' => SiteContent::DEPARTMENTS[$department]]);
     }
 
     public function faq()
@@ -146,10 +162,10 @@ class SiteController extends Controller
         $urls = collect(['home', 'site.dp', 'site.pc', 'site.projects', 'site.areas', 'site.about', 'site.faq', 'site.contact', 'legal', 'privacy', 'cgv'])
             ->map(fn ($r) => route($r))
             ->merge(ProjectGuides::all()->map(fn ($g) => route('site.project', $g['slug'])))
-            ->merge(collect(array_keys(SiteContent::DEPARTMENTS))->map(fn ($d) => route('site.area', $d)))
-            ->merge(Geo::pages()->map(fn ($c) => Geo::url($c)));
+            ->merge(collect(['dp', 'pc'])->flatMap(fn ($k) => collect(Geo::departmentSlugs())->map(fn ($d) => Geo::areaUrl($d, $k))
+                ->merge(Geo::pages()->map(fn ($c) => Geo::url($c, $k)))));
 
-        return response()->view('site.sitemap', ['urls' => $urls, 'townUpdated' => \App\Support\TownFacts::updated(), 'townPrefix' => route('site.areas').'/'])->header('Content-Type', 'application/xml');
+        return response()->view('site.sitemap', ['urls' => $urls, 'townUpdated' => \App\Support\TownFacts::updated(), 'townPrefixes' => [route('site.dp').'/', route('site.pc').'/']])->header('Content-Type', 'application/xml');
     }
 
 }
