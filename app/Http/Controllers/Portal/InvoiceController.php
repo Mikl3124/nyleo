@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
+use App\Models\ClientActivity;
 use App\Models\Invoice;
+use App\Services\ClientTracking;
 use App\Services\PdfService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -13,6 +15,7 @@ class InvoiceController extends Controller
     public function pdf(Request $request, Invoice $invoice)
     {
         abort_unless($invoice->client_id === $request->user('client')->id && $invoice->number, 404);
+        ClientTracking::record(ClientActivity::DOWNLOADED, 'PDF « '.PdfService::invoiceFilename($invoice).' » téléchargé', ['invoice' => $invoice], $request);
         if ($invoice->pdf_path && Storage::disk('local')->exists($invoice->pdf_path)) {
             return Storage::disk('local')->response($invoice->pdf_path, PdfService::invoiceFilename($invoice));
         }

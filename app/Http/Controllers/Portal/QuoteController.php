@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Portal;
 
 use App\Enums\QuoteStatus;
 use App\Http\Controllers\Controller;
+use App\Models\ClientActivity;
 use App\Models\Quote;
+use App\Services\ClientTracking;
 use App\Services\PdfService;
 use App\Services\QuoteService;
 use Illuminate\Http\Request;
@@ -15,9 +17,11 @@ class QuoteController extends Controller
     public function show(Request $request, Quote $quote)
     {
         $this->authorizeQuote($request, $quote);
-        if (! $quote->viewed_at) {
-            $quote->forceFill(['viewed_at' => now()])->saveQuietly();
-            $quote->dossier?->log('devis_consulte', "Devis {$quote->number} consulté par le client");
+        if (! ClientTracking::isStaff($request)) {
+            if (! $quote->viewed_at) {
+                $quote->forceFill(['viewed_at' => now()])->saveQuietly();
+            }
+            ClientTracking::record(ClientActivity::VIEWED, ClientTracking::quoteLabel($quote).' consulté en ligne', ['quote' => $quote], $request);
         }
 
         return view('portal.quote', ['quote' => $quote->load('lines', 'dossier'), 'client' => $request->user('client')]);
@@ -26,6 +30,7 @@ class QuoteController extends Controller
     public function pdf(Request $request, Quote $quote)
     {
         $this->authorizeQuote($request, $quote);
+        ClientTracking::record(ClientActivity::DOWNLOADED, 'PDF « '.PdfService::quoteFilename($quote).' » téléchargé', ['quote' => $quote], $request);
         if ($quote->signed_pdf_path && Storage::disk('local')->exists($quote->signed_pdf_path)) {
             return Storage::disk('local')->response($quote->signed_pdf_path, PdfService::quoteFilename($quote));
         }

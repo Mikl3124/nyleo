@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Portal;
 use App\Enums\DocumentCategory;
 use App\Enums\DossierStatus;
 use App\Http\Controllers\Controller;
+use App\Models\ClientActivity;
 use App\Models\Dossier;
 use App\Notifications\AdminAlert;
+use App\Services\ClientTracking;
 use App\Support\Admin;
 use Illuminate\Http\Request;
 
@@ -30,6 +32,7 @@ class DossierController extends Controller
     public function show(Request $request, Dossier $dossier)
     {
         $this->authorizeDossier($request, $dossier);
+        ClientTracking::record(ClientActivity::VIEWED, "Dossier {$dossier->reference} consulté dans l'espace client", ['dossier' => $dossier], $request);
         $dossier->load(['quotes' => fn ($q) => $q->whereNotIn('status', ['brouillon'])->latest(),
             'invoices' => fn ($q) => $q->whereNotNull('number')->latest(),
             'documents' => fn ($q) => $q->where('visible_to_client', true)->latest(),

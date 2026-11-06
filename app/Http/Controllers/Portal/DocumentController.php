@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
+use App\Models\ClientActivity;
 use App\Models\Document;
+use App\Services\ClientTracking;
 use App\Services\DossierWorkflow;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -14,6 +16,7 @@ class DocumentController extends Controller
     {
         $this->authorizeDocument($request, $document);
         abort_unless(Storage::disk('local')->exists($document->path), 404);
+        ClientTracking::record(ClientActivity::DOWNLOADED, '« '.$document->displayName().' » téléchargé', ['document' => $document], $request);
 
         return Storage::disk('local')->response($document->path, $document->original_name ?: basename($document->path));
     }

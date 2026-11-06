@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Clients\Pages;
 
 use App\Filament\Resources\Clients\ClientResource;
+use App\Filament\Widgets\ClientTrackingWidget;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Contracts\Support\Htmlable;
@@ -28,5 +29,10 @@ class EditClient extends EditRecord
     protected function getHeaderActions(): array
     {
         return [ClientResource::portalLinkAction(), DeleteAction::make()];
+    }
+
+    protected function getFooterWidgets(): array
+    {
+        return [ClientTrackingWidget::class];
     }
 }

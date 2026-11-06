@@ -6,6 +6,7 @@ use App\Enums\InvoiceStatus;
 use App\Filament\Resources\Dossiers\DossierResource;
 use App\Filament\Resources\Invoices\InvoiceResource;
 use App\Filament\Support\SendEmailAction;
+use App\Filament\Widgets\ClientTrackingWidget;
 use App\Models\Invoice;
 use App\Services\InvoiceService;
 use Filament\Actions\Action;
@@ -86,5 +87,10 @@ class EditInvoice extends EditRecord
                 InvoiceResource::deleteAction()->record($inv)->after(fn () => $this->redirect(InvoiceResource::getUrl('index'))),
             ]),
         ];
+    }
+
+    protected function getFooterWidgets(): array
+    {
+        return [ClientTrackingWidget::class];
     }
 }

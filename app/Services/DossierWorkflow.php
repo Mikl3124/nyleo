@@ -30,7 +30,8 @@ class DossierWorkflow
                 $message,
                 'Merci de les consulter dans votre espace, puis de cliquer sur « Je valide les plans » ou « Je demande une modification ».',
             ],
-            'Voir mes plans',
+            'Consulter mes plans',
+            $plan,
         ));
     }
 
