@@ -198,7 +198,7 @@ class DossierWorkflow
     }
 
     /**
-     * Mise à jour du suivi (ce qui remplaçait une ligne du fichier Excel) : prochaine action,
+     * Mise à jour du suivi : prochaine action,
      * qui doit agir, date de relance, priorité, pièces manquantes, et une note datée au journal.
      */
     public static function updateFollowUp(Dossier $dossier, array $data): void

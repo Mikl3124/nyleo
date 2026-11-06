@@ -2,8 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Enums\DossierStatus;
-use App\Enums\ExternalPaymentStatus;
 use App\Enums\Priority;
 use App\Enums\WaitingOn;
 use App\Filament\Resources\Dossiers\Pages\ListDossiers;
@@ -12,7 +10,6 @@ use App\Models\Client;
 use App\Models\Dossier;
 use App\Models\User;
 use App\Services\DossierWorkflow;
-use App\Services\SuiviImporter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
@@ -85,53 +82,6 @@ class DossierFollowUpTest extends TestCase
         $kept = $this->dossier(['status' => 'accorde', 'follow_up_at' => now()->addWeek()]);
         $closed = $this->dossier(['status' => 'accorde']);
         Livewire::test(ListDossiers::class)->assertCanSeeTableRecords([$kept])->assertCanNotSeeTableRecords([$closed]);
-    }
-
-    public function test_import_of_old_spreadsheet(): void
-    {
-        Notification::fake();
-        $file = base_path('tests/fixtures/suivi-exemple.csv');
-
-        $dry = SuiviImporter::import($file, dryRun: true);
-        $this->assertSame(4, $dry['created']);
-        $this->assertSame(0, Dossier::count());
-
-        $r = SuiviImporter::import($file);
-        $this->assertSame([], $r['errors']);
-        $this->assertSame(4, $r['created']);
-        $this->assertSame(4, $r['clients'], 'Les deux BRUNET de communes différentes restent deux clients');
-
-        $a = Dossier::where('legacy_ref', 'URB-0001')->first();
-        $this->assertSame(DossierStatus::Accorde, $a->status);
-        $this->assertSame('AKENA — Rémi', $a->prescriber);
-        $this->assertEquals(250, $a->commission_amount);
-        $this->assertSame(ExternalPaymentStatus::Paye, $a->external_payment_status);
-        $this->assertSame('Pessac', $a->site_city);
-        $this->assertSame('33', $a->department);
-        $this->assertSame('2025-09-16', $a->received_at->toDateString());
-        $this->assertNull($a->follow_up_at);
-        $this->assertStringContainsString('Dépôt (historique) : 06/11 - 11/12', $a->internal_notes);
-
-        $b = Dossier::where('legacy_ref', 'URB-0002')->first();
-        $this->assertSame(DossierStatus::EnInstruction, $b->status);
-        $this->assertSame(WaitingOn::Moi, $b->waiting_on);
-        $this->assertSame(Priority::Urgente, $b->priority);
-        $this->assertTrue($b->commission_paid);
-        $this->assertSame('2026-10-11', $b->deposit_date->toDateString());
-        $this->assertNotNull($b->decision_due_date);
-
-        $c = Dossier::where('legacy_ref', 'URB-0003')->first();
-        $this->assertSame(DossierStatus::Refuse, $c->status);
-        $this->assertSame('2026-11-02', $c->follow_up_at->toDateString(), 'Un refus à examiner garde sa relance');
-        $this->assertNull($c->prescriber);
-
-        // Relancer l'import met à jour sans doublon.
-        $again = SuiviImporter::import($file);
-        $this->assertSame(0, $again['created']);
-        $this->assertSame(4, $again['updated']);
-        $this->assertSame(4, Dossier::count());
-        $this->assertSame(1, substr_count(Dossier::where('legacy_ref', 'URB-0001')->first()->internal_notes, 'Repris de l\'ancien suivi'));
-        Notification::assertNothingSent();
     }
 
     public function test_portal_shows_instruction_dates(): void

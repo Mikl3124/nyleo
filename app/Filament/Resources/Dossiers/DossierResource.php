@@ -53,7 +53,7 @@ class DossierResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['reference', 'legacy_ref', 'title', 'site_city', 'client.last_name', 'client.company_name'];
+        return ['reference', 'title', 'site_city', 'client.last_name', 'client.company_name'];
     }
 
     public static function getNavigationBadge(): ?string
@@ -93,7 +93,7 @@ class DossierResource extends Resource
                 Toggle::make('abf')->label('Secteur protégé (ABF)')->helperText('Ajoute 1 mois au délai d\'instruction.'),
                 Toggle::make('is_individual_house')->label('Maison individuelle ou annexe')->default(true),
             ]),
-            Section::make('Suivi')->description('Ce que contenait le fichier Excel : prochaine action, relance, attente, prescripteur.')
+            Section::make('Suivi')->description('Prochaine action, relance, attente, prescripteur.')
                 ->columns(3)->collapsible()->schema(self::followUpFields()),
             Section::make('Instruction et liens')->columns(3)->collapsible()->collapsed()->schema([
                 DatePicker::make('received_at')->label('Demande reçue le'),
@@ -106,7 +106,6 @@ class DossierResource extends Resource
                 DatePicker::make('incomplete_deadline')->label('Pièces à fournir avant le'),
                 DatePicker::make('incomplete_answered_at')->label('Pièces envoyées le'),
                 TextInput::make('portal_url')->label('Portail de dépôt (lien)')->url()->columnSpan(2),
-                TextInput::make('legacy_ref')->label('Ancien n° (Excel)')->placeholder('URB-0001'),
                 TextInput::make('drive_url')->label('Dossier Google Drive (lien)')->url()->columnSpanFull(),
             ]),
             Section::make('Prescripteur et règlement')->columns(3)->collapsible()->collapsed()->schema([
@@ -202,8 +201,7 @@ class DossierResource extends Resource
                         ->helperText(fn (Dossier $r) => $r->agreed_price ? 'Prix convenu : '.number_format((float) $r->agreed_price, 0, ',', ' ').' €' : null)
                         ->visible(fn (Dossier $r) => $r->external_payment_status !== null),
                     TextEntry::make('drive_url')->label('Liens')->state(fn (Dossier $r) => $r->drive_url ? 'Ouvrir le Drive' : null)
-                        ->url(fn (Dossier $r) => $r->drive_url, true)->color('primary')->placeholder('—')
-                        ->helperText(fn (Dossier $r) => $r->legacy_ref ? 'Ancien n° '.$r->legacy_ref : null),
+                        ->url(fn (Dossier $r) => $r->drive_url, true)->color('primary')->placeholder('—'),
                     TextEntry::make('portal_url')->hiddenLabel()->state(fn (Dossier $r) => $r->portal_url ? 'Ouvrir le portail de dépôt' : null)
                         ->url(fn (Dossier $r) => $r->portal_url, true)->color('primary')
                         ->visible(fn (Dossier $r) => filled($r->portal_url)),
@@ -233,7 +231,6 @@ class DossierResource extends Resource
                 TextColumn::make('priority')->label('Priorité')->badge()->sortable()->toggleable(isToggledHiddenByDefault: true)
                     ->formatStateUsing(fn (Priority $state) => $state->label())->color(fn (Priority $state) => $state->color()),
                 TextColumn::make('prescriber')->label('Prescripteur')->searchable()->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('legacy_ref')->label('Ancien n°')->searchable()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('decision_due_date')->label('Décision au plus tard')->date('d/m/Y')->sortable()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')->label('Mis à jour')->since()->sortable(),
             ])
