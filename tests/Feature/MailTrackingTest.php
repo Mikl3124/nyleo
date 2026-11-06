@@ -162,7 +162,6 @@ class MailTrackingTest extends TestCase
         $page = $plain($this->get("/admin/quotes/{$quote->id}/edit"));
         $this->assertStringContainsString('Suivi client', $page);
         $this->assertStringContainsString("PDF « Devis-{$quote->number}.pdf » téléchargé", $page);
-        file_put_contents('/tmp/claude-0/dossier.html', $this->get("/admin/dossiers/{$quote->dossier_id}")->getContent());
         $this->get("/admin/dossiers/{$quote->dossier_id}")->assertOk()->assertSee('Suivi client');
         $this->get("/admin/clients/{$quote->client_id}/edit")->assertOk()->assertSee('Suivi client');
         $this->get('/admin/invoices')->assertOk();
