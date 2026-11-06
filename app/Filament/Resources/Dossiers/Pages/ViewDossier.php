@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Dossiers\Pages;
 use App\Enums\DossierStatus;
 use App\Filament\Resources\Clients\ClientResource;
 use App\Filament\Resources\Dossiers\DossierResource;
+use App\Filament\Resources\Dossiers\PieceRequestActions;
 use App\Filament\Resources\Quotes\QuoteResource;
 use App\Models\Dossier;
 use App\Notifications\PortalLink;
@@ -82,24 +83,10 @@ class ViewDossier extends ViewRecord
                     Notification::make()->title('Dossier passé en instruction, client prévenu')->success()->send();
                 }),
 
+            PieceRequestActions::add($d),
+            PieceRequestActions::send($d),
+
             ActionGroup::make([
-                Action::make('incomplete')->label('La mairie demande des pièces')->icon(Heroicon::OutlinedExclamationTriangle)->color('warning')
-                    ->visible(fn () => $d->status === DossierStatus::EnInstruction)
-                    ->schema([
-                        DatePicker::make('date')->label('Date du courrier de la mairie')->default(now())->required(),
-                        Textarea::make('details')->label('Pièces demandées (visible par le client)')->rows(3),
-                        FileUpload::make('letter')->label('Courrier de la mairie')->disk('local')->directory($dir)->preserveFilenames(),
-                    ])
-                    ->action(function (array $data) use ($d) {
-                        if (! empty($data['letter'])) {
-                            $d->documents()->create(['category' => 'courrier_mairie', 'name' => 'Demande de pièces complémentaires', 'path' => $data['letter']]);
-                        }
-                        DossierWorkflow::markIncomplete($d, Carbon::parse($data['date']), $data['details'] ?? null);
-                    }),
-                Action::make('completed')->label('Pièces complémentaires déposées')->icon(Heroicon::OutlinedCheckCircle)
-                    ->visible(fn () => $d->status === DossierStatus::Incomplet)
-                    ->schema([DatePicker::make('date')->label('Date de dépôt des pièces')->default(now())->required()])
-                    ->action(fn (array $data) => DossierWorkflow::markCompleted($d, Carbon::parse($data['date']))),
                 Action::make('decision')->label('Décision de la mairie')->icon(Heroicon::OutlinedScale)
                     ->visible(fn () => in_array($d->status, [DossierStatus::EnInstruction, DossierStatus::Incomplet, DossierStatus::Depose], true))
                     ->schema([

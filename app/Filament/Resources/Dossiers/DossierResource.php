@@ -161,9 +161,11 @@ class DossierResource extends Resource
                     TextEntry::make('deposit_date')->label('Déposé le')->date('d/m/Y')->placeholder('Pas encore déposé'),
                     TextEntry::make('deposit_number')->label('N° de dossier mairie')->placeholder('—'),
                     TextEntry::make('decision_due_date')->label('Décision attendue au plus tard')->date('d/m/Y')->placeholder('—')
+                        ->visible(fn (Dossier $r) => $r->status !== DossierStatus::Incomplet)
                         ->color(fn (Dossier $r) => $r->decision_due_date?->isPast() && $r->status === DossierStatus::EnInstruction ? 'danger' : null)
                         ->helperText(fn (Dossier $r) => $r->deposit_date ? "Délai de droit commun : {$r->instructionMonths()} mois. Sans réponse à cette date, l'autorisation est tacite (sauf exceptions)." : null),
                     TextEntry::make('incomplete_deadline')->label('Pièces à fournir avant le')->date('d/m/Y')
+                        ->helperText('Le délai d\'instruction est suspendu jusqu\'à l\'envoi des pièces.')
                         ->visible(fn (Dossier $r) => $r->status === DossierStatus::Incomplet)->color('warning'),
                     IconEntry::make('abf')->label('Secteur ABF')->boolean(),
                 ]),
@@ -261,6 +263,7 @@ class DossierResource extends Resource
     public static function getRelations(): array
     {
         return [
+            RelationManagers\PieceRequestsRelationManager::class,
             RelationManagers\DocumentsRelationManager::class,
             RelationManagers\QuotesRelationManager::class,
             RelationManagers\InvoicesRelationManager::class,

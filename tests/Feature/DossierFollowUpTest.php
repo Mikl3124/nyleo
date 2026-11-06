@@ -137,8 +137,9 @@ class DossierFollowUpTest extends TestCase
     public function test_portal_shows_instruction_dates(): void
     {
         $d = $this->dossier(['status' => 'en_instruction', 'deposit_date' => now()->subMonth(), 'decision_due_date' => now()->addMonth(),
-            'instruction_started_at' => now()->subWeeks(3), 'incomplete_answered_at' => now()->subWeek(), 'follow_up_action' => 'Secret interne']);
+            'instruction_started_at' => now()->subWeeks(3), 'follow_up_action' => 'Secret interne']);
+        $d->pieceRequests()->create(['requested_at' => now()->subWeeks(2), 'pieces' => 'Notice PCMI4', 'sent_at' => now()->subWeek()]);
         $this->actingAs($d->client, 'client')->get(route('portal.dossiers.show', $d))
-            ->assertOk()->assertSee('Instruction commencée le')->assertSee('Pièces complémentaires envoyées')->assertDontSee('Secret interne');
+            ->assertOk()->assertSee('Instruction commencée le')->assertSee('Notice PCMI4')->assertSee('Envoyées le')->assertDontSee('Secret interne');
     }
 }

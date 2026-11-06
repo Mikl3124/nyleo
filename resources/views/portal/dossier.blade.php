@@ -110,7 +110,8 @@
     </div>
 @endif
 
-@if (in_array($dossier->status->value, ['devis_signe', 'pieces_attendues', 'plans_en_cours', 'plans_a_valider']))
+@if (in_array($dossier->status->value, ['devis_signe', 'pieces_attendues', 'plans_en_cours', 'plans_a_valider'])
+    || $dossier->pieceRequests->contains(fn ($pr) => $pr->isOpen() && $pr->waiting_on?->value === 'client'))
     <div class="card">
         <h2>Envoyer des photos ou documents</h2>
         <p class="muted">Photos de la maison et du terrain sous plusieurs angles, plan cadastral, croquis… Vous pouvez en choisir plusieurs à la fois.</p>
@@ -135,10 +136,19 @@
                     @if ($key === 'depot' && $dossier->deposit_date)<br><span class="muted" style="font-weight:400">Déposé le {{ $dossier->deposit_date->format('d/m/Y') }}@if ($dossier->deposit_number) — n° {{ $dossier->deposit_number }}@endif</span>@endif
                     @if ($key === 'instruction' && $current === 'instruction')
                         @if ($dossier->instruction_started_at)<br><span class="muted" style="font-weight:400">Instruction commencée le {{ $dossier->instruction_started_at->format('d/m/Y') }}</span>@endif
-                        @if ($dossier->incomplete_notified_at && $dossier->status->value === 'incomplet')<br><span class="muted" style="font-weight:400">La mairie a demandé des pièces le {{ $dossier->incomplete_notified_at->format('d/m/Y') }} : je prépare la réponse</span>@endif
-                        @if ($dossier->incomplete_answered_at && $dossier->status->value !== 'incomplet')<br><span class="muted" style="font-weight:400">Pièces complémentaires envoyées à la mairie le {{ $dossier->incomplete_answered_at->format('d/m/Y') }}</span>@endif
+                        @foreach ($dossier->pieceRequests->sortBy('requested_at') as $pr)
+                            @php
+                                $prText = 'Pièces demandées par la mairie'.($pr->requested_at ? ' le '.$pr->requested_at->format('d/m/Y') : '').($pr->pieces ? ' : '.$pr->pieces : '').'.';
+                                $prStatus = match (true) {
+                                    $pr->sent_at !== null => 'Envoyées le '.$pr->sent_at->format('d/m/Y').'.',
+                                    $pr->waiting_on?->value === 'client' => "J'ai besoin de documents de votre part".($pr->deadline ? ', à fournir avant le '.$pr->deadline->copy()->subDays(15)->format('d/m/Y') : '').'.',
+                                    default => 'Je prépare la réponse'.($pr->deadline ? ' (à remettre avant le '.$pr->deadline->format('d/m/Y').')' : '').'.',
+                                };
+                            @endphp
+                            <br><span class="muted" style="font-weight:400">{{ $prText }} <strong>{{ $prStatus }}</strong></span>
+                        @endforeach
                     @endif
-                    @if ($key === 'instruction' && $dossier->decision_due_date && $current === 'instruction')<br><span class="muted" style="font-weight:400">Réponse de la mairie attendue au plus tard le {{ $dossier->decision_due_date->format('d/m/Y') }}</span>@endif
+                    @if ($key === 'instruction' && $dossier->decision_due_date && $current === 'instruction' && $dossier->status->value !== 'incomplet')<br><span class="muted" style="font-weight:400">Réponse de la mairie attendue au plus tard le {{ $dossier->decision_due_date->format('d/m/Y') }}</span>@endif
                     @if ($key === 'decision' && $dossier->decision_date)<br><span style="font-weight:400">{{ $dossier->status->label() }} le {{ $dossier->decision_date->format('d/m/Y') }}</span>@endif
                 </span>
             </li>

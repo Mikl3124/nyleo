@@ -83,6 +83,24 @@ class Dossier extends Model
         return $this->hasMany(DossierEvent::class)->latest();
     }
 
+    /** Demandes de pièces de la mairie, la plus récente en premier. */
+    public function pieceRequests(): HasMany
+    {
+        return $this->hasMany(PieceRequest::class)->orderByDesc('requested_at')->orderByDesc('id');
+    }
+
+    public function openPieceRequests(): HasMany
+    {
+        return $this->hasMany(PieceRequest::class)->whereNull('sent_at');
+    }
+
+    /** Dossiers où quelqu'un doit agir : le champ « En attente de » ou une demande de pièces non envoyée. */
+    public function scopeWaitingOn($query, WaitingOn $who)
+    {
+        return $query->where(fn ($q) => $q->where('waiting_on', $who->value)
+            ->orWhereHas('openPieceRequests', fn ($r) => $r->where('waiting_on', $who->value)));
+    }
+
     public function log(string $type, string $message, bool $visibleToClient = false, array $meta = []): DossierEvent
     {
         return $this->events()->create([

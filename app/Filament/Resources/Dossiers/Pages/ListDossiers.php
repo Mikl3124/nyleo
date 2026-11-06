@@ -62,9 +62,9 @@ class ListDossiers extends ListRecords
                 ->modifyQueryUsing(fn (Builder $query) => $query->followUpDue())
                 ->badge(fn () => Dossier::query()->followUpDue()->count() ?: null)->badgeColor('danger'),
             'moi' => Tab::make('À moi de jouer')
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('waiting_on', WaitingOn::Moi->value)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->waitingOn(WaitingOn::Moi)),
             'client' => Tab::make('J\'attends le client')
-                ->modifyQueryUsing(fn (Builder $query) => $open($query)->where('waiting_on', WaitingOn::Client->value)),
+                ->modifyQueryUsing(fn (Builder $query) => $open($query)->waitingOn(WaitingOn::Client)),
             'mairie' => Tab::make('J\'attends la mairie')
                 ->modifyQueryUsing(fn (Builder $query) => $open($query)->where('waiting_on', WaitingOn::Mairie->value)),
         ];

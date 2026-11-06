@@ -183,6 +183,17 @@ class SuiviImporter
         }
         $dossier->save();
 
+        // Dossier en « compléments demandés » : une demande de pièces ouverte, une seule même si l'import est rejoué.
+        if ($status === DossierStatus::Incomplet && ! $dossier->pieceRequests()->exists()) {
+            $dossier->pieceRequests()->create([
+                'requested_at' => $dossier->incomplete_notified_at,
+                'deadline' => $dossier->incomplete_notified_at?->copy()->addMonthsNoOverflow(3),
+                'pieces' => $dossier->missing_pieces,
+                'waiting_on' => 'moi',
+                'sent_at' => $dossier->incomplete_answered_at,
+            ]);
+        }
+
         if ($isNew) {
             $dossier->log('import', "Dossier repris de l'ancien suivi Excel ({$legacy})");
             $report['created']++;
