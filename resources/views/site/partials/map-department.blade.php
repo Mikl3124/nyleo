@@ -10,10 +10,10 @@
 <svg class="map" viewBox="{{ $dep['viewBox'] }}" role="img" aria-labelledby="map-d-t">
     <title id="map-d-t">Carte des communes de {{ $dep['name'] }}</title>
     <path class="dep" d="{{ $dep['outline'] }}"/>
-    <g class="mesh">
+    <g class="mesh" aria-hidden="true">
         @foreach ($communes as $c)
             @if ($c['page'])
-                <a href="{{ $g::url($c) }}"><title>{{ $c['name'] }}</title><path d="{{ $c['path'] }}"/></a>
+                <a href="{{ $g::url($c) }}" tabindex="-1"><title>{{ $c['name'] }}</title><path d="{{ $c['path'] }}"/></a>
             @else
                 <path d="{{ $c['path'] }}"><title>{{ $c['name'] }}</title></path>
             @endif

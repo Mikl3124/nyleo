@@ -10,13 +10,14 @@
 <form method="post" action="{{ route('site.request') }}" class="form-card" id="demande" data-steps>
     @csrf
     @if (session('status'))<div class="flash" role="status">{{ session('status') }}</div>@endif
+    @if (session('commune_status'))<div class="flash" data-info role="status">{{ session('commune_status') }}</div>@endif
     @if ($errors->any())<div class="errors" role="alert">@foreach ($errors->all() as $e)<div>{{ $e }}</div>@endforeach</div>@endif
     <div class="sr" aria-hidden="true"><label for="website">Ne pas remplir</label><input id="website" type="text" name="website" tabindex="-1" autocomplete="off"></div>
 
     <ol class="steps-nav" aria-hidden="true"><li class="on">Votre projet</li><li>Le terrain</li><li>Vos coordonnées</li></ol>
 
     <div class="step" data-step="1">
-        <h3>Quel est votre projet ?</h3>
+        <h3 tabindex="-1">Quel est votre projet ?</h3>
         <p>Choisissez ce qui s'en rapproche le plus.</p>
         <div class="tiles">
             @foreach ($natures as $k => [$l, $ico])
@@ -34,7 +35,7 @@
     </div>
 
     <div class="step" data-step="2">
-        <h3>Où se trouve le terrain ?</h3>
+        <h3 tabindex="-1">Où se trouve le terrain ?</h3>
         <p>Commencez à taper le nom de la commune.</p>
         <label for="site_city">Commune du terrain</label>
         <input id="site_city" type="text" name="site_city" value="{{ $townValue }}" required list="communes-list" autocomplete="off" placeholder="Ex. Ribérac">
@@ -45,7 +46,7 @@
     </div>
 
     <div class="step" data-step="3">
-        <h3>Comment vous joindre ?</h3>
+        <h3 tabindex="-1">Comment vous joindre ?</h3>
         <p>Je vous rappelle sous 48 h ouvrées.</p>
         <div class="grid2">
             <div><label for="last_name">Nom</label><input id="last_name" type="text" name="last_name" value="{{ old('last_name') }}" required autocomplete="family-name"></div>
@@ -67,9 +68,10 @@
     var f = document.getElementById('demande'); if (!f || f.dataset.ready) return; f.dataset.ready = 1;
     var city = f.querySelector('#site_city'), cp = f.querySelector('#site_postal_code');
     function syncCp() { var m = /\((\d{5})\)\s*$/.exec(city.value); if (m) { cp.value = m[1]; } }
+    city.addEventListener('input', function () { cp.value = ''; syncCp(); }); // une commune retapée efface l'ancien code postal
     city.addEventListener('change', syncCp); syncCp();
     f.addEventListener('submit', function () { syncCp(); city.value = city.value.replace(/\s*\(\d{5}\)\s*$/, ''); });
-    if (f.querySelector('.errors') || f.querySelector('.flash')) return; // en cas d'erreur, tout reste visible
+    if (f.querySelector('.errors') || f.querySelector('.flash:not([data-info])')) return; // après une erreur ou un envoi, tout reste visible
     var steps = [].slice.call(f.querySelectorAll('[data-step]')), nav = [].slice.call(f.querySelectorAll('.steps-nav li'));
     var prev = f.querySelector('[data-prev]'), next = f.querySelector('[data-next]'), submit = f.querySelector('[data-submit]'), hint = f.querySelector('[data-hint]');
     var i = 0;
@@ -85,9 +87,15 @@
         if (bad) { bad.reportValidity(); return; }
         show(i + 1); var first = steps[i].querySelector('input:not([type=hidden]),textarea'); if (first) first.focus();
     });
-    prev.addEventListener('click', function () { show(i - 1); });
+    prev.addEventListener('click', function () { show(i - 1); steps[i].querySelector('h3').focus(); });
+    // Entrée (ou « OK » sur tablette) avant la dernière étape : passer à l'étape suivante.
+    submit.addEventListener('click', function (e) { if (i < steps.length - 1) { e.preventDefault(); next.click(); } });
+    // La démarche choisie (lien ?demarche=, simulateur ou clic) n'est plus devinée d'après le projet.
+    var procLocked = !!f.querySelector('input[name=procedure]:checked:not([value=AUTRE])');
+    f.querySelectorAll('input[name=procedure]').forEach(function (r) { r.addEventListener('change', function () { procLocked = true; }); });
     f.querySelectorAll('input[name=nature]').forEach(function (r) { r.addEventListener('change', function () {
-        var pc = r.value === 'maison', dp = ['piscine', 'pergola', 'facade', 'photovoltaique', 'cloture'].indexOf(r.value) >= 0;
+        if (procLocked) return;
+        var pc = r.value === 'maison', dp = ['piscine', 'facade', 'photovoltaique', 'cloture'].indexOf(r.value) >= 0;
         var target = f.querySelector('input[name=procedure][value=' + (pc ? 'PC' : (dp ? 'DP' : 'AUTRE')) + ']'); if (target) target.checked = true;
     }); });
     show(0);

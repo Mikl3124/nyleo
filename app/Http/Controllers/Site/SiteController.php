@@ -48,21 +48,52 @@ class SiteController extends Controller
     /** Recherche de commune : sa page si elle existe, sinon le formulaire de devis prérempli. */
     public function find(Request $request)
     {
-        // « St Émilion », « saint-emilion (33330) » ou « SAINT EMILION » trouvent la même commune.
-        $key = fn (string $name) => preg_replace(['/^st-/', '/-st-/', '/^ste-/', '/-ste-/'], ['saint-', '-saint-', 'sainte-', '-sainte-'], Str::slug($name));
-        $q = $key(preg_replace('/\(.*$/', '', (string) $request->query('q')));
-        $commune = $q === '' ? null : (Geo::communes()->first(fn ($c) => $key($c['name']) === $q)
-            ?? (strlen($q) >= 3 ? Geo::communes()->sortByDesc('pop')->first(fn ($c) => str_starts_with($key($c['name']), $q)) : null));
+        $raw = is_string($request->query('q')) ? mb_substr($request->query('q'), 0, 120) : '';
+        $cp = preg_match('/\((\d{5})\)/', $raw, $m) ? $m[1] : null;
+        $dep = in_array($request->query('dep'), ['dordogne', 'gironde'], true) ? $request->query('dep') : null;
+        $q = self::searchKey(preg_replace('/\(.*$/s', '', $raw));
 
+        $lookup = function (?string $dep) use ($q, $cp) {
+            $communes = Geo::communes($dep);
+            $exact = $q === '' ? collect() : $communes->filter(fn ($c) => self::searchKey($c['name']) === $q)->values();
+            $commune = ($cp ? $exact->first(fn ($c) => in_array($cp, $c['cp'], true)) : null)
+                ?? ($exact->count() === 1 ? $exact->first() : null)
+                ?? ($exact->isEmpty() && strlen($q) >= 3 ? $communes->sortByDesc('pop')->first(fn ($c) => str_starts_with(self::searchKey($c['name']), $q)) : null);
+
+            return [$commune, $exact];
+        };
+        // D'abord dans le département de la page, puis dans les deux.
+        [$commune, $exact] = $lookup($dep);
+        if (! $commune && $exact->isEmpty() && $dep) {
+            [$commune, $exact] = $lookup(null);
+        }
+
+        if (! $commune && $exact->count() > 1) {
+            // Même nom en Dordogne et en Gironde, sans code postal pour les départager : on garde le nom seul.
+            return redirect()->route('site.contact', ['commune' => $exact->first()['name']])
+                ->with('commune_status', 'J\'interviens '.Geo::a($exact->first()['name']).' : décrivez-moi votre projet ci-dessous.');
+        }
         if ($commune && $commune['page']) {
             return redirect(Geo::url($commune));
         }
         if ($commune) {
             return redirect()->route('site.contact', ['commune' => $commune['name'].' ('.($commune['cp'][0] ?? '').')'])
-                ->with('status', "J'interviens à {$commune['name']} : décrivez-moi votre projet ci-dessous.");
+                ->with('commune_status', 'J\'interviens '.Geo::a($commune['name']).' : décrivez-moi votre projet ci-dessous.');
         }
 
-        return redirect()->route('site.areas')->with('status', 'Commune introuvable en Dordogne ou en Gironde. Appelez-moi pour en parler.');
+        return redirect()->route('site.areas')->with('status', 'Commune introuvable en Dordogne ou en Gironde. Vérifiez l\'orthographe, ou appelez-moi pour en parler.');
+    }
+
+    /**
+     * Clé de recherche tolérante : « St Émilion », « saint-emilion », « Villenave d Ornon »
+     * et « Villenave-d'Ornon » donnent la même clé (accents, apostrophes et tirets ignorés).
+     */
+    private static function searchKey(string $name): string
+    {
+        $slug = Str::slug(str_replace(["'", '’'], ' ', $name));
+        $slug = preg_replace(['/^st-/', '/-st-/', '/^ste-/', '/-ste-/'], ['saint-', '-saint-', 'sainte-', '-sainte-'], $slug);
+
+        return str_replace('-', '', $slug);
     }
 
     public function about()
@@ -89,9 +120,14 @@ class SiteController extends Controller
         return view('site.faq');
     }
 
-    public function contact()
+    public function contact(Request $request)
     {
-        return view('site.contact');
+        $demarche = $request->query('demarche');
+
+        return view('site.contact', [
+            'procedure' => in_array($demarche, ['DP', 'PC'], true) ? $demarche : 'AUTRE',
+            'prefillTown' => is_string($request->query('commune')) ? mb_substr($request->query('commune'), 0, 120) : '',
+        ]);
     }
 
     public function sitemap(): Response

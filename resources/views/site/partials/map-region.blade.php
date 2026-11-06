@@ -8,7 +8,7 @@
 @endphp
 <svg class="map" viewBox="{{ $region['viewBox'] }}" role="img" aria-labelledby="map-r-t map-r-d">
     <title id="map-r-t">Carte de la Dordogne et de la Gironde</title>
-    <desc id="map-r-d">Le bureau est à {{ $base['name'] }}, en Dordogne. Cercles de 25, 50 et 100 km autour. Chaque point est une commune avec sa page.</desc>
+    <desc id="map-r-d">Le bureau est à {{ $base['name'] }}, en Dordogne. Cercles de 25, 50 et 100 km autour.</desc>
     @foreach ($region['neighbours'] as $p)<path class="neigh" d="{{ $p }}"/>@endforeach
     <a href="{{ route('site.area', 'dordogne') }}" aria-label="Dordogne"><path class="dep" d="{{ $g::department('dordogne')['outline'] }}"/></a>
     <a href="{{ route('site.area', 'gironde') }}" aria-label="Gironde"><path class="dep alt" d="{{ $g::department('gironde')['outline'] }}"/></a>
@@ -18,11 +18,15 @@
         <circle class="ring" cx="{{ $base['x'] }}" cy="{{ $base['y'] }}" r="{{ $r }}"/>
         <text class="ring-label" x="{{ $base['x'] + 2 }}" y="{{ $base['y'] - $r - 1.5 }}">{{ $r }} km</text>
     @endforeach
+    {{-- Les points restent cliquables à la souris, mais hors du parcours clavier : la liste complète est sur les pages départements. --}}
+    <g aria-hidden="true">
     @foreach ($towns as $t)
-        <a href="{{ $g::url($t) }}" aria-label="{{ $t['name'] }}">
+        <a href="{{ $g::url($t) }}" tabindex="-1">
+            <circle class="hit" cx="{{ $t['x'] }}" cy="{{ $t['y'] }}" r="3.5"/>
             <circle class="town" cx="{{ $t['x'] }}" cy="{{ $t['y'] }}" r="{{ in_array($t['name'], $labelled, true) ? 2.1 : 1.15 }}"/>
         </a>
     @endforeach
+    </g>
     @foreach ($towns->filter(fn ($t) => in_array($t['name'], $labelled, true)) as $t)
         <text class="town-label" x="{{ $t['x'] > 75 ? $t['x'] - 3.2 : $t['x'] + 3.2 }}" y="{{ $t['y'] + 1.8 }}" text-anchor="{{ $t['x'] > 75 ? 'end' : 'start' }}">{{ $t['name'] }}</text>
     @endforeach

@@ -18,7 +18,7 @@
             <h2>Pourquoi faire appel à moi</h2>
             <p class="lead">Un dossier d'urbanisme, c'est une dizaine de pièces, un long formulaire et des règles qui changent d'une commune à l'autre. Mon travail, c'est de vous enlever tout ça.</p>
             <p>Je travaille depuis {{ $base['name'] }}, dans la vallée de l'Isle, entre Périgueux et Libourne. Je connais les règlements d'urbanisme et les services instructeurs de Dordogne et de Gironde, et je sais ce qu'ils attendent. Je reste votre seul interlocuteur du premier appel jusqu'à la décision de la mairie.</p>
-            <p>Je travaille avec les particuliers, et aussi avec les artisans et installateurs (vérandas, pergolas, piscines) qui me confient les dossiers de leurs clients. Au-delà de 150 m² de surface de plancher, je travaille avec un architecte partenaire, qui signe le projet.</p>
+            <p>Je travaille avec les particuliers, et aussi avec les artisans et installateurs (vérandas, pergolas, piscines) qui me confient les dossiers de leurs clients. Si la surface de plancher ou l'emprise au sol dépasse 150 m², ou si le projet est porté par une société (SCI…), je travaille avec un architecte partenaire, qui signe le projet.</p>
             <div class="values">
                 <div><b>Un seul interlocuteur</b><span>Vous parlez à la personne qui dessine vos plans.</span></div>
                 <div><b>Des prix fixes</b><span>Le prix du devis est le prix final.</span></div>

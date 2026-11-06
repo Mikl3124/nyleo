@@ -8,15 +8,20 @@
         <fieldset>
             <legend>Votre projet</legend>
             <div class="chips">
-                @foreach ([['extension', 'Véranda, extension, garage', 'veranda'], ['construction', 'Abri, carport, pergola', 'carport'], ['piscine', 'Piscine', 'piscine'], ['maison', 'Maison neuve', 'maison'], ['aspect', 'Façade, fenêtres, solaire', 'facade'], ['cloture', 'Clôture, portail', 'cloture']] as [$v, $l, $i])
+                @foreach ([['extension', 'Véranda, extension, garage accolé', 'veranda'], ['construction', 'Abri, carport, garage séparé, pergola', 'carport'], ['piscine', 'Piscine', 'piscine'], ['maison', 'Maison neuve', 'maison'], ['aspect', 'Façade, fenêtres, solaire', 'facade'], ['cloture', 'Clôture, portail', 'cloture']] as [$v, $l, $i])
                     <label><input type="radio" name="sim_type" value="{{ $v }}" @checked($loop->first)><span>@include('site.partials.icon', ['name' => $i, 'sw' => 2.2]) {{ $l }}</span></label>
                 @endforeach
             </div>
         </fieldset>
         <fieldset data-for="surface">
             <legend><label for="sim_surface" style="margin:0">Surface créée (emprise au sol ou surface de plancher)</label></legend>
-            <div class="range"><input id="sim_surface" type="range" min="0" max="160" step="1" value="18"><output for="sim_surface" id="sim_surface_out">18 m²</output></div>
-            <div class="sim-scale" aria-hidden="true"><span>0</span><span>5</span><span>20</span><span>40</span><span>100</span><span>160 m²</span></div>
+            <div class="range">
+                <div class="range-track">
+                    <input id="sim_surface" type="range" min="0" max="160" step="1" value="18">
+                    <div class="sim-scale" aria-hidden="true">@foreach ([0, 40, 80, 120, 160] as $v)<span style="--v:{{ $v }}">{{ $v }}{{ $v === 160 ? ' m²' : '' }}</span>@endforeach</div>
+                </div>
+                <output for="sim_surface" id="sim_surface_out">18 m²</output>
+            </div>
         </fieldset>
         <fieldset data-for="zone">
             <legend>Le terrain est en zone urbaine (U) d'un PLU ?</legend>
@@ -58,25 +63,27 @@
         root.querySelector('[data-for=surface]').hidden = (t === 'aspect' || t === 'cloture' || t === 'maison');
         root.querySelector('[data-for=zone]').hidden = (t !== 'extension');
         var r, why;
-        if (t === 'maison') { r = 'PC'; why = "Une maison neuve demande un permis de construire. Au-delà de 150 m², un architecte doit signer le projet."; }
+        if (t === 'maison') { r = 'PC'; why = "Une maison neuve demande un permis de construire. Si la surface de plancher ou l'emprise au sol dépasse 150 m², ou pour une société (SCI…), un architecte doit signer le projet."; }
         else if (t === 'aspect') { r = 'DP'; why = "Changer l'aspect extérieur (fenêtres, enduit, toiture, panneaux solaires) demande une déclaration préalable."; }
         else if (t === 'cloture') { r = 'DP'; why = "Une clôture demande une déclaration préalable si la commune l'impose ou près d'un monument historique. Sinon, aucune démarche."; }
         else if (t === 'piscine') {
-            if (s < 10) { r = 'RIEN'; why = "Un bassin de moins de 10 m² ne demande en général aucune démarche (hors secteur protégé)."; }
-            else if (s <= 100) { r = 'DP'; why = "Un bassin de 10 à 100 m², non couvert ou avec un abri de moins de 1,80 m : déclaration préalable."; }
+            if (s <= 10) { r = 'RIEN'; why = "Un bassin de 10 m² ou moins ne demande en général aucune démarche (hors secteur protégé)."; }
+            else if (s <= 100) { r = 'DP'; why = "Un bassin de plus de 10 m² et jusqu'à 100 m², non couvert ou avec un abri de moins de 1,80 m : déclaration préalable."; }
             else { r = 'PC'; why = "Au-delà de 100 m² de bassin, il faut un permis de construire."; }
         } else {
             var limit = (t === 'extension' && zone === 'oui') ? 40 : 20;
             if (s <= 5) { r = 'RIEN'; why = "Moins de 5 m² : en général aucune démarche, sauf secteur protégé."; }
-            else if (s <= limit) { r = 'DP'; why = limit === 40 ? "En zone urbaine d'un PLU, une extension jusqu'à 40 m² passe en déclaration préalable (si la maison ne dépasse pas 150 m² au total)." : "Entre 5 et 20 m², une déclaration préalable suffit."; }
+            else if (s <= limit) { r = 'DP'; why = s > 20 ? "En zone urbaine d'un PLU, une extension jusqu'à 40 m² passe en déclaration préalable (si la maison ne dépasse pas 150 m² au total)." : "Entre 5 et 20 m², une déclaration préalable suffit."; }
             else if (t === 'extension' && zone === 'nsp' && s <= 40) { r = 'DP ou PC'; why = "Entre 20 et 40 m², tout dépend de la zone du PLU. Je vérifie pour vous sur le plan de la commune."; }
             else { r = 'PC'; why = "Au-delà de " + limit + " m², il faut un permis de construire."; }
         }
+        if (r === 'RIEN' && abf) { r = 'DP'; why = "Près d'un monument historique, même une petite construction ou un petit bassin demande une déclaration préalable."; }
         var names = { 'DP': 'Déclaration préalable', 'PC': 'Permis de construire', 'RIEN': 'Pas de démarche', 'DP ou PC': 'DP ou permis' };
         var months = r === 'PC' ? 2 : (r === 'RIEN' ? 0 : 1);
         $('sim_result').textContent = names[r];
         $('sim_why').textContent = why;
-        $('sim_delay').textContent = months ? (months + (abf ? 1 : 0)) + ' mois' + (abf ? ' (avis des Bâtiments de France)' : '') : '—';
+        var extra = abf ? 1 : 0, note = abf ? ' (avis des Bâtiments de France)' : '';
+        $('sim_delay').textContent = r === 'RIEN' ? '—' : (r === 'DP ou PC' ? (1 + extra) + ' ou ' + (2 + extra) + ' mois' : (months + extra) + ' mois') + note;
         $('sim_cerfa').textContent = r === 'PC' ? 'CERFA n° 13406' : (r === 'DP' ? 'CERFA n° 13703' : (r === 'RIEN' ? '—' : '13703 ou 13406'));
         var p = r === 'PC' ? root.dataset.pc : root.dataset.dp;
         $('sim_price').textContent = r === 'RIEN' ? 'conseil gratuit' : (p ? 'à partir de ' + p : 'sur devis');

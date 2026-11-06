@@ -1,9 +1,10 @@
 @php
     $company = \App\Models\CompanySetting::current();
     $tel = $company->phone ? preg_replace('/\s+/', '', $company->phone) : null;
-    $title = trim($__env->yieldContent('title'));
+    // Les sections sont déjà échappées par Blade : on les décode une fois pour ne pas afficher « d&#039;Ornon ».
+    $title = html_entity_decode(trim($__env->yieldContent('title')), ENT_QUOTES | ENT_HTML5);
     $fullTitle = $title ? $title.' | '.$company->displayName() : $company->displayName().' — Plans de permis de construire et déclaration préalable en Dordogne et Gironde';
-    $description = trim($__env->yieldContent('description')) ?: "Plans et dossiers de déclaration préalable et de permis de construire en Dordogne et en Gironde : dessin, CERFA, dépôt en mairie en votre nom et suivi jusqu'à la décision. Devis gratuit.";
+    $description = html_entity_decode(trim($__env->yieldContent('description')), ENT_QUOTES | ENT_HTML5) ?: "Plans et dossiers de déclaration préalable et de permis de construire en Dordogne et en Gironde : dessin, CERFA, dépôt en mairie en votre nom et suivi jusqu'à la décision. Devis gratuit.";
     $nav = [
         'site.dp' => 'Déclaration préalable',
         'site.pc' => 'Permis de construire',
@@ -37,7 +38,7 @@
     <link rel="preload" href="{{ asset('fonts/site/archivo-var.woff2') }}" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="{{ asset('css/site.css') }}?v={{ filemtime(public_path('css/site.css')) }}">
     <script type="application/ld+json">{!! json_encode(array_filter([
-        '@context' => 'https://schema.org',
+        '@@context' => 'https://schema.org',
         '@type' => 'ProfessionalService',
         'name' => $company->displayName(),
         'description' => $description,

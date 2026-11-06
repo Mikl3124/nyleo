@@ -3,7 +3,15 @@
     $g = \App\Support\Geo::class;
     $half = 20;
     $base = $g::base();
-    $around = $g::communes()->filter(fn ($c) => abs($c['x'] - $town['x']) < $half + 12 && abs($c['y'] - $town['y']) < $half + 12);
+    [$x0, $x1, $y0, $y1] = [$town['x'] - $half, $town['x'] + $half, $town['y'] - $half, $town['y'] + $half];
+    // Seules les communes dont le tracé entre dans le cadre sont dessinées (et donc cliquables).
+    $around = $g::communes()
+        ->filter(fn ($c) => abs($c['x'] - $town['x']) < $half + 12 && abs($c['y'] - $town['y']) < $half + 12)
+        ->filter(function ($c) use ($x0, $x1, $y0, $y1) {
+            preg_match_all('/(-?\d+(?:\.\d+)?)[ ,](-?\d+(?:\.\d+)?)/', $c['path'], $m);
+
+            return $m[1] && max($m[1]) > $x0 && min($m[1]) < $x1 && max($m[2]) > $y0 && min($m[2]) < $y1;
+        });
     $near = $g::spread($around->reject(fn ($c) => $c['code'] === $town['code'])->sortByDesc('pop')->filter(fn ($c) => abs($c['x'] - $town['x']) + mb_strlen($c['name']) * .42 < $half - 1 && abs($c['y'] - $town['y']) < $half - 2), 8, ['x' => $town['x'], 'y' => $town['y'] - 1.6])->take(6);
     $sx = $town['x'] - $half + 2;
     $sy = $town['y'] + $half - 2.5;

@@ -74,7 +74,7 @@ class Geo
         $deg = rad2deg(atan2(-($to['y'] - $from['y']), $to['x'] - $from['x'])); // 0 = est, 90 = nord
         $dirs = ["à l'est", 'au nord-est', 'au nord', 'au nord-ouest', "à l'ouest", 'au sud-ouest', 'au sud', 'au sud-est'];
 
-        return $dirs[(int) round((($deg + 360) % 360) / 45) % 8];
+        return $dirs[(int) round(fmod($deg + 360, 360) / 45) % 8];
     }
 
     /**
@@ -100,6 +100,26 @@ class Geo
     public static function zoomBox(array $c, float $half = 18): string
     {
         return sprintf('%.1f %.1f %.1f %.1f', $c['x'] - $half, $c['y'] - $half, 2 * $half, 2 * $half);
+    }
+
+    /** « à Bordeaux », « au Bouscat », « aux Eyzies » (Le et Les se contractent, pas La). */
+    public static function a(string $name): string
+    {
+        return match (true) {
+            str_starts_with($name, 'Les ') => 'aux '.substr($name, 4),
+            str_starts_with($name, 'Le ') => 'au '.substr($name, 3),
+            default => 'à '.$name,
+        };
+    }
+
+    /** « de Bordeaux », « du Bouscat », « des Eyzies ». */
+    public static function de(string $name): string
+    {
+        return match (true) {
+            str_starts_with($name, 'Les ') => 'des '.substr($name, 4),
+            str_starts_with($name, 'Le ') => 'du '.substr($name, 3),
+            default => 'de '.$name,
+        };
     }
 
     public static function url(array $c): string

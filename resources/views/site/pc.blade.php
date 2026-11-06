@@ -20,10 +20,10 @@
         </div>
         <div class="box">
             <ul class="ticks-list">
-                <li>@include('site.partials.icon', ['name' => 'check'])<span><b>Maison individuelle neuve</b><span class="muted">jusqu'à 150 m² de surface de plancher.</span></span></li>
+                <li>@include('site.partials.icon', ['name' => 'check'])<span><b>Maison individuelle neuve</b><span class="muted">jusqu'à 150 m² de surface de plancher et d'emprise au sol, pour un particulier.</span></span></li>
                 <li>@include('site.partials.icon', ['name' => 'check'])<span><b>Extension ou garage de plus de 20 m²</b><span class="muted">plus de 40 m² en zone urbaine d'un PLU.</span></span></li>
                 <li>@include('site.partials.icon', ['name' => 'check'])<span><b>Grande véranda</b><span class="muted">dès qu'elle dépasse les seuils de la déclaration préalable.</span></span></li>
-                <li>@include('site.partials.icon', ['name' => 'check'])<span><b>Au-delà de 150 m²</b><span class="muted">le recours à un architecte est obligatoire : je travaille avec un architecte partenaire qui signe le projet.</span></span></li>
+                <li>@include('site.partials.icon', ['name' => 'check'])<span><b>Au-delà de 150 m², ou pour une société</b><span class="muted">le recours à un architecte est obligatoire : je travaille avec un architecte partenaire qui signe le projet.</span></span></li>
             </ul>
         </div>
     </div>

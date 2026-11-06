@@ -14,7 +14,7 @@
             @include('site.partials.contact-info')
             <div class="box" style="margin-top:28px"><b>Déjà client ?</b><p class="muted" style="margin:6px 0 14px">Retrouvez vos devis, plans et factures dans votre espace.</p><a class="btn ghost sm" href="{{ route('portal.login') }}">Accéder à mon espace</a></div>
         </div>
-        @include('site.partials.contact-form', ['procedure' => in_array(request('demarche'), ['DP', 'PC']) ? request('demarche') : 'AUTRE', 'prefillTown' => (string) request('commune')])
+        @include('site.partials.contact-form', ['procedure' => $procedure, 'prefillTown' => $prefillTown])
     </div>
 </section>
 @endsection

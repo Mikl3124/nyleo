@@ -5,6 +5,13 @@ namespace App\Support;
 /** Textes du site vitrine nyleo.fr (prestations, secteurs, FAQ). */
 class SiteContent
 {
+    /**
+     * Notes locales par commune (code INSEE => texte), affichées sur la page de la ville.
+     * À compléter avec ce que Mickaël connaît du terrain : document d'urbanisme, secteur
+     * protégé, risques, projets déjà réalisés. Exemple : '24543' => "…".
+     */
+    public const TOWN_NOTES = [];
+
     public const DEPARTMENTS = [
         'dordogne' => [
             'name' => 'Dordogne', 'code' => '24',
@@ -12,7 +19,7 @@ class SiteContent
             'tips' => [
                 ['Beaucoup de secteurs protégés', "Monuments historiques, vallée de la Vézère, site patrimonial de Sarlat : près d'un monument, l'avis de l'Architecte des Bâtiments de France ajoute un mois d'instruction et des exigences sur les matériaux."],
                 ['Des PLU intercommunaux', "De plus en plus de communautés de communes ont un PLU commun à toutes leurs communes. Je vérifie le règlement de la zone de votre parcelle."],
-                ['Assainissement individuel', "Hors du tout-à-l'égout, un permis de construire demande l'attestation du SPANC pour l'assainissement. Je vous indique la démarche."],
+                ['Assainissement individuel', "Hors du tout-à-l'égout, si le projet crée ou modifie l'assainissement (maison neuve, nouvelle salle d'eau…), le permis de construire doit contenir l'attestation du SPANC. Je vous indique la démarche."],
             ],
             'towns' => ['Périgueux', 'Bergerac', 'Sarlat-la-Canéda', 'Ribérac', 'Mussidan', 'Sourzac', 'Neuvic', 'Saint-Astier', 'Montpon-Ménestérol', 'Nontron', 'Terrasson-Lavilledieu', 'Brantôme', 'Vergt', 'Lalinde', 'Eymet', 'Excideuil'],
         ],
@@ -22,7 +29,7 @@ class SiteContent
             'tips' => [
                 ['PLU de Bordeaux Métropole', "Les 28 communes de la métropole partagent un même PLU, aux règles précises sur l'emprise au sol, les hauteurs et les retraits."],
                 ['Zones à risques', "Bords de Garonne et de Dordogne (inondation), forêt des Landes (feux de forêt), littoral : des règles particulières peuvent s'ajouter. Je les intègre au dossier."],
-                ['Assainissement individuel', "Hors du tout-à-l'égout, un permis de construire demande l'attestation du SPANC pour l'assainissement. Je vous indique la démarche."],
+                ['Assainissement individuel', "Hors du tout-à-l'égout, si le projet crée ou modifie l'assainissement (maison neuve, nouvelle salle d'eau…), le permis de construire doit contenir l'attestation du SPANC. Je vous indique la démarche."],
             ],
             'towns' => ['Bordeaux', 'Libourne', 'Saint-Émilion', 'Coutras', 'Sainte-Foy-la-Grande', 'Castillon-la-Bataille', 'Mérignac', 'Pessac', 'Le Bouscat', 'Arcachon', 'La Teste-de-Buch', 'Blaye', 'Langon', 'Créon', 'Saint-André-de-Cubzac', 'Lesparre-Médoc'],
         ],
@@ -31,10 +38,10 @@ class SiteContent
     /** Projets courants : clé (icône), titre, démarche, phrase courte, type pour le simulateur. */
     public const PROJECTS = [
         ['veranda', 'Véranda', 'DP ou PC', "Accolée à la maison, la surface créée décide de la démarche.", 'extension'],
-        ['extension', 'Extension, garage', 'DP ou PC', "Jusqu'à 40 m² en déclaration préalable en zone urbaine d'un PLU.", 'extension'],
+        ['extension', 'Extension, garage accolé', 'DP ou PC', "Accolée à la maison : jusqu'à 40 m² en déclaration préalable en zone urbaine d'un PLU.", 'extension'],
         ['maison', 'Maison individuelle', 'PC', 'Plans complets du permis, notice et insertion paysagère.', 'maison'],
-        ['piscine', 'Piscine', 'DP', 'Bassin de 10 à 100 m², non couvert ou abri bas.', 'piscine'],
-        ['pergola', 'Pergola, carport', 'DP', 'Bioclimatique, bois ou alu, abri pour voiture.', 'construction'],
+        ['piscine', 'Piscine', 'DP', 'Bassin de plus de 10 m² et jusqu\'à 100 m², non couvert ou abri bas.', 'piscine'],
+        ['pergola', 'Pergola, carport', 'DP ou PC', "De 5 à 20 m², déclaration préalable. Au-delà, permis de construire.", 'construction'],
         ['facade', 'Façade, ouvertures, toiture', 'DP', 'Fenêtres, enduit, couverture, panneaux solaires.', 'aspect'],
     ];
 
@@ -81,7 +88,7 @@ class SiteContent
     public const FAQ = [
         ['Déclaration préalable ou permis de construire : comment savoir ?', "Tout dépend de la surface créée (emprise au sol ou surface de plancher). En dessous de 5 m², aucune démarche en général. Entre 5 et 20 m², c'est une déclaration préalable. Au-delà de 20 m², c'est un permis de construire, sauf pour une extension en zone urbaine d'un PLU, où la déclaration préalable va jusqu'à 40 m². Dites-moi votre projet au téléphone : je vous indique la bonne démarche."],
         ['Combien de temps dure l\'instruction ?', "Un mois pour une déclaration préalable, deux mois pour le permis d'une maison individuelle ou de son extension, trois mois pour les autres permis. Comptez un mois de plus si le terrain est proche d'un monument historique (avis de l'Architecte des Bâtiments de France). Le délai démarre quand le dossier est complet."],
-        ['Faut-il un architecte ?', "Seulement si la surface de plancher totale (existant compris) dépasse 150 m². En dessous, je prépare tout le dossier. Au-delà, je travaille avec un architecte partenaire qui signe le projet."],
+        ['Faut-il un architecte ?', "Oui si la surface de plancher ou l'emprise au sol de la maison (existant compris, garage non compté) dépasse 150 m², ou si le permis est demandé par une société (SCI…). Sinon, je prépare tout le dossier. Dans ces cas, je travaille avec un architecte partenaire qui signe le projet."],
         ['Devez-vous vous déplacer chez moi ?', "Dans la plupart des cas, non : vos photos, quelques mesures et le cadastre suffisent. Si un relevé sur place est nécessaire, je vous le dis avant le devis."],
         ['Que se passe-t-il si la mairie demande des pièces en plus ?', "Je reprends les pièces demandées et je dépose les compléments dans le délai imparti. Si la demande vient d'une erreur de ma part, c'est sans frais."],
         ['Le prix comprend-il la taxe d\'aménagement ?', "Non. La taxe d'aménagement et la redevance d'archéologie préventive sont des taxes dues à l'administration après l'accord. Je peux vous en donner une estimation."],

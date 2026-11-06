@@ -21,8 +21,8 @@
         <div class="box">
             <ul class="ticks-list">
                 <li>@include('site.partials.icon', ['name' => 'check'])<span><b>Construction ou abri de 5 à 20 m²</b><span class="muted">carport, abri de jardin, pergola couverte, véranda.</span></span></li>
-                <li>@include('site.partials.icon', ['name' => 'check'])<span><b>Extension jusqu'à 40 m²</b><span class="muted">en zone urbaine d'un PLU, tant que la maison ne dépasse pas 150 m² au total.</span></span></li>
-                <li>@include('site.partials.icon', ['name' => 'check'])<span><b>Piscine de 10 à 100 m²</b><span class="muted">non couverte, ou avec un abri de moins de 1,80 m.</span></span></li>
+                <li>@include('site.partials.icon', ['name' => 'check'])<span><b>Extension jusqu'à 40 m²</b><span class="muted">en zone urbaine d'un PLU, tant que la maison ne dépasse pas 150 m² au total (surface de plancher et emprise au sol).</span></span></li>
+                <li>@include('site.partials.icon', ['name' => 'check'])<span><b>Piscine de plus de 10 m² et jusqu'à 100 m²</b><span class="muted">non couverte, ou avec un abri de moins de 1,80 m.</span></span></li>
                 <li>@include('site.partials.icon', ['name' => 'check'])<span><b>Modification de l'aspect extérieur</b><span class="muted">fenêtres, portes, enduit, toiture, panneaux solaires.</span></span></li>
                 <li>@include('site.partials.icon', ['name' => 'check'])<span><b>Clôture ou portail</b><span class="muted">si la commune l'impose ou près d'un monument historique.</span></span></li>
                 <li>@include('site.partials.icon', ['name' => 'check'])<span><b>Changement de destination</b><span class="muted">sans travaux sur la structure, par exemple une grange transformée en habitation.</span></span></li>
