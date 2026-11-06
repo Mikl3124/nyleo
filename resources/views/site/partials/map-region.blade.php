@@ -1,4 +1,4 @@
-{{-- Carte du rayon d'action : la Dordogne au centre, ses départements voisins, le bureau et des cercles de distance --}}
+{{-- Carte du rayon d'action : la Dordogne au centre, ses départements voisins, le bureau et les grandes villes --}}
 @php
     $g = \App\Support\Geo::class;
     $region = $g::region();
@@ -12,14 +12,10 @@
 @endphp
 <svg class="map map-region" viewBox="{{ $region['viewBox'] }}" role="img" aria-labelledby="map-r-t map-r-d">
     <title id="map-r-t">Carte du rayon d'action : la Dordogne et ses départements voisins</title>
-    <desc id="map-r-d">Le bureau est à {{ $base['name'] }}, en Dordogne. J'interviens {{ $g::inDep('dordogne') }} et dans les départements voisins : {{ $deps->pluck('name')->except(0)->implode(', ') }}. Cercles de 50, 100 et 150 km autour du bureau.</desc>
+    <desc id="map-r-d">Le bureau est à {{ $base['name'] }}, en Dordogne. J'interviens {{ $g::inDep('dordogne') }} et dans les départements voisins : {{ $deps->pluck('name')->except(0)->implode(', ') }}.</desc>
     @foreach ($region['neighbours'] as $p)<path class="neigh" d="{{ $p }}"/>@endforeach
     @foreach ($deps as $d)
         <a href="{{ $g::areaUrl($d['slug']) }}" aria-label="{{ $d['name'] }}"><path class="dep{{ $d['slug'] === 'dordogne' ? ' home' : ' alt' }}" d="{{ $region['outlines'][$d['slug']] ?? $d['outline'] }}"/></a>
-    @endforeach
-    @foreach ([50, 100, 150] as $r)
-        <circle class="ring" cx="{{ $base['x'] }}" cy="{{ $base['y'] }}" r="{{ $r }}"/>
-        <text class="ring-label" x="{{ $base['x'] + 2.5 }}" y="{{ $base['y'] - $r - 2 }}">{{ $r }} km</text>
     @endforeach
     @foreach ($deps as $d)
         @php([$lx, $ly] = $labelAt[$d['slug']] ?? [$g::communes($d['slug'])->avg('x'), $g::communes($d['slug'])->avg('y')])
