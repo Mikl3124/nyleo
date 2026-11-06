@@ -54,7 +54,27 @@
         <h2>À régler : {{ $inv->type->label() }} {{ $inv->number }}</h2>
         <p>Montant restant : <strong>{{ money($inv->remaining()) }}</strong>@if ($inv->due_date), avant le {{ $inv->due_date->format('d/m/Y') }}@endif.</p>
         <div class="pay">
-            @if ($company->iban)<div><strong>Par virement</strong> : IBAN {{ $company->iban }}@if ($company->bic) — BIC {{ $company->bic }}@endif<br>Référence à indiquer : <strong>{{ $inv->number }}</strong></div>@endif
+            @if ($company->iban)
+                @php
+                    $qr = \App\Support\PaymentQr::svg($inv, $company->snapshot());
+                @endphp
+                <div class="pay-transfer">
+                    @if ($qr)
+                        <img class="pay-qr" src="{{ $qr }}" alt="QR code de virement de {{ money($inv->remaining()) }}" width="150" height="150">
+                    @endif
+                    <div>
+                        <strong>Par virement</strong>
+                        @if ($qr)
+                            <br>Scannez avec l'application de votre banque : le montant, l'IBAN et la référence sont déjà remplis.
+                        @endif
+                        <br>IBAN : <strong>{{ \App\Support\PaymentQr::formatIban($company->iban) }}</strong>
+                        @if ($company->bic)
+                            <br>BIC : {{ $company->bic }}
+                        @endif
+                        <br>Référence à indiquer : <strong>{{ $inv->number }}</strong>
+                    </div>
+                </div>
+            @endif
             @if ($company->cheque_order)<div style="margin-top:8px"><strong>Par chèque</strong> à l'ordre de {{ $company->cheque_order }}@if ($company->cheque_address), à envoyer à : {{ $company->cheque_address }}@endif</div>@endif
         </div>
         <p><a class="btn secondary small" href="{{ route('portal.invoices.pdf', $inv) }}" target="_blank">Télécharger la facture</a></p>

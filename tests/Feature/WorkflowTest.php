@@ -11,6 +11,7 @@ use App\Models\Client;
 use App\Models\CompanySetting;
 use App\Models\Dossier;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\Quote;
 use App\Models\User;
 use App\Notifications\ClientNotification;
@@ -46,7 +47,7 @@ class WorkflowTest extends TestCase
 
     private function makeQuote(float $deposit = 0): Quote
     {
-        $client = Client::create(['first_name' => 'Jean', 'last_name' => 'Martin', 'email' => 'jean@example.com', 'city' => 'Ribérac']);
+        $client = Client::firstOrCreate(['email' => 'jean@example.com'], ['first_name' => 'Jean', 'last_name' => 'Martin', 'city' => 'Ribérac']);
         $dossier = Dossier::create(['client_id' => $client->id, 'title' => 'Véranda', 'procedure' => 'DP', 'site_postal_code' => '24600']);
         $quote = Quote::create(['client_id' => $client->id, 'dossier_id' => $dossier->id, 'subject' => 'DP véranda', 'deposit_percent' => $deposit]);
         $quote->lines()->create(['label' => 'Déclaration préalable — véranda', 'quantity' => 1, 'unit_price' => 400]);
@@ -155,6 +156,60 @@ class WorkflowTest extends TestCase
 
         $this->expectException(\LogicException::class);
         $invoice->fresh()->delete();
+    }
+
+    public function test_test_invoice_can_be_deleted_with_payments_and_credit_notes_and_number_is_reused(): void
+    {
+        $ym = now()->format('Ym');
+        $quote = $this->makeQuote();
+        $invoice = InvoiceService::createFinalFromQuote($quote);
+        InvoiceService::issue($invoice, notify: false);
+        InvoiceService::addPayment($invoice->refresh(), 100, 'cheque', notify: false);
+        $credit = InvoiceService::createCreditNote($invoice->refresh(), 50, 'Essai');
+        InvoiceService::issue($credit, notify: false);
+        $pdf = $invoice->fresh()->pdf_path;
+        Storage::disk('local')->assertExists($pdf);
+
+        // Supprimer l'avoir seul : la facture redevient due et le n° d'avoir est rendu.
+        InvoiceService::delete($credit->fresh());
+        $this->assertSame(400.0, (float) $invoice->fresh()->amount_due);
+        $this->assertSame(1, CompanySetting::current()->credit_note_next_number);
+
+        InvoiceService::delete($invoice->fresh());
+        $this->assertSame(0, Invoice::withTrashed()->count());
+        $this->assertSame(0, Payment::count());
+        Storage::disk('local')->assertMissing($pdf);
+        $this->assertSame(117, CompanySetting::current()->invoice_next_number);
+
+        $again = InvoiceService::createFinalFromQuote($quote->refresh());
+        InvoiceService::issue($again, notify: false);
+        $this->assertSame("F{$ym}-117", $again->number);
+    }
+
+    public function test_deleting_an_older_invoice_keeps_the_counter(): void
+    {
+        $first = InvoiceService::createFinalFromQuote($this->makeQuote());
+        InvoiceService::issue($first, notify: false);
+        $second = InvoiceService::createFinalFromQuote($this->makeQuote());
+        InvoiceService::issue($second, notify: false);
+
+        InvoiceService::delete($first->fresh());
+        $this->assertSame(119, CompanySetting::current()->invoice_next_number);
+    }
+
+    public function test_reset_invoices_command_deletes_everything_and_restarts_numbering(): void
+    {
+        $invoice = InvoiceService::createFinalFromQuote($this->makeQuote());
+        InvoiceService::issue($invoice, notify: false);
+        InvoiceService::issue(InvoiceService::createCreditNote($invoice->refresh()), notify: false);
+        InvoiceService::createFinalFromQuote($this->makeQuote());
+
+        $this->artisan('nyleo:reset-invoices', ['--force' => true])->assertSuccessful();
+
+        $this->assertSame(0, Invoice::withTrashed()->count());
+        $this->assertSame(1, CompanySetting::current()->invoice_next_number);
+        $this->assertSame(1, CompanySetting::current()->credit_note_next_number);
+        $this->assertSame(134, CompanySetting::current()->quote_next_number);
     }
 
     public function test_reminders_command_relances_unpaid_invoices(): void

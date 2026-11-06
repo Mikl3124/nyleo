@@ -5,13 +5,12 @@ namespace App\Filament\Resources\Invoices\Pages;
 use App\Enums\InvoiceStatus;
 use App\Filament\Resources\Dossiers\DossierResource;
 use App\Filament\Resources\Invoices\InvoiceResource;
+use App\Filament\Support\SendEmailAction;
 use App\Models\Invoice;
 use App\Services\InvoiceService;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
-use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Support\Icons\Heroicon;
@@ -41,25 +40,29 @@ class EditInvoice extends EditRecord
         $inv = $this->record;
 
         return [
-            Action::make('issue')->label('Émettre et envoyer')->icon(Heroicon::OutlinedPaperAirplane)
-                ->visible(fn () => $inv->isDraft())
-                ->requiresConfirmation()
-                ->modalDescription('La facture reçoit son numéro définitif et ne pourra plus être modifiée (seulement annulée par un avoir).')
-                ->schema([Toggle::make('notify')->label('Envoyer au client par e-mail')->default(true)])
-                ->action(function (array $data) use ($inv) {
-                    $this->save(shouldRedirect: false, shouldSendSavedNotification: false);
-                    try {
-                        InvoiceService::issue($inv->refresh(), notify: (bool) $data['notify']);
-                        Notification::make()->title($inv->title().' émise')->success()->send();
-                    } catch (\Throwable $e) {
-                        Notification::make()->title($e->getMessage())->danger()->send();
-                    }
-                    $this->redirect(InvoiceResource::getUrl('edit', ['record' => $inv]));
-                }),
+            SendEmailAction::forInvoice(
+                $inv,
+                before: fn () => $inv->isDraft() ? $this->save(shouldRedirect: false, shouldSendSavedNotification: false) : null,
+                after: fn () => $this->redirect(InvoiceResource::getUrl('edit', ['record' => $inv])),
+            ),
             InvoiceResource::paymentAction()->record($inv)->after(fn () => $this->redirect(InvoiceResource::getUrl('edit', ['record' => $inv]))),
             Action::make('pdf')->label('PDF')->icon(Heroicon::OutlinedArrowDownTray)->color('gray')
                 ->url(fn () => route('admin.invoices.pdf', $inv))->openUrlInNewTab(),
             ActionGroup::make([
+                Action::make('issue')->label('Émettre sans envoyer')->icon(Heroicon::OutlinedCheckBadge)
+                    ->visible(fn () => $inv->isDraft())
+                    ->requiresConfirmation()
+                    ->modalDescription('La facture reçoit son numéro définitif et ne pourra plus être modifiée (seulement annulée par un avoir). Aucun e-mail n\'est envoyé.')
+                    ->action(function () use ($inv) {
+                        $this->save(shouldRedirect: false, shouldSendSavedNotification: false);
+                        try {
+                            InvoiceService::issue($inv->refresh(), notify: false);
+                            Notification::make()->title($inv->title().' émise')->success()->send();
+                        } catch (\Throwable $e) {
+                            Notification::make()->title($e->getMessage())->danger()->send();
+                        }
+                        $this->redirect(InvoiceResource::getUrl('edit', ['record' => $inv]));
+                    }),
                 Action::make('remind')->label('Relancer maintenant')->icon(Heroicon::OutlinedBellAlert)
                     ->visible(fn () => in_array($inv->status, [InvoiceStatus::Emise, InvoiceStatus::PartiellementPayee], true) && $inv->client->email)
                     ->requiresConfirmation()
@@ -80,7 +83,7 @@ class EditInvoice extends EditRecord
                 Action::make('dossier')->label('Voir le dossier')->icon(Heroicon::OutlinedFolder)
                     ->visible(fn () => (bool) $inv->dossier_id)
                     ->url(fn () => DossierResource::getUrl('view', ['record' => $inv->dossier_id])),
-                DeleteAction::make()->visible(fn () => $inv->isDraft()),
+                InvoiceResource::deleteAction()->record($inv)->after(fn () => $this->redirect(InvoiceResource::getUrl('index'))),
             ]),
         ];
     }

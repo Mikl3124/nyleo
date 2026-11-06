@@ -4,7 +4,7 @@ Application Laravel 13 + Filament 5 de gestion de l'activité de dessinateur (DP
 
 - Logique métier dans `app/Services` (QuoteService, InvoiceService, DossierWorkflow, Numbering, PdfService). Les ressources Filament et les contrôleurs de l'espace client appellent ces services, jamais l'inverse.
 - Statuts dans `app/Enums`. La frise client est `DossierStatus::clientSteps()`.
-- Factures : une facture avec numéro ne se modifie ni ne se supprime ; correction par avoir. Les données client/entreprise sont figées dans `*_snapshot` à l'émission.
+- Factures : une facture avec numéro ne se modifie pas ; correction par avoir. Exception voulue pour la phase de test : `InvoiceService::delete` (bouton « Supprimer » et commande `nyleo:reset-invoices`) efface une facture avec paiements, avoirs et PDF, et rend son numéro si c'était le dernier. Les données client/entreprise sont figées dans `*_snapshot` à l'émission.
 - Espace client : garde `client`, connexion par URL signée (`ClientNotification::portalUrl`). Toujours vérifier que la ressource appartient au client connecté.
 - Les études RE2020 ne passent pas par Nyleo.
 - Lancer `php artisan test` avant chaque push.

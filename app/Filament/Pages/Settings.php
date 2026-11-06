@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Models\CompanySetting;
+use App\Support\EmailTemplates;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\ColorPicker;
@@ -10,6 +11,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
@@ -20,6 +22,7 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\HtmlString;
 use UnitEnum;
 
 class Settings extends Page
@@ -99,6 +102,16 @@ class Settings extends Page
                     TextInput::make('quote_reminder_days')->label('Relance devis non signé après (jours)')->numeric()->required(),
                     Textarea::make('email_signature')->label('Signature des e-mails')->rows(3)->columnSpanFull()
                         ->placeholder("Mickaël Delpech\n07 85 65 91 65"),
+                ]),
+                Tab::make('Modèles d\'e-mail')->icon(Heroicon::OutlinedEnvelope)->schema([
+                    TextEntry::make('email_help')->hiddenLabel()->state(new HtmlString(
+                        'Texte proposé quand tu cliques sur « Envoyer au client ». Tu peux toujours le modifier avant l\'envoi. Laisse vide pour garder le texte par défaut.<br><br>Variables : '
+                        .collect(EmailTemplates::PLACEHOLDERS)->map(fn ($d, $k) => '<code>'.e($k).'</code> '.e($d))->implode(' · ')
+                    )),
+                    TextInput::make('quote_email_subject')->label('Devis : objet')->placeholder(EmailTemplates::QUOTE_SUBJECT),
+                    Textarea::make('quote_email_body')->label('Devis : message')->rows(12)->placeholder(EmailTemplates::QUOTE_BODY),
+                    TextInput::make('invoice_email_subject')->label('Facture : objet')->placeholder(EmailTemplates::INVOICE_SUBJECT),
+                    Textarea::make('invoice_email_body')->label('Facture : message')->rows(12)->placeholder(EmailTemplates::INVOICE_BODY),
                 ]),
             ])->columnSpanFull(),
         ]);

@@ -13,7 +13,7 @@
 <div class="band"><div class="wrap"><span class="label">Plans &amp; permis · Dordogne · Gironde</span>@if ($company->phone)<span>Une question ? <a href="tel:{{ preg_replace('/\s+/', '', $company->phone) }}">{{ $company->phone }}</a></span>@endif</div></div>
 <header class="top">
     <div class="wrap">
-        <a class="logo" href="{{ auth('client')->check() ? route('portal.home') : route('home') }}">@include('site.partials.logo')<span><b>{{ \Illuminate\Support\Str::lower($company->displayName()) }}</b><small>Mon espace client</small></span></a>
+        <a class="logo" href="{{ auth('client')->check() ? route('portal.home') : route('home') }}">@include('site.partials.logo')<span><b>{{ $company->displayName() }}</b><small>Mon espace client</small></span></a>
         @auth('client')
             <form method="post" action="{{ route('portal.logout') }}">@csrf<button class="btn small secondary" type="submit">Se déconnecter</button></form>
         @endauth

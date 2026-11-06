@@ -95,6 +95,8 @@ table.q .r{text-align:right;white-space:nowrap}
 table.q tr.total td{font-weight:800;font-size:1.15rem;border-top:2px solid var(--ochre);border-bottom:0}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
 .pay{background:var(--blue-l);border-radius:var(--r);padding:14px 16px;margin-top:10px}
+.pay-transfer{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.pay-qr{width:150px;height:150px;background:var(--paper);border-radius:var(--r);padding:6px;flex:none}
 details summary{cursor:pointer;font-weight:700;color:var(--blue);padding:6px 0}
 
 /* Pied de page */
