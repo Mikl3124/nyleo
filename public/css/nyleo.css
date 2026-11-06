@@ -55,6 +55,8 @@ table.q .r{text-align:right;white-space:nowrap}
 table.q tr.total td{font-weight:800;font-size:1.15rem;border-top:2px solid var(--green);border-bottom:0}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
 .pay{background:var(--teal-l);border-radius:10px;padding:14px 16px;margin-top:10px}
+.pay-transfer{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.pay-qr{width:150px;height:150px;background:#fff;border-radius:8px;padding:6px;flex:none}
 footer.bottom{border-top:1px solid var(--line);padding:28px 0;color:var(--muted);font-size:.9rem;background:#fffdf8}
 details summary{cursor:pointer;font-weight:700;color:var(--teal-d);padding:6px 0}
 .hero{background:var(--blue);color:#fff;padding:48px 0 40px;background-image:linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.07) 1px,transparent 1px);background-size:40px 40px}
