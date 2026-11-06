@@ -12,7 +12,7 @@
 <body>
 <header class="top">
     <div class="wrap">
-        <a class="logo" href="{{ auth('client')->check() ? route('portal.home') : route('home') }}">@include('site.partials.logo')<span><b>{{ \Illuminate\Support\Str::lower($company->displayName()) }}</b><small>Mon espace client</small></span></a>
+        <a class="logo" href="{{ auth('client')->check() ? route('portal.home') : route('home') }}">@include('site.partials.logo')<span><b>{{ $company->displayName() }}</b><small>Mon espace client</small></span></a>
         @auth('client')
             <form method="post" action="{{ route('portal.logout') }}">@csrf<button class="btn small secondary" type="submit">Se déconnecter</button></form>
         @endauth
