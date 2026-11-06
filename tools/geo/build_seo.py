@@ -21,6 +21,7 @@ def load(name):
 urba, mh, spr, risques, mairies, logements, extra = (load(n) for n in
     ['urbanisme', 'monuments', 'spr', 'risques', 'mairies', 'logements_autorises', 'communes_extra'])
 geo = json.load(open('resources/data/geo.json', encoding='utf-8'))
+covered = {k[:2] for k in mh}  # départements présents dans la collecte Mérimée
 
 out = {}
 for code in geo['communes']:
@@ -32,9 +33,10 @@ for code in geo['communes']:
             'date': u.get('date'), 'autres': u.get('autres'), 'en_cours': u.get('procedure_en_cours'),
         }.items() if v}
     # Monuments et SPR : la base couvre tout le département, une commune absente n'en a pas.
-    if mh:
+    # Seulement pour les départements réellement collectés : sinon on ne sait pas, on ne dit rien.
+    if mh and code[:2] in covered:
         c['mh'] = [{'n': m['nom'], 'p': m['protection']} for m in mh.get(code, [])]
-    if spr:
+    if spr and code[:2] in covered:
         c['spr'] = spr.get(code, [])
     if code in risques:
         r = risques[code]
