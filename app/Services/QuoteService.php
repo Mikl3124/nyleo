@@ -49,19 +49,20 @@ class QuoteService
     }
 
     /** Signature simple par le client depuis son espace (nom saisi + case « bon pour accord »). */
-    public static function sign(Quote $quote, string $signerName, ?string $ip, ?string $userAgent, bool $earlyStart = false): Quote
+    public static function sign(Quote $quote, string $signerName, ?string $ip, ?string $userAgent, bool $earlyStart = false, bool $termsAccepted = false): Quote
     {
         if (! $quote->isSignable()) {
             throw new RuntimeException('Ce devis ne peut plus être signé.');
         }
 
-        DB::transaction(function () use ($quote, $signerName, $ip, $userAgent, $earlyStart) {
+        DB::transaction(function () use ($quote, $signerName, $ip, $userAgent, $earlyStart, $termsAccepted) {
             $signedAt = now();
             $quote->forceFill([
                 'status' => QuoteStatus::Signe,
                 'signed_at' => $signedAt,
                 'signer_name' => $signerName,
                 'early_start_requested' => $earlyStart,
+                'terms_accepted_at' => $termsAccepted ? $signedAt : null,
                 'signer_ip' => $ip,
                 'signer_user_agent' => $userAgent,
                 'signature_hash' => hash('sha256', implode('|', [
@@ -106,7 +107,7 @@ class QuoteService
     public static function duplicate(Quote $quote): Quote
     {
         $copy = $quote->replicate([
-            'number', 'status', 'issue_date', 'valid_until', 'sent_at', 'viewed_at', 'signed_at', 'signer_name',
+            'number', 'status', 'issue_date', 'valid_until', 'sent_at', 'viewed_at', 'signed_at', 'signer_name', 'early_start_requested', 'terms_accepted_at',
             'signer_ip', 'signer_user_agent', 'signature_hash', 'signed_pdf_path', 'refused_at', 'refusal_reason',
             'reminder_count', 'last_reminder_at', 'client_snapshot', 'company_snapshot',
         ]);

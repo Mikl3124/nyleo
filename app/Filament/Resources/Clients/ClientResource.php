@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Clients;
 
 use App\Models\Client;
 use App\Notifications\PortalLink;
+use App\Services\Communes;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
@@ -67,7 +68,15 @@ class ClientResource extends Resource
             ]),
             Section::make('Pour le CERFA')->columns(2)->collapsed()->schema([
                 DatePicker::make('birth_date')->label('Date de naissance'),
-                TextInput::make('birth_place')->label('Lieu de naissance'),
+                Select::make('birth_place')->label('Lieu de naissance')
+                    ->searchable()
+                    ->getSearchResultsUsing(fn (string $search): array => collect(Communes::search($search))
+                        ->mapWithKeys(fn ($c) => [$c['label'] => $c['label']])
+                        ->put(trim($search), trim($search).' (saisie libre)')
+                        ->all())
+                    ->getOptionLabelUsing(fn ($value): ?string => $value)
+                    ->searchPrompt('Tapez la commune : le département est ajouté automatiquement')
+                    ->helperText('Commune introuvable ou né à l\'étranger : choisissez « saisie libre ».'),
             ]),
             Textarea::make('notes')->label('Notes internes')->rows(3)->columnSpanFull(),
         ]);

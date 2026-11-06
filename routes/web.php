@@ -63,6 +63,7 @@ Route::prefix('espace')->name('portal.')->group(function () {
         Route::get('devis/{quote}', [Portal\QuoteController::class, 'show'])->name('quotes.show');
         Route::get('devis/{quote}/pdf', [Portal\QuoteController::class, 'pdf'])->name('quotes.pdf');
         Route::post('devis/{quote}/signer', [Portal\QuoteController::class, 'sign'])->name('quotes.sign');
+        Route::get('communes', Portal\CommuneController::class)->middleware('throttle:120,1')->name('communes');
         Route::get('factures/{invoice}/pdf', [Portal\InvoiceController::class, 'pdf'])->name('invoices.pdf');
     });
 });
