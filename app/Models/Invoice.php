@@ -47,9 +47,10 @@ class Invoice extends Model
         });
     }
 
+    /** Le client reste lisible même s'il a été supprimé (corbeille) : le document ne doit jamais planter. */
     public function client(): BelongsTo
     {
-        return $this->belongsTo(Client::class);
+        return $this->belongsTo(Client::class)->withTrashed();
     }
 
     public function dossier(): BelongsTo

@@ -4,7 +4,9 @@ namespace App\Filament\Resources\Clients;
 
 use App\Filament\Resources\Clients\Pages\CreateClient;
 use App\Filament\Resources\Clients\Pages\EditClient;
+use App\Filament\Resources\Invoices\InvoiceResource;
 use App\Filament\Resources\Partners\PartnerResource;
+use App\Filament\Resources\Quotes\QuoteResource;
 use App\Filament\Support\DeleteActions;
 use App\Models\Client;
 use App\Notifications\PortalLink;
@@ -170,6 +172,36 @@ class ClientResource extends Resource
                 self::portalLinkAction(),
             ])
             ->toolbarActions([DeleteActions::bulk()]);
+    }
+
+    /** Ouvre l'écran de création de devis avec ce client (et son dossier s'il n'en a qu'un) déjà choisi. */
+    public static function newQuoteAction(): Action
+    {
+        return Action::make('newQuote')
+            ->label('Nouveau devis')
+            ->icon(Heroicon::OutlinedDocumentText)
+            ->url(fn (Client $record) => QuoteResource::getUrl('create', static::documentPrefill($record)));
+    }
+
+    /** Ouvre l'écran de création de facture avec ce client (et son dossier s'il n'en a qu'un) déjà choisi. */
+    public static function newInvoiceAction(): Action
+    {
+        return Action::make('newInvoice')
+            ->label('Nouvelle facture')
+            ->icon(Heroicon::OutlinedBanknotes)
+            ->color('gray')
+            ->url(fn (Client $record) => InvoiceResource::getUrl('create', static::documentPrefill($record)));
+    }
+
+    /** @return array{client: int, dossier?: int} */
+    public static function documentPrefill(Client $client): array
+    {
+        $dossiers = $client->dossiers()->pluck('id');
+
+        return array_filter([
+            'client' => $client->id,
+            'dossier' => $dossiers->count() === 1 ? $dossiers->first() : null,
+        ]);
     }
 
     public static function portalLinkAction(): Action

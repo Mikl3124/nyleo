@@ -89,7 +89,7 @@ class EditQuote extends EditRecord
             ActionGroup::make([
                 Action::make('signPaper')->label('Marquer signé (papier)')->icon(Heroicon::OutlinedPencil)
                     ->visible(fn () => $q->status === QuoteStatus::Envoye)
-                    ->schema([TextInput::make('signer_name')->label('Nom du signataire')->default($q->client->display_name)->required()])
+                    ->schema([TextInput::make('signer_name')->label('Nom du signataire')->default($q->client?->display_name)->required()])
                     ->action(function (array $data) use ($q) {
                         QuoteService::sign($q, $data['signer_name'].' (signature papier)', null, null);
                         Notification::make()->title('Devis marqué comme signé')->success()->send();

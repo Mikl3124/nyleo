@@ -73,12 +73,12 @@ class QuoteResource extends Resource
                     ->editOptionForm(fn (Schema $schema) => ClientResource::form($schema))
                     ->editOptionModalHeading('Modifier le client')
                     ->helperText(fn (Get $get) => static::clientSummary($get('client_id')))
-                    ->afterStateUpdated(fn (Set $set) => $set('dossier_id', null)),
+                    ->afterStateUpdated(fn (Set $set, $state) => $set('dossier_id', Client::find($state)?->dossierForNewQuote()?->id)),
                 Select::make('dossier_id')->label('Dossier')
                     ->options(fn (Get $get) => Dossier::where('client_id', $get('client_id'))->get()
                         ->mapWithKeys(fn ($d) => [$d->id => $d->reference.' — '.$d->title]))
-                    ->placeholder('Nouveau dossier (créé automatiquement)')
-                    ->helperText('Laisser vide pour créer le dossier automatiquement.'),
+                    ->placeholder('Automatique')
+                    ->helperText('Vide : le devis va dans le dossier en cours du client, ou un nouveau dossier est créé s\'il n\'y en a pas.'),
                 Placeholder::make('total_preview')->label('Total')
                     ->content(fn (Get $get) => new HtmlString('<span style="font-size:1.75rem;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums">'.e(LineItems::total($get)).'</span>')),
                 TextInput::make('subject')->label('Objet')->placeholder('Repris de la prestation choisie, modifiable')->columnSpan(['md' => 2]),
@@ -155,10 +155,15 @@ class QuoteResource extends Resource
         }
     }
 
-    /** Crée le dossier à la volée si le devis n'y est pas rattaché. */
+    /** Rattache le devis au dossier en cours du client, ou crée le dossier s'il n'y en a pas. */
     public static function ensureDossier(Quote $quote): void
     {
         if ($quote->dossier_id) {
+            return;
+        }
+        if ($existing = $quote->client->dossierForNewQuote($quote->id)) {
+            $quote->forceFill(['dossier_id' => $existing->id])->saveQuietly();
+
             return;
         }
         $subject = $quote->subject ?: 'Projet de '.$quote->client->display_name;
