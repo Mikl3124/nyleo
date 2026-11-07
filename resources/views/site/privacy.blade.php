@@ -23,6 +23,8 @@
         <p>Vous pouvez demander l'accès, la rectification ou la suppression de vos données en écrivant à {{ $c->email ?: "l'adresse de contact du site" }}. Vous pouvez aussi adresser une réclamation à la CNIL (cnil.fr).</p>
         <h2>Cookies</h2>
         <p>Ce site n'utilise que des cookies techniques, nécessaires au formulaire et à la connexion à votre espace client. Aucun cookie publicitaire ni de mesure d'audience. Les polices de caractères sont hébergées sur ce site : aucune donnée n'est envoyée à un service tiers.</p>
+        <h2>Protection contre les robots</h2>
+        <p>Pour écarter les envois automatiques, le formulaire de demande de devis utilise Cloudflare Turnstile. Ce service vérifie de façon invisible que la demande vient d'un navigateur utilisé par une personne. Il ne dépose pas de cookie publicitaire et ne sert pas à vous suivre d'un site à l'autre. Voir la <a href="https://www.cloudflare.com/fr-fr/privacypolicy/" rel="noopener">politique de confidentialité de Cloudflare</a>.</p>
     </div>
 </section>
 @endsection

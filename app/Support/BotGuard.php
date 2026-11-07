@@ -5,6 +5,7 @@ namespace App\Support;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -14,7 +15,8 @@ use Illuminate\Support\Facades\Log;
  *  - pot de miel : un champ caché que seul un robot remplit ;
  *  - jeton horodaté chiffré : un envoi moins de MIN_SECONDS après l'affichage est trop rapide pour un humain ;
  *  - preuve d'interaction : le navigateur recopie le jeton dans un second champ au premier clic ou à la première touche ;
- *  - contenu : liens dans le nom, liens en série, alphabets cyrillique ou asiatique.
+ *  - contenu : liens dans le nom, liens en série, alphabets cyrillique ou asiatique ;
+ *  - Cloudflare Turnstile en mode invisible, si les clés sont configurées (si Cloudflare ne répond pas, la demande passe).
  */
 class BotGuard
 {
@@ -65,7 +67,41 @@ class BotGuard
             return 'preuve invalide';
         }
 
-        return self::spamContent($request);
+        return self::spamContent($request) ?? self::turnstile($request);
+    }
+
+    public static function turnstileEnabled(): bool
+    {
+        return filled(config('services.turnstile.site_key')) && filled(config('services.turnstile.secret_key'));
+    }
+
+    /** « nojs » si le jeton Turnstile manque (script bloqué : l'humain est prévenu), raison si Cloudflare le refuse. */
+    private static function turnstile(Request $request): ?string
+    {
+        if (! self::turnstileEnabled()) {
+            return null;
+        }
+        $response = $request->input('cf-turnstile-response');
+        if (! is_string($response) || $response === '') {
+            return 'nojs';
+        }
+
+        try {
+            $result = Http::asForm()->timeout(5)->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+                'secret' => config('services.turnstile.secret_key'),
+                'response' => $response,
+                'remoteip' => $request->header('CF-Connecting-IP') ?: $request->ip(),
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('Turnstile injoignable, demande acceptée : '.$e->getMessage());
+
+            return null;
+        }
+        if (! $result->successful()) {
+            return null; // panne côté Cloudflare : on ne perd pas un vrai client
+        }
+
+        return $result->json('success') === true ? null : 'turnstile';
     }
 
     private static function spamContent(Request $request): ?string

@@ -15,6 +15,10 @@
     <div class="sr" aria-hidden="true"><label for="website">Ne pas remplir</label><input id="website" type="text" name="website" tabindex="-1" autocomplete="off"></div>
     {{-- Anti-robots invisible : jeton horodaté, recopié par le navigateur au premier geste (voir App\Support\BotGuard). --}}
     <input type="hidden" name="_t" value="{{ is_string(old('_t')) && old('_t') !== '' ? old('_t') : \App\Support\BotGuard::token() }}"><input type="hidden" name="_h" value="">
+    @if (\App\Support\BotGuard::turnstileEnabled())
+        <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}" data-action="demande" data-refresh-expired="auto" data-appearance="interaction-only"></div>
+        @once<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>@endonce
+    @endif
 
     <ol class="steps-nav" aria-hidden="true"><li class="on">Votre projet</li><li>Le terrain</li><li>Vos coordonnées</li></ol>
 

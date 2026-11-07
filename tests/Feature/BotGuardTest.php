@@ -6,6 +6,7 @@ use App\Models\Client;
 use App\Models\Dossier;
 use App\Support\BotGuard;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
@@ -90,5 +91,46 @@ class BotGuardTest extends TestCase
     {
         $this->post(route('site.request'), $this->payload(['phone' => '1234']))->assertSessionHasErrors('phone');
         $this->assertSame(0, Client::count());
+    }
+
+    private function withTurnstile(): void
+    {
+        config(['services.turnstile.site_key' => '0x4AAAAtest', 'services.turnstile.secret_key' => '0x4AAAAsecret']);
+    }
+
+    public function test_turnstile_widget_appears_only_when_keys_are_set(): void
+    {
+        $this->get(route('site.contact'))->assertDontSee('challenges.cloudflare.com', false);
+        $this->withTurnstile();
+        $this->get(route('site.contact'))->assertSee('data-sitekey="0x4AAAAtest"', false)
+            ->assertSee('challenges.cloudflare.com/turnstile/v0/api.js', false);
+    }
+
+    public function test_turnstile_accepts_a_valid_token_and_drops_a_refused_one(): void
+    {
+        Notification::fake();
+        $this->withTurnstile();
+        Http::fake(['challenges.cloudflare.com/*' => Http::sequence()
+            ->push(['success' => true])->push(['success' => false, 'error-codes' => ['invalid-input-response']])]);
+
+        $this->post(route('site.request'), $this->payload(['cf-turnstile-response' => 'ok']))->assertRedirect(route('site.request.thanks'));
+        $this->assertSame(1, Dossier::count());
+
+        $this->post(route('site.request'), $this->payload(['email' => 'robot@example.org', 'cf-turnstile-response' => 'faux']))
+            ->assertRedirect(route('site.request.thanks'));
+        $this->assertSame(1, Dossier::count());
+        Http::assertSent(fn ($r) => $r['secret'] === '0x4AAAAsecret' && $r['response'] === 'ok');
+    }
+
+    public function test_turnstile_missing_token_warns_the_visitor_and_an_outage_lets_the_request_through(): void
+    {
+        Notification::fake();
+        $this->withTurnstile();
+        $this->from(route('site.contact'))->post(route('site.request'), $this->payload())->assertSessionHasErrors('form');
+        $this->assertSame(0, Dossier::count());
+
+        Http::fake(['challenges.cloudflare.com/*' => Http::response('', 503)]);
+        $this->post(route('site.request'), $this->payload(['cf-turnstile-response' => 'ok']))->assertRedirect(route('site.request.thanks'));
+        $this->assertSame(1, Dossier::count());
     }
 }
