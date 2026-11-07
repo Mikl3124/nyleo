@@ -127,7 +127,7 @@
             @csrf
             @if (! $client->birth_date || ! $client->birth_place)
             <div class="grid2">
-                <div><label for="birth_date">Date de naissance</label><input id="birth_date" type="date" name="birth_date" value="{{ old('birth_date', $client->birth_date?->format('Y-m-d')) }}"></div>
+                <div><label for="birth_date">Date de naissance</label><div class="date-field"><input id="birth_date" type="date" name="birth_date" value="{{ old('birth_date', $client->birth_date?->format('Y-m-d')) }}"><span class="ph" aria-hidden="true">jj/mm/aaaa</span></div></div>
                 <div>@include('portal.partials.birth-place', ['value' => old('birth_place', $client->birth_place)])</div>
             </div>
             @endif

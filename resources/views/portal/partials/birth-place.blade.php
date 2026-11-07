@@ -9,10 +9,10 @@
 @once
 <style>
     .bp{position:relative}
-    .bp-list{position:absolute;z-index:20;left:0;right:0;margin:4px 0 0;padding:4px;list-style:none;background:#fff;border:2px solid var(--teal-d);border-radius:12px;box-shadow:0 8px 24px rgba(16,28,54,.15);max-height:320px;overflow:auto}
+    .bp-list{position:absolute;z-index:20;left:0;right:0;margin:4px 0 0;padding:4px;list-style:none;background:#fff;border:2px solid var(--blue);border-radius:12px;box-shadow:0 8px 24px rgba(16,28,54,.15);max-height:320px;overflow:auto}
     .bp-list li{padding:12px 12px;border-radius:8px;cursor:pointer;line-height:1.3}
     .bp-list li small{display:block;color:var(--muted)}
-    .bp-list li[aria-selected=true],.bp-list li:hover{background:var(--teal-l)}
+    .bp-list li[aria-selected=true],.bp-list li:hover{background:var(--blue-l)}
     .bp-list li.bp-free{font-size:.9rem;color:var(--muted);border-top:1px solid var(--line);border-radius:0 0 8px 8px}
     .bp-hint{font-size:.82rem;margin:6px 0 0}
 </style>

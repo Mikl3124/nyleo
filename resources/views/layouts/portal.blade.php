@@ -34,5 +34,12 @@
         <br><a href="{{ route('home') }}">Site {{ $company->displayName() }}</a> · <a href="{{ route('legal') }}">Mentions légales</a> · <a href="{{ route('privacy') }}">Confidentialité</a> · <a href="{{ $company->cgvUrl() }}">CGV</a>
     </div>
 </footer>
+<script>
+document.querySelectorAll('.date-field input[type=date]').forEach(function (i) {
+    var sync = function () { if (i.value) { i.removeAttribute('data-empty'); } else { i.setAttribute('data-empty', ''); } };
+    ['input', 'change', 'blur'].forEach(function (e) { i.addEventListener(e, sync); });
+    sync();
+});
+</script>
 </body>
 </html>
