@@ -57,6 +57,20 @@ class Client extends Authenticatable
         return $this->hasOne(Dossier::class)->latestOfMany();
     }
 
+    /**
+     * Le dossier auquel rattacher un nouveau devis : le plus récent qui est encore en cours
+     * et n'a pas déjà un devis actif (brouillon, envoyé ou signé). Évite les dossiers en double
+     * quand le dossier existe déjà (demande du site, adresse du projet saisie sur la fiche client).
+     */
+    public function dossierForNewQuote(?int $exceptQuoteId = null): ?Dossier
+    {
+        return $this->dossiers()->open()
+            ->whereDoesntHave('quotes', fn ($query) => $query
+                ->whereIn('status', [QuoteStatus::Brouillon->value, QuoteStatus::Envoye->value, QuoteStatus::Signe->value])
+                ->when($exceptQuoteId, fn ($query) => $query->whereKeyNot($exceptQuoteId)))
+            ->latest()->latest('id')->first();
+    }
+
     public function quotes(): HasMany
     {
         return $this->hasMany(Quote::class);
