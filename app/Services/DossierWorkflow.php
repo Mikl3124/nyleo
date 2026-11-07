@@ -221,4 +221,31 @@ class DossierWorkflow
             $dossier->log('suivi', 'Suivi mis à jour'.($parts ? ' — '.implode(' ; ', $parts) : ''));
         }
     }
+    /**
+     * Deux dossiers pour le même projet : tout passe dans $keep (devis, factures, pièces, journal,
+     * suivi des e-mails), ses champs vides sont complétés par $duplicate, puis $duplicate est supprimé.
+     */
+    public static function merge(Dossier $keep, Dossier $duplicate): void
+    {
+        if ($keep->is($duplicate) || $keep->client_id !== $duplicate->client_id) {
+            throw new \InvalidArgumentException('Seuls deux dossiers distincts du même client peuvent être fusionnés.');
+        }
+
+        DB::transaction(function () use ($keep, $duplicate) {
+            foreach (['quotes', 'invoices', 'documents', 'dossier_events', 'piece_requests', 'email_messages', 'client_activities'] as $table) {
+                DB::table($table)->where('dossier_id', $duplicate->id)->update(['dossier_id' => $keep->id]);
+            }
+
+            $skip = ['id', 'reference', 'client_id', 'status', 'created_at', 'updated_at', 'deleted_at'];
+            foreach ($duplicate->getAttributes() as $field => $value) {
+                if (! in_array($field, $skip, true) && filled($value) && blank($keep->getAttributes()[$field] ?? null)) {
+                    $keep->setAttribute($field, $duplicate->getAttribute($field));
+                }
+            }
+            $keep->save();
+
+            $keep->log('fusion', "Dossier {$duplicate->reference} « {$duplicate->title} » fusionné dans celui-ci");
+            $duplicate->delete();
+        });
+    }
 }
