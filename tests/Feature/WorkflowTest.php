@@ -28,6 +28,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
+use App\Support\BotGuard;
 
 class WorkflowTest extends TestCase
 {
@@ -270,7 +271,7 @@ class WorkflowTest extends TestCase
         $this->post(route('site.request'), [
             'last_name' => 'Durand', 'email' => 'durand@example.com', 'phone' => '0600000000',
             'procedure' => 'DP', 'nature' => 'pergola', 'site_city' => 'Libourne', 'site_postal_code' => '33500',
-        ])->assertRedirect();
+        ] + BotGuard::fields())->assertRedirect();
         $this->assertDatabaseHas('dossiers', ['site_city' => 'Libourne', 'department' => '33', 'procedure' => 'DP']);
     }
 }

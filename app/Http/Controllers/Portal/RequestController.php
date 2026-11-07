@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Portal;
 use App\Filament\Resources\Dossiers\DossierResource;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
+use App\Models\CompanySetting;
 use App\Models\Dossier;
 use App\Notifications\AdminAlert;
 use App\Support\Admin;
+use App\Support\BotGuard;
 use Illuminate\Http\Request;
 
 /** Formulaire de demande de devis du site nyleo.fr : crée le client et le dossier. */
@@ -15,15 +17,29 @@ class RequestController extends Controller
 {
     public function store(Request $request)
     {
-        if (filled($request->input('website'))) { // pot de miel anti-robots
-            return back();
+        // Robots : rien n'est créé ni envoyé, et le robot reçoit la même réponse qu'un envoi réussi.
+        if ($reason = BotGuard::check($request)) {
+            BotGuard::log($request, $reason);
+            if ($reason === 'nojs') { // un humain sans JavaScript est prévenu, pas ignoré
+                $phone = CompanySetting::current()->phone;
+
+                return back()->withInput()->withErrors(['form' => "Votre navigateur n'a pas pu valider le formulaire. Réessayez"
+                    .($phone ? " ou appelez-moi au {$phone}." : '.')]);
+            }
+
+            return redirect()->route('site.request.thanks');
         }
 
         $data = $request->validate([
             'last_name' => ['required', 'string', 'max:120'],
             'first_name' => ['nullable', 'string', 'max:120'],
             'email' => ['required', 'email', 'max:190'],
-            'phone' => ['required', 'string', 'max:30'],
+            'phone' => ['required', 'string', 'max:30', function ($attribute, $value, $fail) {
+                $digits = strlen(preg_replace('/\D/', '', (string) $value));
+                if ($digits < 9 || $digits > 15) {
+                    $fail('Le numéro de téléphone semble incomplet.');
+                }
+            }],
             'procedure' => ['required', 'in:DP,PC,AUTRE'],
             'nature' => ['nullable', 'string', 'max:60'],
             'site_city' => ['required', 'string', 'max:120'],

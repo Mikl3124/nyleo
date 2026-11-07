@@ -12,6 +12,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
+use App\Support\BotGuard;
 
 /** Un client qui a déjà son dossier ne doit pas en avoir un second à la création du devis. */
 class DuplicateDossierTest extends TestCase
@@ -65,7 +66,7 @@ class DuplicateDossierTest extends TestCase
     public function test_request_form_sent_twice_keeps_one_dossier(): void
     {
         $payload = ['last_name' => 'Bonneau', 'email' => 'bonneau@example.com', 'phone' => '0600000000',
-            'procedure' => 'DP', 'nature' => 'veranda', 'site_city' => 'Bergerac (24100)', 'description' => 'Véranda de 20 m²'];
+            'procedure' => 'DP', 'nature' => 'veranda', 'site_city' => 'Bergerac (24100)', 'description' => 'Véranda de 20 m²'] + BotGuard::fields();
 
         $this->post(route('site.request'), $payload)->assertRedirect(route('site.request.thanks'));
         $this->post(route('site.request'), $payload)->assertRedirect(route('site.request.thanks'));
