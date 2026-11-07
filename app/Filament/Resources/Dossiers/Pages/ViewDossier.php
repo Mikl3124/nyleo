@@ -141,6 +141,21 @@ class ViewDossier extends ViewRecord
                         $d->client->notify(new PortalLink);
                         Notification::make()->title('Lien envoyé')->success()->send();
                     }),
+                Action::make('merge')->label('Fusionner avec un autre dossier')->icon(Heroicon::OutlinedSquare2Stack)
+                    ->visible(fn () => Dossier::where('client_id', $d->client_id)->whereKeyNot($d->id)->exists())
+                    ->modalHeading('Fusionner deux dossiers du même projet')
+                    ->modalDescription('Devis, factures, pièces et journal de l\'autre dossier passent dans celui-ci. L\'autre dossier est ensuite supprimé.')
+                    ->modalSubmitActionLabel('Fusionner')
+                    ->schema([
+                        Select::make('duplicate_id')->label('Dossier en double à fusionner dans celui-ci')->required()
+                            ->options(fn () => Dossier::where('client_id', $d->client_id)->whereKeyNot($d->id)->get()
+                                ->mapWithKeys(fn (Dossier $o) => [$o->id => $o->reference.' — '.$o->title.' ('.$o->created_at->format('d/m/Y').')'])),
+                    ])
+                    ->action(function (array $data) use ($d) {
+                        DossierWorkflow::merge($d, Dossier::where('client_id', $d->client_id)->findOrFail($data['duplicate_id']));
+                        Notification::make()->title('Dossiers fusionnés')->success()->send();
+                        $this->refreshFormData([]);
+                    }),
                 Action::make('client')->label('Fiche client')->icon(Heroicon::OutlinedUser)
                     ->url(fn () => ClientResource::getUrl('edit', ['record' => $d->client_id])),
             ])->label('Plus')->button()->color('gray'),
