@@ -66,8 +66,10 @@ class Dossier extends Model
         static::creating(function (Dossier $dossier) {
             if (! $dossier->reference) {
                 $year = now()->format('Y');
-                $count = static::withTrashed()->where('reference', 'like', "N{$year}-%")->count() + 1;
-                $dossier->reference = sprintf('N%s-%03d', $year, $count);
+                // Plus grand numéro de l'année + 1 (pas le nombre de dossiers : il baisse quand on en supprime).
+                $last = static::withTrashed()->where('reference', 'like', "N{$year}-%")->pluck('reference')
+                    ->map(fn (string $ref) => (int) substr($ref, strlen("N{$year}-")))->max() ?? 0;
+                $dossier->reference = sprintf('N%s-%03d', $year, $last + 1);
             }
             // Un dossier d'un client apporté par un partenaire est rattaché à ce partenaire.
             if (! $dossier->partner_id && $dossier->client_id) {

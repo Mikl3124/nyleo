@@ -6,6 +6,7 @@ use App\Enums\QuoteStatus;
 use App\Filament\Resources\Dossiers\DossierResource;
 use App\Filament\Resources\Invoices\InvoiceResource;
 use App\Filament\Resources\Quotes\QuoteResource;
+use App\Filament\Support\DeleteActions;
 use App\Filament\Support\SendEmailAction;
 use App\Filament\Widgets\ClientTrackingWidget;
 use App\Models\Quote;
@@ -13,7 +14,6 @@ use App\Services\InvoiceService;
 use App\Services\QuoteService;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
-use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -114,7 +114,7 @@ class EditQuote extends EditRecord
                     ->action(fn (array $data) => QuoteService::refuse($q, $data['reason'] ?? null)),
                 Action::make('duplicate')->label('Dupliquer')->icon(Heroicon::OutlinedDocumentDuplicate)
                     ->action(fn () => $this->redirect(QuoteResource::getUrl('edit', ['record' => QuoteService::duplicate($q)]))),
-                DeleteAction::make()->visible(fn () => $q->isEditable()),
+                DeleteActions::record(QuoteResource::getUrl()),
             ]),
         ];
     }

@@ -6,6 +6,7 @@ use App\Enums\InvoiceStatus;
 use App\Enums\InvoiceType;
 use App\Filament\Resources\Clients\ClientResource;
 use App\Filament\Resources\Quotes\QuoteResource;
+use App\Filament\Support\DeleteActions;
 use App\Filament\Support\LineItems;
 use App\Models\Dossier;
 use App\Models\Invoice;
@@ -141,7 +142,8 @@ class InvoiceResource extends Resource
                 self::paymentAction()->iconButton()->tooltip('Encaisser un paiement'),
                 EditAction::make()->label('Ouvrir')->iconButton()->tooltip('Ouvrir'),
                 self::deleteAction()->iconButton()->tooltip('Supprimer'),
-            ]);
+            ])
+            ->toolbarActions([DeleteActions::bulk()]);
     }
 
     /** Échéance dépassée et pas encore payée en totalité. */

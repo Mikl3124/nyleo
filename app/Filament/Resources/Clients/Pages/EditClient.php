@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\Clients\Pages;
 
 use App\Filament\Resources\Clients\ClientResource;
+use App\Filament\Support\DeleteActions;
 use App\Filament\Widgets\ClientTrackingWidget;
-use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Blade;
@@ -32,7 +32,7 @@ class EditClient extends EditRecord
             ClientResource::newQuoteAction(),
             ClientResource::newInvoiceAction(),
             ClientResource::portalLinkAction(),
-            DeleteAction::make(),
+            DeleteActions::record(ClientResource::getUrl()),
         ];
     }
 

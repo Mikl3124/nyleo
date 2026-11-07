@@ -10,6 +10,7 @@ use App\Enums\WaitingOn;
 use App\Filament\Resources\Clients\ClientResource;
 use App\Filament\Resources\Partners\PartnerResource;
 use App\Filament\Resources\Partners\RelationManagers\DossiersRelationManager;
+use App\Filament\Support\DeleteActions;
 use App\Filament\Widgets\TodoDossiers;
 use App\Models\Dossier;
 use App\Support\SiteContent;
@@ -278,7 +279,8 @@ class DossierResource extends Resource
                     }),
             ])
             ->recordUrl(fn (Dossier $r) => self::getUrl('view', ['record' => $r]))
-            ->recordActions([EditAction::make()->iconButton()->tooltip('Modifier')]);
+            ->recordActions([EditAction::make()->iconButton()->tooltip('Modifier')])
+            ->toolbarActions([DeleteActions::bulk()]);
     }
 
     public static function getRelations(): array

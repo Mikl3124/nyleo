@@ -8,6 +8,7 @@ use App\Filament\Resources\Clients\ClientResource;
 use App\Filament\Resources\Dossiers\DossierResource;
 use App\Filament\Resources\Dossiers\PieceRequestActions;
 use App\Filament\Resources\Quotes\QuoteResource;
+use App\Filament\Support\DeleteActions;
 use App\Filament\Widgets\ClientTrackingWidget;
 use App\Models\Dossier;
 use App\Notifications\PortalLink;
@@ -143,6 +144,7 @@ class ViewDossier extends ViewRecord
                     }),
                 Action::make('client')->label('Fiche client')->icon(Heroicon::OutlinedUser)
                     ->url(fn () => ClientResource::getUrl('edit', ['record' => $d->client_id])),
+                DeleteActions::record(DossierResource::getUrl()),
             ])->label('Plus')->button()->color('gray'),
             EditAction::make()->color('gray'),
         ];
