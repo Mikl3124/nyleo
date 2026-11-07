@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\CatalogItem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use App\Support\BotGuard;
 
 class SiteTest extends TestCase
 {
@@ -228,7 +229,7 @@ class SiteTest extends TestCase
         $this->from(route('site.contact'))->post(route('site.request'), [
             'last_name' => 'Martin', 'first_name' => 'Jeanne', 'email' => 'martin@example.org', 'phone' => '06 00 00 00 00',
             'procedure' => 'DP', 'nature' => 'pergola', 'site_city' => 'Bergerac (24100)', 'description' => 'Pergola au fond du jardin',
-        ])->assertRedirect(route('site.request.thanks'));
+        ] + BotGuard::fields())->assertRedirect(route('site.request.thanks'));
 
         $this->assertDatabaseHas('dossiers', ['site_city' => 'Bergerac', 'procedure' => 'DP']);
 

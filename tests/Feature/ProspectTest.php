@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
+use App\Support\BotGuard;
 
 class ProspectTest extends TestCase
 {
@@ -20,7 +21,7 @@ class ProspectTest extends TestCase
         $this->post('/demande', [
             'last_name' => 'Lolo', 'first_name' => 'Doudou', 'email' => 'doudou@example.com', 'phone' => '0785656565',
             'procedure' => 'DP', 'site_city' => 'Mussidan (24400)',
-        ]);
+        ] + BotGuard::fields());
         $client = Client::where('email', 'doudou@example.com')->firstOrFail();
         $other = Client::create(['last_name' => 'Martin', 'source' => 'telephone']);
 

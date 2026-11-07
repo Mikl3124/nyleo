@@ -13,6 +13,8 @@
     @if (session('commune_status'))<div class="flash" data-info role="status">{{ session('commune_status') }}</div>@endif
     @if ($errors->any())<div class="errors" role="alert">@foreach ($errors->all() as $e)<div>{{ $e }}</div>@endforeach</div>@endif
     <div class="sr" aria-hidden="true"><label for="website">Ne pas remplir</label><input id="website" type="text" name="website" tabindex="-1" autocomplete="off"></div>
+    {{-- Anti-robots invisible : jeton horodaté, recopié par le navigateur au premier geste (voir App\Support\BotGuard). --}}
+    <input type="hidden" name="_t" value="{{ is_string(old('_t')) && old('_t') !== '' ? old('_t') : \App\Support\BotGuard::token() }}"><input type="hidden" name="_h" value="">
 
     <ol class="steps-nav" aria-hidden="true"><li class="on">Votre projet</li><li>Le terrain</li><li>Vos coordonnées</li></ol>
 
@@ -67,6 +69,9 @@
 <script>
 (function () {
     var f = document.getElementById('demande'); if (!f || f.dataset.ready) return; f.dataset.ready = 1;
+    var t = f.querySelector('input[name=_t]'), h = f.querySelector('input[name=_h]');
+    function human() { h.value = t.value.split('').reverse().join(''); ['pointerdown', 'keydown', 'touchstart', 'input'].forEach(function (e) { f.removeEventListener(e, human, true); }); }
+    ['pointerdown', 'keydown', 'touchstart', 'input'].forEach(function (e) { f.addEventListener(e, human, true); });
     var city = f.querySelector('#site_city'), cp = f.querySelector('#site_postal_code');
     function syncCp() { var m = /\((\d{5})\)\s*$/.exec(city.value); if (m) { cp.value = m[1]; } }
     city.addEventListener('input', function () { cp.value = ''; syncCp(); }); // une commune retapée efface l'ancien code postal
