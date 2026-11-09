@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Pages\BillingOverview;
 use App\Models\ExternalInvoice;
 use App\Models\User;
 use App\Services\Billing\PermisInvoiceImporter;
@@ -72,5 +73,48 @@ class PermisBillingBridgeTest extends TestCase
         $this->get('/admin/billing-overview')->assertRedirect('/admin/login');
         $this->actingAs(User::factory()->create())->get('/admin/billing-overview')->assertOk()
             ->assertSee('FAC-2026-0647')->assertSee('Client exemple')->assertSee('82503053900035');
+    }
+
+    public function test_fees_and_stripe_balance_are_imported_without_double_counting(): void
+    {
+        $batch = $this->batch();
+        $batch['invoices'][0]['stripe_fees'] = ['status' => 'verified', 'fee_minor' => 1956, 'net_minor' => 126744];
+        $batch['stripe_account'] = ['id' => 'acct_test', 'checked_at' => now()->toIso8601String(),
+            'available' => [['currency' => 'EUR', 'amount_minor' => 126739]], 'pending' => [['currency' => 'EUR', 'amount_minor' => 0]],
+            'payouts' => [], 'transactions' => [['id' => 'txn_test', 'currency' => 'EUR', 'amount_minor' => 128700, 'fee_minor' => 1956, 'net_minor' => 126744, 'created' => time(), 'type' => 'charge']], 'transactions_complete' => true];
+        $batch['stripe_account']['transactions'][] = ['id' => 'txn_radar', 'currency' => 'EUR', 'amount_minor' => -5, 'fee_minor' => 0, 'net_minor' => -5, 'created' => time(), 'type' => 'stripe_fee'];
+        $service = new PermisInvoiceImporter;
+        $this->assertSame(1, $service->import($batch));
+        $this->assertSame(0, $service->import($batch));
+        $this->assertDatabaseCount('external_billing_accounts', 1);
+        $this->assertDatabaseCount('payments', 0);
+        $this->actingAs(User::factory()->create())->get('/admin/billing-overview')->assertOk()
+            ->assertSee('19,56')->assertSee('267,44')->assertSee('19,61')->assertSee('267,39')->assertSee('toutes les 5 minutes')->assertDontSee('98341402000013');
+    }
+
+    public function test_invalid_stripe_fees_reject_the_entire_batch(): void
+    {
+        $batch = $this->batch();
+        $batch['invoices'][0]['stripe_fees'] = ['status' => 'verified', 'fee_minor' => 1956, 'net_minor' => 128700];
+        try {
+            (new PermisInvoiceImporter)->import($batch);
+            $this->fail('Invalid net accepted');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertDatabaseCount('external_invoices', 0);
+        }
+    }
+
+    public function test_csv_export_keeps_amounts_and_neutralizes_spreadsheet_formulas(): void
+    {
+        $batch = $this->batch();
+        $batch['invoices'][0]['client_name'] = '=1+1';
+        (new PermisInvoiceImporter)->import($batch);
+        $response = (new BillingOverview)->exportInvoices();
+        ob_start();
+        $response->sendContent();
+        $csv = ob_get_clean();
+        $this->assertStringContainsString("'=1+1", $csv);
+        $this->assertStringContainsString('1287.00', $csv);
+        $this->assertStringContainsString('FAC-2026-0647', $csv);
     }
 }
