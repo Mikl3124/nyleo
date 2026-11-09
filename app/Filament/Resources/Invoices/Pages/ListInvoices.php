@@ -10,6 +10,11 @@ class ListInvoices extends ListRecords
 {
     protected static string $resource = InvoiceResource::class;
 
+    protected function getHeaderWidgets(): array
+    {
+        return [\App\Filament\Widgets\PermisInvoices::class];
+    }
+
     protected function getHeaderActions(): array
     {
         return [CreateAction::make()->label('Nouvelle facture')];
