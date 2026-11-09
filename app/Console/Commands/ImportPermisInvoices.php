@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Services\Billing\PermisInvoiceImporter;
+use App\Services\Billing\ReceiptLedger;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 
@@ -30,6 +31,7 @@ class ImportPermisInvoices extends Command
             try {
                 $batch = json_decode(file_get_contents($path), true, 512, JSON_THROW_ON_ERROR);
                 $count = $importer->import($batch);
+                app(ReceiptLedger::class)->sync();
                 $this->info($count.' facture(s) mise(s) à jour. Aucun email envoyé.');
 
                 return self::SUCCESS;

@@ -6,6 +6,7 @@ use App\Models\ExternalBillingAccount;
 use App\Models\ExternalInvoice;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -106,6 +107,18 @@ class PermisInvoiceImporter
                     $account ??= new ExternalBillingAccount(['source' => $batch['source']]);
                     $account->fill(['payload' => $batch['stripe_account'], 'source_exported_at' => $exported->toIso8601String()])->save();
                 }
+            }
+
+            if (Schema::hasTable('receipt_entries')) {
+                $documents = $batch['receipt_documents'] ?? $batch['invoices'];
+                Validator::make(['rows' => $documents], [
+                    'rows' => ['array', 'max:50000'], 'rows.*.id' => ['required', 'integer'], 'rows.*.number' => ['required', 'string'],
+                    'rows.*.client_name' => ['required', 'string'], 'rows.*.paid_minor' => ['required', 'integer', 'min:0'],
+                    'rows.*.payments' => ['sometimes', 'array'], 'rows.*.payments.*.payment_key' => ['required', 'string'],
+                    'rows.*.payments.*.amount_minor' => ['required', 'integer', 'min:1'], 'rows.*.payments.*.paid_at' => ['required', 'date'],
+                    'rows.*.paid_date' => ['nullable', 'date'],
+                ])->validate();
+                app(ReceiptLedger::class)->external($documents);
             }
 
             return $changed;
