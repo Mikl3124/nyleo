@@ -98,6 +98,7 @@ class InvoiceResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->heading('Factures et avoirs · Nyleo')
             ->defaultSort('created_at', 'desc')
             ->modifyQueryUsing(fn (Builder $query) => TrackingSummary::withAggregates($query))
             ->columns([
