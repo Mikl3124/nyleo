@@ -44,6 +44,9 @@ $totalFees = $incomplete || $otherFees===null ? null : $group->sum('fees')+$othe
 </x-filament::section>
 @if($account)
 <x-filament::section heading="Compte Stripe · Solde réel">
+@if(($account['business_type'] ?? null)==='company')
+<p style="padding:12px;background:#fff7ed;color:#9a3412;border-radius:8px;margin-bottom:12px"><strong>Identité Stripe à finaliser.</strong> Ce compte est encore déclaré comme société. Le formulaire de passage à l’entreprise individuelle doit être validé dans <a href="https://dashboard.stripe.com/{{ $account['id'] }}/settings/taxation" target="_blank" rel="noopener" style="text-decoration:underline">les informations fiscales Stripe</a>.</p>
+@endif
 <p style="color:#64748b">Vérifié le {{ \Carbon\Carbon::parse($account['checked_at'])->timezone('Europe/Paris')->format('d/m/Y à H:i') }}. Ce solde tient compte de tous les mouvements du compte, y compris son historique.</p>
 @if(\Carbon\Carbon::parse($account['checked_at'])->lt(now()->subMinutes(20)))<p style="color:#9a3412">Les données Stripe sont anciennes : rapprochement à actualiser.</p>@endif
 <div style="display:flex;gap:28px;flex-wrap:wrap;margin-top:14px">
