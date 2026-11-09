@@ -117,4 +117,26 @@ class PermisBillingBridgeTest extends TestCase
         $this->assertStringContainsString('1287.00', $csv);
         $this->assertStringContainsString('FAC-2026-0647', $csv);
     }
+    public function test_cancelled_invoices_and_credits_net_to_zero_and_are_archived(): void
+    {
+        $batch = $this->batch();
+        $original = $batch['invoices'][0];
+        $original['id'] = 20; $original['number'] = 'FAC-CANCELLED';
+        $original['total_minor'] = 39000; $original['paid_minor'] = 0;
+        $original['status'] = 'cancelled'; $original['cancellation_credit_id'] = 21;
+        $credit = $original;
+        $credit['id'] = 21; $credit['number'] = 'AVR-CANCELLED';
+        $credit['type'] = 'credit_note'; $credit['status'] = 'issued';
+        $credit['cancellation_credit_id'] = null; $credit['credited_invoice_id'] = 20;
+        $request = $original;
+        $request['id'] = 22; $request['number'] = 'DEM-EXAMPLE'; $request['type'] = 'proforma';
+        $request['status'] = 'sent'; $request['cancellation_credit_id'] = null;
+        $batch['invoices'] = [$batch['invoices'][0], $original, $credit, $request];
+        (new PermisInvoiceImporter)->import($batch);
+        $rows = (new BillingOverview)->invoices();
+        $this->assertSame(128700, $rows->where('counted',true)->sum('total'));
+        $this->assertCount(1, $rows->where('active',true));
+        $this->assertCount(3, $rows->where('active',false));
+        $this->actingAs(User::factory()->create())->get('/admin/billing-overview')->assertOk()->assertSee('Historique');
+    }
 }
