@@ -33,7 +33,7 @@ $totalFees = $incomplete || $otherFees===null ? null : $group->sum('fees')+$othe
 <x-filament::section heading="Factures des deux sites">
 <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;text-align:left">
 <thead><tr>@foreach(['Date / site','Facture / client','Facturé','Réglé brut','Frais paiement','Net paiement','État',''] as $heading)<th style="padding:10px;border-bottom:2px solid #e2e8f0">{{ $heading }}</th>@endforeach</tr></thead>
-<tbody>@forelse($rows as $r)<tr>
+<tbody>@forelse($rows->where('active', true) as $r)<tr>
 <td style="padding:10px;border-bottom:1px solid #e2e8f0;white-space:nowrap">{{ $r['date'] ? \Carbon\Carbon::parse($r['date'])->format('d/m/Y') : '—' }}<br><small>{{ $r['source'] }}</small></td>
 <td style="padding:10px;border-bottom:1px solid #e2e8f0"><strong>{{ $r['number'] }}</strong><br>{{ $r['client'] }}@if($r['correction'])<br><small>Émetteur rectifié</small>@endif</td>
 @foreach(['total','paid','fees','net'] as $key)<td style="padding:10px;border-bottom:1px solid #e2e8f0;white-space:nowrap">{{ $r[$key]===null ? 'À rapprocher' : $money($r[$key],$r['currency']) }}</td>@endforeach
@@ -42,6 +42,14 @@ $totalFees = $incomplete || $otherFees===null ? null : $group->sum('fees')+$othe
 </tr>@empty<tr><td colspan="8" style="padding:20px">Aucune facture émise.</td></tr>@endforelse</tbody>
 </table></div>
 </x-filament::section>
+@if($rows->where('active', false)->isNotEmpty())
+<x-filament::section heading="Historique · documents hors facturation active">
+<details><summary style="cursor:pointer;font-weight:700">Voir les {{ $rows->where('active', false)->count() }} pièces conservées pour traçabilité</summary>
+<p style="margin:12px 0">Les factures annulées sont compensées par leurs avoirs. Les demandes de paiement ne sont pas des factures. Cet historique n’augmente pas le total facturé.</p>
+@foreach($rows->where('active', false) as $r)<p style="padding:8px 0"><a href="{{ $r['url'] }}" target="_blank" rel="noopener">{{ $r['number'] }} · {{ $r['client'] }}</a> · {{ $r['status'] }} · {{ $money($r['total'], $r['currency']) }}</p>@endforeach
+</details>
+</x-filament::section>
+@endif
 @if($account)
 <x-filament::section heading="Compte Stripe · Solde réel">
 @if(($account['business_type'] ?? null)==='company')
