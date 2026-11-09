@@ -142,6 +142,21 @@ class DossierResource extends Resource
         ];
     }
 
+    /** "Le 12/03/1980 à Périgueux" for the dossier page, or null when nothing was given. */
+    public static function birthLine(Dossier $dossier): ?string
+    {
+        $client = $dossier->client;
+        $date = $client?->birth_date?->format('d/m/Y');
+        $place = trim((string) $client?->birth_place);
+
+        return match (true) {
+            $date && $place !== '' => "Le {$date} à {$place}",
+            (bool) $date => "Le {$date}",
+            $place !== '' => "À {$place}",
+            default => null,
+        };
+    }
+
     public static function infolist(Schema $schema): Schema
     {
         return $schema->components([
@@ -153,6 +168,9 @@ class DossierResource extends Resource
                         ->color('primary')->url(fn (Dossier $r) => $r->client?->phone ? 'tel:'.preg_replace('/[^\d+]/', '', $r->client->phone) : null),
                     TextEntry::make('client.email')->label('E-mail')->placeholder('—')->copyable()->color('primary')
                         ->url(fn (Dossier $r) => $r->client?->email ? 'mailto:'.$r->client->email : null),
+                    TextEntry::make('client_birth')->label('Naissance')
+                        ->state(fn (Dossier $r) => self::birthLine($r))
+                        ->visible(fn (Dossier $r) => self::birthLine($r) !== null),
                     TextEntry::make('procedure')->label('Procédure')->formatStateUsing(fn (Procedure $state) => $state->label()),
                     TextEntry::make('nature')->label('Nature')->formatStateUsing(fn ($state) => self::NATURES[$state] ?? $state)->placeholder('—'),
                     TextEntry::make('site')->label('Terrain')->state(fn (Dossier $r) => $r->siteAddress() ?: '—'),
