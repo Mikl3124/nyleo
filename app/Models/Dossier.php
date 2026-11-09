@@ -239,16 +239,39 @@ class Dossier extends Model
         }
 
         return match ($this->status) {
-            DossierStatus::Nouveau => 'Rappeler le client et faire le devis',
+            DossierStatus::Nouveau => $this->newDossierAction(),
+            DossierStatus::DevisEnvoye => $this->quotes()->where('status', 'envoye')->get()->contains(fn (Quote $q) => $q->isSignable())
+                ? null
+                : 'Devis expiré : relancer le client ou refaire le devis',
             DossierStatus::DevisSigne, DossierStatus::PiecesAttendues => 'Démarrer les plans',
             DossierStatus::PlansEnCours => 'Finir les plans et les envoyer au client',
-            DossierStatus::PlansValides => 'Déposer en mairie (vérifier le paiement)',
+            DossierStatus::PlansValides => $this->unpaidInvoice() ? null : 'Déposer en mairie',
             DossierStatus::Incomplet => 'Fournir les pièces à la mairie'.($this->incomplete_deadline ? ' avant le '.$this->incomplete_deadline->format('d/m/Y') : ''),
             DossierStatus::EnInstruction => $this->decision_due_date && $this->decision_due_date->lte(now()->addDays(7))
                 ? 'Décision attendue le '.$this->decision_due_date->format('d/m/Y').' : appeler la mairie'
                 : null,
             default => null,
         };
+    }
+
+    /** Nouvelle demande : la prochaine étape dépend de ce qui existe déjà côté devis. */
+    private function newDossierAction(): string
+    {
+        $latest = $this->quotes()->latest()->latest('id')->first();
+
+        return match ($latest?->status?->value) {
+            'brouillon' => 'Finir le devis et l\'envoyer au client',
+            'refuse' => 'Devis refusé : rappeler le client',
+            'expire' => 'Devis expiré : relancer le client ou refaire le devis',
+            default => 'Rappeler le client et faire le devis',
+        };
+    }
+
+    /** Première facture émise du dossier qui reste à régler. */
+    public function unpaidInvoice(): ?Invoice
+    {
+        return $this->invoices()->whereNotNull('number')->where('type', '!=', 'avoir')
+            ->whereIn('status', ['emise', 'partiellement_payee'])->orderBy('issue_date')->orderBy('id')->first();
     }
 
     /** Qui a la main : utile pour savoir pourquoi un dossier n'avance pas. */
@@ -258,14 +281,23 @@ class Dossier extends Model
             return 'Le client doit fournir les pièces demandées par la mairie';
         }
 
-        return match ($this->status) {
-            DossierStatus::DevisEnvoye => 'Le client doit signer le devis',
+        $waiting = match ($this->status) {
+            DossierStatus::DevisEnvoye => $this->quotes()->where('status', 'envoye')->get()->contains(fn (Quote $q) => $q->isSignable())
+                ? 'Le client doit signer le devis'
+                : null,
             DossierStatus::PlansAValider => 'Le client doit valider les plans',
             DossierStatus::Depose, DossierStatus::EnInstruction => $this->decision_due_date
                 ? 'La mairie doit répondre avant le '.$this->decision_due_date->format('d/m/Y')
                 : 'La mairie instruit le dossier',
             default => null,
         };
+        if ($waiting) {
+            return $waiting;
+        }
+
+        $unpaid = $this->unpaidInvoice();
+
+        return $unpaid ? "Le client doit régler la facture {$unpaid->number}" : null;
     }
 
     /** Ce que le client doit faire sur ce dossier (liste « Mes dossiers »), ou null s'il n'a rien à faire. */

@@ -9,6 +9,7 @@ use App\Filament\Support\LineItems;
 use App\Models\Client;
 use App\Models\Dossier;
 use App\Models\Quote;
+use App\Services\DossierWorkflow;
 use App\Support\TrackingSummary;
 use BackedEnum;
 use Filament\Actions\EditAction;
@@ -163,6 +164,7 @@ class QuoteResource extends Resource
         }
         if ($existing = $quote->client->dossierForNewQuote($quote->id)) {
             $quote->forceFill(['dossier_id' => $existing->id])->saveQuietly();
+            DossierWorkflow::syncFromDocuments($existing);
 
             return;
         }
@@ -178,5 +180,6 @@ class QuoteResource extends Resource
         ]);
         $dossier->log('creation', 'Dossier créé avec le devis');
         $quote->forceFill(['dossier_id' => $dossier->id])->saveQuietly();
+        DossierWorkflow::syncFromDocuments($dossier);
     }
 }

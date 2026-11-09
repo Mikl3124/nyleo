@@ -8,6 +8,7 @@ use App\Filament\Resources\Clients\ClientResource;
 use App\Filament\Resources\Quotes\QuoteResource;
 use App\Filament\Support\DeleteActions;
 use App\Filament\Support\LineItems;
+use App\Models\Client;
 use App\Models\Dossier;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -79,10 +80,11 @@ class InvoiceResource extends Resource
                     ->editOptionForm(fn (Schema $schema) => ClientResource::form($schema))
                     ->editOptionModalHeading('Modifier le client')
                     ->helperText(fn (Get $get) => QuoteResource::clientSummary($get('client_id')))
-                    ->afterStateUpdated(fn (Set $set) => $set('dossier_id', null)),
+                    ->afterStateUpdated(fn (Set $set, $state) => $set('dossier_id', Client::find($state)?->dossierForNewInvoice()?->id)),
                 Select::make('dossier_id')->label('Dossier')
                     ->options(fn (Get $get) => Dossier::where('client_id', $get('client_id'))->get()
-                        ->mapWithKeys(fn ($d) => [$d->id => $d->reference.' — '.$d->title])),
+                        ->mapWithKeys(fn ($d) => [$d->id => $d->reference.' — '.$d->title]))
+                    ->helperText('Vide : la facture va dans le dossier en cours du client, ou un nouveau dossier est créé s\'il n\'y en a pas.'),
                 TextInput::make('subject')->label('Objet'),
                 DatePicker::make('issue_date')->label("Date d'émission")->helperText('Par défaut : le jour de l\'émission.'),
                 DatePicker::make('due_date')->label("Date d'échéance")->helperText('Par défaut : selon le délai des Paramètres.'),

@@ -71,6 +71,12 @@ class Client extends Authenticatable
             ->latest()->latest('id')->first();
     }
 
+    /** Dossier où ranger une nouvelle facture : le dossier en cours le plus récent du client. */
+    public function dossierForNewInvoice(): ?Dossier
+    {
+        return $this->dossiers()->open()->latest()->latest('id')->first();
+    }
+
     public function quotes(): HasMany
     {
         return $this->hasMany(Quote::class);
