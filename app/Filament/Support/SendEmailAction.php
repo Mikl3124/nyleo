@@ -9,6 +9,7 @@ use App\Models\Dossier;
 use App\Models\Invoice;
 use App\Models\Quote;
 use App\Services\DocumentMailer;
+use App\Services\PlanAccess;
 use App\Support\EmailTemplates;
 use App\Support\MailCopy;
 use Closure;
@@ -66,7 +67,8 @@ class SendEmailAction
     private static function base(string $name, ?Dossier $dossier): Action
     {
         $documents = $dossier
-            ? $dossier->documents()->latest()->get()->mapWithKeys(fn ($d) => [$d->id => $d->category->label().' — '.$d->displayName()])->all()
+            ? $dossier->documents()->latest()->get()->mapWithKeys(fn ($d) => [$d->id => $d->category->label().' — '.$d->displayName()
+                .(PlanAccess::isProtected($d) ? ' · consultation en ligne avec filigrane (téléchargeable une fois la facture réglée)' : '')])->all()
             : [];
 
         return Action::make($name)

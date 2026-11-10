@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
 
 /**
  * E-mail rédigé à la main dans l'admin (devis, facture) : texte libre, bouton « Consulter » optionnel,
- * bouton ocre « Payer par carte » ($payUrl, facture réglable en ligne), liens « Télécharger le PDF » ($downloads : [['label', 'url'], ...]), pièces jointes, suivi ($tracking, voir MailTracking::tag).
+ * bouton ocre « Payer par carte » ($payUrl, facture réglable en ligne), liens « Télécharger le PDF » ($downloads : [['label', 'url'], ...]), boutons « Consulter » des plans en ligne ($online, même forme), pièces jointes, suivi ($tracking, voir MailTracking::tag).
  */
 class DocumentMail extends Mailable
 {
@@ -34,6 +34,7 @@ class DocumentMail extends Mailable
         array $tracking = [],
         public ?string $payUrl = null,
         public ?string $payLabel = null,
+        public array $online = [],
     ) {
         if ($tracking) {
             MailTracking::tag($this, $tracking);

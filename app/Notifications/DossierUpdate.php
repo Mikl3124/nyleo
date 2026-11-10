@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Models\Document;
 use App\Models\Dossier;
+use App\Services\PlanAccess;
 use App\Support\MailTracking;
 use Illuminate\Notifications\Messages\MailMessage;
 
@@ -21,7 +22,8 @@ class DossierUpdate extends ClientNotification
         }
         $mail->action($this->button, self::portalUrl($notifiable, route('portal.dossiers.show', $this->dossier, false)));
 
-        if ($this->document) {
+        // Plans pas encore téléchargeables : pas de lien PDF, le bouton mène à la consultation en ligne.
+        if ($this->document && ! PlanAccess::isProtected($this->document)) {
             $this->downloads($mail, [['label' => 'Télécharger « '.$this->document->displayName().' » (PDF)', 'url' => MailTracking::downloadUrl($this->document)]]);
         }
         $this->track($mail, $notifiable, ['dossier' => $this->dossier->id, 'document' => $this->document?->id]);

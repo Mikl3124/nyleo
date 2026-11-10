@@ -72,6 +72,8 @@ Route::prefix('espace')->name('portal.')->group(function () {
         Route::post('dossiers/{dossier}/photos', [Portal\DossierController::class, 'upload'])->name('dossiers.upload');
         Route::post('dossiers/{dossier}/infos', [Portal\DossierController::class, 'updateInfo'])->name('dossiers.info');
         Route::get('documents/{document}', [Portal\DocumentController::class, 'download'])->name('documents.download');
+        Route::get('documents/{document}/consulter', [Portal\DocumentController::class, 'view'])->name('documents.view');
+        Route::get('documents/{document}/pages/{page}', [Portal\DocumentController::class, 'page'])->whereNumber('page')->name('documents.page');
         Route::post('documents/{document}/valider', [Portal\DocumentController::class, 'validatePlan'])->name('documents.validate');
         Route::post('documents/{document}/modifier', [Portal\DocumentController::class, 'requestChange'])->name('documents.change');
         Route::get('devis/{quote}', [Portal\QuoteController::class, 'show'])->name('quotes.show');

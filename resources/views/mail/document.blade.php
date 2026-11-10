@@ -13,6 +13,12 @@
 </x-mail::button>
 @endif
 
+@foreach ($online as $item)
+<x-mail::button :url="$item['url']" :color="($payUrl || $buttonUrl) ? 'secondary' : 'primary'">
+{{ $item['label'] }}
+</x-mail::button>
+@endforeach
+
 @if ($downloads)
 <x-mail::downloads :items="$downloads" />
 

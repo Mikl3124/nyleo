@@ -19,6 +19,7 @@ use RuntimeException;
  * Envoi « en un clic » d'un devis ou d'une facture avec un texte modifiable et des pièces jointes.
  *
  * $data : to, cc[], subject, body, attach_pdf, include_link (bouton « Consulter »), include_downloads (liens « Télécharger le PDF »), documents[] (ids du dossier),
+ * Les plans encore protégés (PlanAccess) ne sont jamais joints : ils deviennent un bouton « Consulter » ($online).
  * attachments[] (chemins sur le disque local) + attachment_names[chemin => nom], copy_to_me.
  */
 class DocumentMailer
@@ -105,8 +106,16 @@ class DocumentMailer
             $body = str_replace($predicted, $number, $body);
         }
 
+        $online = $consulted = [];
         if ($dossier && ! empty($data['documents'])) {
             foreach (Document::where('dossier_id', $dossier->id)->whereIn('id', $data['documents'])->get() as $doc) {
+                // Plans pas encore téléchargeables : ni pièce jointe ni PDF, un bouton « Consulter » en ligne.
+                if (PlanAccess::isProtected($doc)) {
+                    $online[] = ['label' => 'Consulter « '.$doc->displayName().' »', 'url' => PlanAccess::viewerUrl($doc)];
+                    $consulted[] = $doc->displayName().' (consultation en ligne)';
+
+                    continue;
+                }
                 if (Storage::disk('local')->exists($doc->path)) {
                     $files[] = ['disk' => 'local', 'path' => $doc->path, 'name' => self::filename($doc->name, $doc->path)];
                     if ($data['include_downloads'] ?? true) {
@@ -136,14 +145,14 @@ class DocumentMailer
 
         try {
             $mail->send(new DocumentMail($subject, $body, $files, $button[0] ?? null, $button[1] ?? null, $reply, $downloads,
-                $tracking + ['client' => $client->id, 'dossier' => $dossier?->id], $pay[0] ?? null, $pay[1] ?? null));
+                $tracking + ['client' => $client->id, 'dossier' => $dossier?->id], $pay[0] ?? null, $pay[1] ?? null, $online));
         } finally {
             Storage::disk('local')->delete($uploads);
         }
 
         $dossier?->log('email', "E-mail « {$subject} » envoyé à {$to}", false, [
             'to' => $to, 'cc' => $cc, 'subject' => $subject, 'body' => $body,
-            'attachments' => array_column($files, 'name'),
+            'attachments' => [...array_column($files, 'name'), ...$consulted],
         ]);
     }
 

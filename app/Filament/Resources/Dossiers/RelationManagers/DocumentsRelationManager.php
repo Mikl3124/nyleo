@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Dossiers\RelationManagers;
 use App\Enums\DocumentCategory;
 use App\Models\Document;
 use App\Services\DossierWorkflow;
+use App\Services\PlanAccess;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
@@ -59,9 +60,35 @@ class DocumentsRelationManager extends RelationManager
                     $r->requires_validation => 'En attente du client',
                     default => null,
                 })->badge()->color(fn (Document $r) => $r->validated_at ? 'success' : ($r->change_requested_at ? 'danger' : 'warning')),
+                TextColumn::make('access')->label('Accès client')->badge()
+                    ->state(fn (Document $r) => $r->category === DocumentCategory::Plan && $r->uploaded_by !== 'client'
+                        ? (PlanAccess::isProtected($r) ? 'Consultation seule' : 'Téléchargeable') : null)
+                    ->color(fn ($state) => $state === 'Consultation seule' ? 'warning' : 'success')
+                    ->tooltip(fn ($state) => $state === 'Consultation seule'
+                        ? 'Le client voit les plans en ligne avec un filigrane. Téléchargement débloqué automatiquement quand la facture est réglée.' : null),
                 TextColumn::make('created_at')->label('Date')->dateTime('d/m/Y H:i'),
             ])
             ->headerActions([
+                // Geste commercial, partenaire qui règle autrement… : le client peut télécharger les plans sans attendre le paiement.
+                Action::make('unlockPlans')->label('Débloquer le téléchargement des plans')->icon(Heroicon::OutlinedLockOpen)->color('gray')
+                    ->visible(fn () => $this->hasPlans() && ! PlanAccess::unlocked($this->getOwnerRecord()))
+                    ->requiresConfirmation()->modalHeading('Débloquer le téléchargement des plans ?')
+                    ->modalDescription('Le client pourra télécharger les plans originaux, sans filigrane, même si la facture n\'est pas réglée. Il n\'est pas prévenu.')
+                    ->action(function () {
+                        $dossier = $this->getOwnerRecord();
+                        $dossier->update(['plans_unlocked_at' => now()]);
+                        $dossier->log('plans_debloques', 'Téléchargement des plans débloqué à la main', false);
+                        Notification::make()->title('Plans téléchargeables par le client')->success()->send();
+                    }),
+                Action::make('lockPlans')->label('Rebloquer le téléchargement')->icon(Heroicon::OutlinedLockClosed)->color('gray')
+                    ->visible(fn () => (bool) $this->getOwnerRecord()->plans_unlocked_at)
+                    ->requiresConfirmation()
+                    ->modalDescription('Les plans redeviennent consultables seulement, jusqu\'au règlement de la facture.')
+                    ->action(function () {
+                        $dossier = $this->getOwnerRecord();
+                        $dossier->update(['plans_unlocked_at' => null]);
+                        $dossier->log('plans_bloques', 'Téléchargement des plans rebloqué jusqu\'au règlement', false);
+                    }),
                 CreateAction::make()->label('Ajouter un document')
                     ->mutateDataUsing(fn (array $data) => $data + ['uploaded_by' => 'admin'])
                     ->after(fn (Document $record) => $record->dossier->log('document', "Document ajouté : {$record->displayName()}", $record->visible_to_client)),
@@ -80,5 +107,10 @@ class DocumentsRelationManager extends RelationManager
                 EditAction::make(),
                 DeleteAction::make(),
             ]);
+    }
+
+    private function hasPlans(): bool
+    {
+        return $this->getOwnerRecord()->documents()->where('category', DocumentCategory::Plan->value)->where('uploaded_by', '!=', 'client')->exists();
     }
 }
