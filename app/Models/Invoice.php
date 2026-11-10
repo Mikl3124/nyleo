@@ -34,6 +34,7 @@ class Invoice extends Model
             'deposits_deducted' => 'decimal:2',
             'amount_due' => 'decimal:2',
             'amount_paid' => 'decimal:2',
+            'card_payment' => 'boolean',
         ];
     }
 

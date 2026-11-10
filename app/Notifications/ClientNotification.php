@@ -99,6 +99,18 @@ abstract class ClientNotification extends Notification implements ShouldQueue
     }
 
     /** Encadré ocre (moyens de paiement…). */
+    /** Bouton ocre « Payer par carte » au-dessus du bouton principal, qui passe alors en bleu. */
+    protected function payButton(MailMessage $mail, ?string $url, string $label): MailMessage
+    {
+        if ($url) {
+            $mail->viewData['payUrl'] = $url;
+            $mail->viewData['payLabel'] = $label;
+            $mail->viewData['buttonColor'] = 'secondary';
+        }
+
+        return $mail;
+    }
+
     protected function panel(MailMessage $mail, string $title, array $lines): MailMessage
     {
         $mail->viewData['panelTitle'] = $title;
@@ -113,9 +125,10 @@ abstract class ClientNotification extends Notification implements ShouldQueue
     }
 
     /** Lignes « par virement… / par chèque… » reprises dans les factures et les rappels. */
-    protected static function paymentLines(CompanySetting $s, string $reference): array
+    protected static function paymentLines(CompanySetting $s, string $reference, ?string $cardUrl = null): array
     {
         return [
+            $cardUrl ? '**Par carte bancaire** : en ligne, avec le bouton « Payer par carte » ci-dessous (paiement sécurisé).' : null,
             $s->iban ? '**Par virement** : IBAN '.$s->iban.($s->bic ? ' (BIC '.$s->bic.')' : '').", en indiquant la référence **{$reference}**." : null,
             $s->cheque_order ? "**Par chèque** à l'ordre de ".$s->cheque_order.($s->cheque_address ? ', à envoyer à : '.str_replace("\n", ', ', $s->cheque_address) : '').'.' : null,
         ];

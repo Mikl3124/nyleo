@@ -16,6 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [FrenchTypography::class]);
         // ?copie=1 est ajouté aux liens de la copie envoyée à Mickaël : il ne casse pas la signature.
         $middleware->validateSignatures(except: ['copie']);
+        // Stripe appelle le webhook sans jeton CSRF : la signature Stripe-Signature est vérifiée à la place.
+        $middleware->validateCsrfTokens(except: ['stripe/webhook']);
         $middleware->redirectGuestsTo(fn (Request $request) => $request->is('espace*')
             ? route('portal.login')
             : route('filament.admin.auth.login'));

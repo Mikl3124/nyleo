@@ -9,6 +9,7 @@ use App\Models\CompanySetting;
 use App\Models\Dossier;
 use App\Models\Invoice;
 use App\Models\Quote;
+use App\Services\CardPayment;
 use App\Services\Numbering;
 
 /**
@@ -111,7 +112,7 @@ TXT;
             '{montant}' => money($invoice->isCreditNote() ? $invoice->total_ttc : ($invoice->isDraft() ? $invoice->amount_due : $invoice->remaining())),
             '{validite}' => '',
             '{echeance}' => $invoice->due_date?->format('d/m/Y') ?? 'à réception',
-            '{reglement}' => self::paymentBlock($s, $number),
+            '{reglement}' => self::paymentBlock($s, $number, ! $invoice->isCreditNote() && $invoice->card_payment && CardPayment::enabled()),
         ];
 
         [$subject, $body] = match ($invoice->type) {
@@ -156,9 +157,12 @@ TXT;
         ];
     }
 
-    private static function paymentBlock(CompanySetting $s, string $number): string
+    private static function paymentBlock(CompanySetting $s, string $number, bool $card = false): string
     {
         $lines = [];
+        if ($card) {
+            $lines[] = '- par carte bancaire, en ligne, avec le bouton « Payer par carte » ci-dessous ;';
+        }
         if ($s->iban) {
             $lines[] = '- par virement : IBAN '.$s->iban.($s->bic ? ' (BIC '.$s->bic.')' : '').", en indiquant la référence {$number} ;";
         }

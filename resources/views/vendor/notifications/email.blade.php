@@ -2,7 +2,7 @@
     Gabarit commun des notifications (clients, admin, mot de passe).
     Données facultatives passées par App\Notifications\ClientNotification::message() :
     $eyebrow (petite étiquette), $title (titre), $preheader (aperçu dans la boîte de réception),
-    $recap (tableau libellé => valeur), $downloads (boutons « Télécharger le PDF »), $panelTitle + $panelLines (encadré ocre), $help (ligne d'aide), $buttonColor (primary = ocre, secondary = bleu).
+    $recap (tableau libellé => valeur), $downloads (boutons « Télécharger le PDF »), $panelTitle + $panelLines (encadré ocre), $help (ligne d'aide), $payUrl + $payLabel (bouton ocre « Payer par carte »), $buttonColor (primary = ocre, secondary = bleu).
 --}}
 <x-mail::message :preheader="$preheader ?? ($introLines[0] ?? null ? strip_tags(str_replace('**', '', $introLines[0])) : null)">
 @if (! empty($eyebrow))
@@ -44,6 +44,13 @@
 
 @endforeach
 </x-mail::panel>
+@endif
+
+{{-- Bouton « Payer par carte » (facture réglable en ligne) --}}
+@if (! empty($payUrl))
+<x-mail::button :url="$payUrl" color="primary">
+{{ $payLabel }}
+</x-mail::button>
 @endif
 
 {{-- Bouton --}}
