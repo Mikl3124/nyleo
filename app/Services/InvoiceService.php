@@ -6,6 +6,7 @@ use App\Enums\DossierStatus;
 use App\Enums\InvoiceStatus;
 use App\Enums\InvoiceType;
 use App\Models\CompanySetting;
+use App\Models\Dossier;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Quote;
@@ -248,6 +249,7 @@ class InvoiceService
             }
 
             $invoice->dossier?->log('facture_supprimee', "{$label} supprimée");
+            DossierWorkflow::syncFromDocuments($invoice->dossier);
         });
     }
 
@@ -257,5 +259,29 @@ class InvoiceService
         $invoice->client->notify(new InvoiceReminder($invoice));
         $invoice->forceFill(['reminder_count' => $invoice->reminder_count + 1, 'last_reminder_at' => now()])->saveQuietly();
         $invoice->dossier?->log('relance', "Relance n°{$invoice->reminder_count} envoyée pour la facture {$invoice->number}");
+    }
+
+    /** Rattache la facture au dossier en cours du client, ou crée le dossier s'il n'y en a pas. */
+    public static function ensureDossier(Invoice $invoice): void
+    {
+        if ($invoice->dossier_id || ! $invoice->client) {
+            return;
+        }
+        $dossier = $invoice->client->dossierForNewInvoice();
+        if (! $dossier) {
+            $subject = $invoice->subject ?: 'Projet de '.$invoice->client->display_name;
+            $dossier = Dossier::create([
+                'client_id' => $invoice->client_id,
+                'title' => $subject,
+                'procedure' => str($subject)->lower()->contains(['permis', ' pc']) ? 'PC' : 'DP',
+                'site_address' => $invoice->client->address,
+                'site_postal_code' => $invoice->client->postal_code,
+                'site_city' => $invoice->client->city,
+            ]);
+            $dossier->log('creation', 'Dossier créé avec la facture');
+        }
+        $invoice->forceFill(['dossier_id' => $dossier->id])->saveQuietly();
+        $invoice->setRelation('dossier', $dossier);
+        DossierWorkflow::syncFromDocuments($dossier);
     }
 }

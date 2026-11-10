@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Enums\DossierStatus;
 use App\Enums\QuoteStatus;
 use App\Models\CompanySetting;
 use App\Models\Quote;
@@ -35,9 +34,6 @@ class QuoteService
             $quote->sent_at = now();
             $quote->save();
 
-            if ($quote->dossier && in_array($quote->dossier->status, [DossierStatus::Nouveau, DossierStatus::DevisEnvoye], true)) {
-                $quote->dossier->update(['status' => DossierStatus::DevisEnvoye]);
-            }
             $quote->dossier?->log('devis_envoye', "Devis {$quote->number} envoyé", true);
         });
 
@@ -74,7 +70,6 @@ class QuoteService
             PdfService::storeSignedQuote($quote);
 
             if ($dossier = $quote->dossier) {
-                $dossier->update(['status' => DossierStatus::PiecesAttendues]);
                 $dossier->log('devis_signe', "Devis {$quote->number} signé en ligne par {$signerName}", true);
                 $dossier->log('demarrage_anticipe', $earlyStart
                     ? 'Le client demande de commencer sans attendre la fin du délai de rétractation de 14 jours'

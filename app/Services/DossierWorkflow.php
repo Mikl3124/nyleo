@@ -4,6 +4,9 @@ namespace App\Services;
 
 use App\Enums\DocumentCategory;
 use App\Enums\DossierStatus;
+use App\Enums\InvoiceStatus;
+use App\Enums\InvoiceType;
+use App\Enums\QuoteStatus;
 use App\Models\Document;
 use App\Models\Dossier;
 use App\Models\PieceRequest;
@@ -15,6 +18,64 @@ use Illuminate\Support\Facades\DB;
 
 class DossierWorkflow
 {
+    /** Statuts « commerciaux » : ils se déduisent entièrement des devis et des factures du dossier. */
+    public const COMMERCIAL_STATUSES = [
+        DossierStatus::Nouveau, DossierStatus::DevisEnvoye, DossierStatus::DevisSigne, DossierStatus::PiecesAttendues,
+    ];
+
+    /**
+     * Statut que les devis et factures imposent au dossier : un devis signé, une facture
+     * ou un devis envoyé font sortir le dossier de « Nouvelle demande ».
+     */
+    public static function statusFromDocuments(Dossier $dossier): DossierStatus
+    {
+        if ($dossier->quotes()->where('status', QuoteStatus::Signe->value)->exists()) {
+            return in_array($dossier->status, [DossierStatus::DevisSigne, DossierStatus::PiecesAttendues], true)
+                ? $dossier->status
+                : DossierStatus::PiecesAttendues;
+        }
+        // Une facture (même en brouillon) sans devis signé : le travail est commandé, on en est aux plans.
+        if (static::billedInvoices($dossier)->exists()) {
+            return DossierStatus::PlansEnCours;
+        }
+        if ($dossier->quotes()->where('status', QuoteStatus::Envoye->value)->exists()) {
+            return DossierStatus::DevisEnvoye;
+        }
+
+        return DossierStatus::Nouveau;
+    }
+
+    /** Factures et acomptes du dossier, brouillons compris, sauf avoirs et factures annulées. */
+    public static function billedInvoices(Dossier $dossier)
+    {
+        return $dossier->invoices()
+            ->where('type', '!=', InvoiceType::Avoir->value)
+            ->where('status', '!=', InvoiceStatus::Annulee->value);
+    }
+
+    /**
+     * Remet le statut d'accord avec les devis et factures, tant que le dossier est en phase commerciale.
+     * Appelé à chaque enregistrement ou suppression d'un devis ou d'une facture. Une fois les plans
+     * commencés, le statut suit le travail (plans, mairie) et n'est plus touché ici.
+     */
+    public static function syncFromDocuments(?Dossier $dossier): void
+    {
+        if (! $dossier || ! $dossier->exists || $dossier->trashed()) {
+            return;
+        }
+        $dossier->status = Dossier::whereKey($dossier->id)->value('status') ?? $dossier->status;
+        $dossier->syncOriginalAttribute('status');
+        if (! in_array($dossier->status, static::COMMERCIAL_STATUSES, true)) {
+            return;
+        }
+
+        $status = static::statusFromDocuments($dossier);
+        if ($status !== $dossier->status) {
+            $dossier->forceFill(['status' => $status])->saveQuietly();
+            $dossier->log('statut', 'Statut mis à jour d\'après les devis et factures : '.$status->label());
+        }
+    }
+
     /** Le dessinateur met des plans en ligne et demande la validation du client. */
     public static function submitPlans(Document $plan, ?string $message = null): void
     {
@@ -221,6 +282,7 @@ class DossierWorkflow
             $dossier->log('suivi', 'Suivi mis à jour'.($parts ? ' — '.implode(' ; ', $parts) : ''));
         }
     }
+
     /**
      * Deux dossiers pour le même projet : tout passe dans $keep (devis, factures, pièces, journal,
      * suivi des e-mails), ses champs vides sont complétés par $duplicate, puis $duplicate est supprimé.
