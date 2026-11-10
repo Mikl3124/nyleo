@@ -76,6 +76,7 @@ class DocumentMailer
                     ClientNotification::portalUrl($invoice->client, $invoice->dossier ? route('portal.dossiers.show', $invoice->dossier, false) : null)]
                 : null,
             $downloads, ['invoice' => $invoice->id],
+            CardPayment::url($invoice) ? [CardPayment::url($invoice), 'Payer '.money($invoice->remaining()).' par carte'] : null,
         );
 
         $invoice->forceFill(['sent_at' => now()])->saveQuietly();
@@ -89,7 +90,7 @@ class DocumentMailer
         return filter_var($email, FILTER_VALIDATE_EMAIL) ? $email : User::query()->orderBy('id')->value('email');
     }
 
-    private static function deliver($client, $dossier, array $data, array $files, ?string $predicted, ?string $number, ?array $button, array $downloads = [], array $tracking = []): void
+    private static function deliver($client, $dossier, array $data, array $files, ?string $predicted, ?string $number, ?array $button, array $downloads = [], array $tracking = [], ?array $pay = null): void
     {
         $to = trim((string) ($data['to'] ?? $client->email));
         if (! filter_var($to, FILTER_VALIDATE_EMAIL)) {
@@ -135,7 +136,7 @@ class DocumentMailer
 
         try {
             $mail->send(new DocumentMail($subject, $body, $files, $button[0] ?? null, $button[1] ?? null, $reply, $downloads,
-                $tracking + ['client' => $client->id, 'dossier' => $dossier?->id]));
+                $tracking + ['client' => $client->id, 'dossier' => $dossier?->id], $pay[0] ?? null, $pay[1] ?? null));
         } finally {
             Storage::disk('local')->delete($uploads);
         }

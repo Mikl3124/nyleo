@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\DownloadController;
+use App\Http\Controllers\CardPaymentController;
 use App\Http\Controllers\MailTrackingController;
 use App\Http\Controllers\Portal;
 use App\Http\Controllers\Site\SiteController;
@@ -42,6 +43,12 @@ Route::get('/demande/merci', [Portal\RequestController::class, 'thanks'])->name(
 Route::get('/m/{token}/o.gif', [MailTrackingController::class, 'open'])->where('token', '[A-Za-z0-9]{40}')->name('mail.open');
 Route::get('/m/{token}/l/{link}', [MailTrackingController::class, 'click'])->where(['token' => '[A-Za-z0-9]{40}', 'link' => '[0-9]+'])->name('mail.click');
 Route::get('/fichiers/{kind}/{id}', [Portal\FileController::class, 'download'])->whereIn('kind', ['devis', 'facture', 'document'])->whereNumber('id')->middleware('signed')->name('files.download');
+
+// Paiement des factures par carte (Stripe Checkout) : lien signé, retour de Stripe et webhook.
+Route::get('/paiement/facture/{invoice}', [CardPaymentController::class, 'start'])->whereNumber('invoice')->middleware(['signed', 'throttle:20,1'])->name('payment.card');
+Route::get('/paiement/facture/{invoice}/merci', [CardPaymentController::class, 'success'])->whereNumber('invoice')->middleware('throttle:20,1')->name('payment.card.success');
+Route::get('/paiement/facture/{invoice}/annule', [CardPaymentController::class, 'cancel'])->whereNumber('invoice')->middleware('signed')->name('payment.card.cancel');
+Route::post('/stripe/webhook', [CardPaymentController::class, 'webhook'])->name('stripe.webhook');
 
 // Téléchargements du back-office (protégés par la connexion admin)
 Route::middleware('auth:web')->prefix('admin-fichiers')->name('admin.')->group(function () {

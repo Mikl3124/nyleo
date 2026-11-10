@@ -132,9 +132,8 @@ class DeletionTest extends TestCase
         $this->assertNull(Dossier::withTrashed()->find($d1->id));
         $this->assertNotNull($d2->fresh());
 
-        Livewire::test(ListInvoices::class)
-            ->callTableBulkAction('deleteForever', [$inv2], data: ['confirm' => true]);
-        $this->assertNull(Invoice::withTrashed()->find($inv2->id));
+        Livewire::test(ListInvoices::class)->assertTableBulkActionDoesNotExist('deleteForever');
+        $this->assertNotNull(Invoice::withTrashed()->find($inv2->id));
         $this->assertNotNull($d2->fresh());
     }
 
