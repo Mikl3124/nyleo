@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Models\CompanySetting;
 use App\Models\Invoice;
+use App\Services\CardPayment;
 use App\Services\PdfService;
 use App\Support\MailTracking;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -31,7 +32,9 @@ class InvoiceReminder extends ClientNotification
             'Reste à régler' => money($i->remaining()),
             'Échéance' => $i->due_date?->format('d/m/Y'),
         ]);
-        $this->panel($mail, 'Comment régler ?', self::paymentLines($s, $i->number));
+        $cardUrl = CardPayment::url($i);
+        $this->payButton($mail, $cardUrl, 'Payer '.money($i->remaining()).' par carte');
+        $this->panel($mail, 'Comment régler ?', self::paymentLines($s, $i->number, $cardUrl));
 
         $this->downloads($mail, [['label' => 'Télécharger la facture (PDF)', 'url' => MailTracking::downloadUrl($i)]]);
         $this->track($mail, $notifiable, ['invoice' => $i->id, 'dossier' => $i->dossier_id]);

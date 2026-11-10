@@ -5,6 +5,7 @@ namespace App\Notifications;
 use App\Enums\InvoiceType;
 use App\Models\CompanySetting;
 use App\Models\Invoice;
+use App\Services\CardPayment;
 use App\Services\PdfService;
 use App\Support\MailTracking;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -41,7 +42,9 @@ class InvoiceSent extends ClientNotification
         if ($isFinal) {
             $mail->line('**Comme convenu, je dépose votre dossier en mairie dès réception du règlement.**');
         }
+        $cardUrl = CardPayment::url($i);
         $mail->action('Consulter ma facture', $url);
+        $this->payButton($mail, $cardUrl, 'Payer '.money($i->remaining()).' par carte');
         $this->downloads($mail, [['label' => 'Télécharger la facture (PDF)', 'url' => MailTracking::downloadUrl($i)]]);
         $this->track($mail, $notifiable, ['invoice' => $i->id, 'dossier' => $i->dossier_id]);
         if ($s->iban && $i->dossier) {
@@ -53,7 +56,7 @@ class InvoiceSent extends ClientNotification
             'Montant à régler' => money($i->amount_due),
             'À régler avant le' => $i->due_date?->format('d/m/Y'),
         ]);
-        $this->panel($mail, 'Comment régler ?', self::paymentLines($s, $i->number));
+        $this->panel($mail, 'Comment régler ?', self::paymentLines($s, $i->number, $cardUrl));
 
         return $this->preheader($mail, 'Montant à régler : '.money($i->amount_due).($isFinal ? '. Dépôt en mairie dès réception.' : '.'))
             ->attachData($pdf, PdfService::invoiceFilename($i), ['mime' => 'application/pdf']);

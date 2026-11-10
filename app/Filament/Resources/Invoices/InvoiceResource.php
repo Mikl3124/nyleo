@@ -11,6 +11,7 @@ use App\Filament\Support\LineItems;
 use App\Models\Dossier;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Services\CardPayment;
 use App\Services\InvoiceService;
 use App\Support\TrackingSummary;
 use BackedEnum;
@@ -21,6 +22,7 @@ use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
@@ -89,6 +91,12 @@ class InvoiceResource extends Resource
                 TextInput::make('deposits_deducted')->label('Acomptes déjà facturés à déduire')->numeric()->suffix('€')->default(0)
                     ->visible(fn (Get $get) => $get('type') === InvoiceType::Facture->value),
                 Placeholder::make('total_preview')->label('Total')->content(fn (Get $get) => LineItems::total($get)),
+                Toggle::make('card_payment')->label('Le client peut payer par carte bancaire')->default(false)
+                    ->helperText(fn () => CardPayment::enabled()
+                        ? 'Ajoute un bouton « Payer par carte » dans l\'e-mail de la facture et dans l\'espace client.'
+                        : 'Stripe n\'est pas encore configuré : le bouton n\'apparaîtra qu\'une fois les clés ajoutées.')
+                    ->visible(fn (Get $get, ?Invoice $record) => ! $record?->isCreditNote())
+                    ->columnSpanFull(),
             ]),
             LineItems::repeater(),
             Textarea::make('notes')->label('Mention particulière (affichée sur la facture)')->rows(2)->columnSpanFull(),

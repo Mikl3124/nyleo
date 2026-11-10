@@ -92,6 +92,12 @@
         <h2>À régler : {{ $inv->type->label() }} {{ $inv->number }}</h2>
         <p>Montant restant : <strong>{{ money($inv->remaining()) }}</strong>@if ($inv->due_date), avant le {{ $inv->due_date->format('d/m/Y') }}@endif.</p>
         <div class="pay">
+            @if ($cardUrl = \App\Services\CardPayment::url($inv))
+                <div class="pay-card">
+                    <p><a class="btn cta block" href="{{ $cardUrl }}">Payer {{ money($inv->remaining()) }} par carte bancaire</a></p>
+                    <p class="muted">Paiement sécurisé par Stripe. Vous pouvez aussi régler par virement ou par chèque.</p>
+                </div>
+            @endif
             @if ($company->iban)
                 @php
                     $qr = \App\Support\PaymentQr::svg($inv, $company->snapshot());

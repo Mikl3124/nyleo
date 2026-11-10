@@ -1,8 +1,14 @@
 <x-mail::message :preheader="$preheader">
 {!! $paragraphs !!}
 
+@if ($payUrl)
+<x-mail::button :url="$payUrl">
+{{ $payLabel }}
+</x-mail::button>
+@endif
+
 @if ($buttonUrl)
-<x-mail::button :url="$buttonUrl">
+<x-mail::button :url="$buttonUrl" :color="$payUrl ? 'secondary' : 'primary'">
 {{ $buttonLabel }}
 </x-mail::button>
 @endif
