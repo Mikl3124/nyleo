@@ -48,6 +48,17 @@ class EditInvoice extends EditRecord
                 after: fn () => $this->redirect(InvoiceResource::getUrl('edit', ['record' => $inv])),
             ),
             InvoiceResource::paymentAction()->record($inv)->after(fn () => $this->redirect(InvoiceResource::getUrl('edit', ['record' => $inv]))),
+            Action::make('cardPayment')
+                ->label(fn () => $inv->card_payment ? 'Retirer le paiement par carte' : 'Proposer le paiement par carte')
+                ->icon(Heroicon::OutlinedCreditCard)->color('gray')
+                ->visible(fn () => ! $inv->isDraft() && in_array($inv->status, [InvoiceStatus::Emise, InvoiceStatus::PartiellementPayee], true))
+                ->action(function () use ($inv) {
+                    $inv->forceFill(['card_payment' => ! $inv->card_payment])->saveQuietly();
+                    Notification::make()->title($inv->card_payment ? 'Le client peut maintenant payer par carte' : 'Paiement par carte retiré')
+                        ->body($inv->card_payment && ! CardPayment::enabled() ? 'Stripe n\'est pas encore configuré : le bouton apparaîtra une fois les clés ajoutées.' : null)
+                        ->success()->send();
+                    $this->redirect(InvoiceResource::getUrl('edit', ['record' => $inv]));
+                }),
             Action::make('pdf')->label('PDF')->icon(Heroicon::OutlinedArrowDownTray)->color('gray')
                 ->url(fn () => route('admin.invoices.pdf', $inv))->openUrlInNewTab(),
             ActionGroup::make([
@@ -63,17 +74,6 @@ class EditInvoice extends EditRecord
                         } catch (\Throwable $e) {
                             Notification::make()->title($e->getMessage())->danger()->send();
                         }
-                        $this->redirect(InvoiceResource::getUrl('edit', ['record' => $inv]));
-                    }),
-                Action::make('cardPayment')
-                    ->label(fn () => $inv->card_payment ? 'Retirer le paiement par carte' : 'Proposer le paiement par carte')
-                    ->icon(Heroicon::OutlinedCreditCard)
-                    ->visible(fn () => ! $inv->isDraft() && in_array($inv->status, [InvoiceStatus::Emise, InvoiceStatus::PartiellementPayee], true))
-                    ->action(function () use ($inv) {
-                        $inv->forceFill(['card_payment' => ! $inv->card_payment])->saveQuietly();
-                        Notification::make()->title($inv->card_payment ? 'Le client peut maintenant payer par carte' : 'Paiement par carte retiré')
-                            ->body($inv->card_payment && ! CardPayment::enabled() ? 'Stripe n\'est pas encore configuré : le bouton apparaîtra une fois les clés ajoutées.' : null)
-                            ->success()->send();
                         $this->redirect(InvoiceResource::getUrl('edit', ['record' => $inv]));
                     }),
                 Action::make('remind')->label('Relancer maintenant')->icon(Heroicon::OutlinedBellAlert)

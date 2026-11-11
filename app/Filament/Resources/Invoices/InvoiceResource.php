@@ -95,7 +95,7 @@ class InvoiceResource extends Resource
                 TextInput::make('deposits_deducted')->label('Acomptes déjà facturés à déduire')->numeric()->suffix('€')->default(0)
                     ->visible(fn (Get $get) => $get('type') === InvoiceType::Facture->value),
                 Placeholder::make('total_preview')->label('Total')->content(fn (Get $get) => LineItems::total($get)),
-                Toggle::make('card_payment')->label('Le client peut payer par carte bancaire')->default(false)
+                Toggle::make('card_payment')->label('Le client peut payer par carte bancaire')->default(true)
                     ->helperText(fn () => CardPayment::enabled()
                         ? 'Ajoute un bouton « Payer par carte » dans l\'e-mail de la facture et dans l\'espace client.'
                         : 'Stripe n\'est pas encore configuré : le bouton n\'apparaîtra qu\'une fois les clés ajoutées.')

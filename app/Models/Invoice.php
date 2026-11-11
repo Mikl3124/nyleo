@@ -17,6 +17,9 @@ class Invoice extends Model
 
     protected $guarded = ['id'];
 
+    /** Paiement par carte proposé par défaut (Mickaël, 2026-11-11) ; décochable facture par facture. */
+    protected $attributes = ['card_payment' => true];
+
     protected function casts(): array
     {
         return [
