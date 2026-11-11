@@ -12,6 +12,7 @@ use App\Models\Quote;
 use App\Services\DossierWorkflow;
 use App\Support\TrackingSummary;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
@@ -71,9 +72,10 @@ class QuoteResource extends Resource
                     ->getOptionLabelFromRecordUsing(fn ($record) => $record->full_name)
                     ->searchable(['last_name', 'first_name', 'company_name', 'email'])->preload()->required()->live()
                     ->createOptionForm(fn (Schema $schema) => ClientResource::form($schema))
+                    ->createOptionAction(fn (Action $action) => ClientResource::createOptionAction($action))
                     ->editOptionForm(fn (Schema $schema) => ClientResource::form($schema))
                     ->editOptionModalHeading('Modifier le client')
-                    ->helperText(fn (Get $get) => static::clientSummary($get('client_id')))
+                    ->helperText(fn (Get $get) => static::clientSummary($get('client_id')) ?? static::NEW_CLIENT_HINT)
                     ->afterStateUpdated(fn (Set $set, $state) => $set('dossier_id', Client::find($state)?->dossierForNewQuote()?->id)),
                 Select::make('dossier_id')->label('Dossier')
                     ->options(fn (Get $get) => Dossier::where('client_id', $get('client_id'))->get()
@@ -137,6 +139,8 @@ class QuoteResource extends Resource
     }
 
     /** « e-mail · téléphone · commune » sous le client, pour vérifier d'un coup d'œil. */
+    public const NEW_CLIENT_HINT = 'Client absent de la liste ? Bouton + à droite pour le créer.';
+
     public static function clientSummary(mixed $clientId): ?string
     {
         $client = $clientId ? Client::find($clientId) : null;

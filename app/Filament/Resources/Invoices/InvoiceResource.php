@@ -79,9 +79,11 @@ class InvoiceResource extends Resource
                 Select::make('client_id')->label('Client')->relationship('client', 'last_name')
                     ->getOptionLabelFromRecordUsing(fn ($record) => $record->full_name)
                     ->searchable(['last_name', 'first_name', 'company_name', 'email'])->preload()->required()->live()
+                    ->createOptionForm(fn (Schema $schema) => ClientResource::form($schema))
+                    ->createOptionAction(fn (Action $action) => ClientResource::createOptionAction($action))
                     ->editOptionForm(fn (Schema $schema) => ClientResource::form($schema))
                     ->editOptionModalHeading('Modifier le client')
-                    ->helperText(fn (Get $get) => QuoteResource::clientSummary($get('client_id')))
+                    ->helperText(fn (Get $get) => QuoteResource::clientSummary($get('client_id')) ?? QuoteResource::NEW_CLIENT_HINT)
                     ->afterStateUpdated(fn (Set $set, $state) => $set('dossier_id', Client::find($state)?->dossierForNewInvoice()?->id)),
                 Select::make('dossier_id')->label('Dossier')
                     ->options(fn (Get $get) => Dossier::where('client_id', $get('client_id'))->get()

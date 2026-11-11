@@ -15,6 +15,7 @@ use App\Filament\Widgets\TodoDossiers;
 use App\Models\Dossier;
 use App\Support\SiteContent;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -81,7 +82,8 @@ class DossierResource extends Resource
                 Select::make('client_id')->label('Client')->relationship('client', 'last_name')
                     ->getOptionLabelFromRecordUsing(fn ($record) => $record->full_name)
                     ->searchable(['last_name', 'first_name', 'company_name', 'email'])->preload()->required()
-                    ->createOptionForm(fn (Schema $schema) => ClientResource::form($schema)),
+                    ->createOptionForm(fn (Schema $schema) => ClientResource::form($schema))
+                    ->createOptionAction(fn (Action $action) => ClientResource::createOptionAction($action)),
                 TextInput::make('title')->label('Intitulé')->placeholder('Ex. Véranda 20 m² — Le Bouscat')->required(),
                 Select::make('procedure')->label('Procédure')->options(Procedure::options())->default('DP')->required(),
                 Select::make('nature')->label('Nature des travaux')->options(self::NATURES),

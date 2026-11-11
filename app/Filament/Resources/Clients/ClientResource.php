@@ -53,6 +53,14 @@ class ClientResource extends Resource
         return ['last_name', 'first_name', 'company_name', 'email', 'phone', 'city'];
     }
 
+    /** Bouton « + » des listes de clients (devis, facture, dossier) : créer le client sans quitter la page. */
+    public static function createOptionAction(Action $action): Action
+    {
+        return $action->tooltip('Nouveau client')
+            ->modalHeading('Nouveau client')
+            ->modalSubmitActionLabel('Créer le client');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
