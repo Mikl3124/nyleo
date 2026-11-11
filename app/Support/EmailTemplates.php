@@ -41,8 +41,6 @@ Les plans établis pour votre {procedure} sont prêts : vous pouvez les consulte
 
 {reglement}
 
-{infos_cerfa}
-
 Je vous remercie par avance pour votre retour.
 TXT;
 
@@ -88,7 +86,7 @@ TXT;
     public static function forQuote(Quote $quote): array
     {
         $s = CompanySetting::current();
-        $vars = self::common($quote->dossier, $quote->client) + [
+        $vars = self::common($quote->dossier, $quote->client, [$quote->subject, ...$quote->lines->pluck('label')->all()]) + [
             '{numero}' => $quote->number ?: Numbering::peek('quote'),
             '{montant}' => money($quote->total_ttc),
             '{validite}' => ($quote->valid_until ?? now()->addDays((int) $s->quote_validity_days))->format('d/m/Y'),
@@ -103,17 +101,21 @@ TXT;
     }
 
     /** @return array{subject: string, body: string} */
-    public static function forInvoice(Invoice $invoice): array
+    /** $card : proposer le paiement par carte (par défaut, l'option enregistrée sur la facture). */
+    public static function forInvoice(Invoice $invoice, ?bool $card = null): array
     {
         $s = CompanySetting::current();
         $number = $invoice->number ?: Numbering::peek($invoice->isCreditNote() ? 'credit_note' : 'invoice');
-        $vars = self::common($invoice->dossier, $invoice->client) + [
+        $vars = self::common($invoice->dossier, $invoice->client, [$invoice->subject, ...$invoice->lines->pluck('label')->all()]) + [
             '{numero}' => $number,
             '{montant}' => money($invoice->isCreditNote() ? $invoice->total_ttc : ($invoice->isDraft() ? $invoice->amount_due : $invoice->remaining())),
             '{validite}' => '',
             '{echeance}' => $invoice->due_date?->format('d/m/Y') ?? 'à réception',
-            '{reglement}' => self::paymentBlock($s, $number, ! $invoice->isCreditNote() && $invoice->card_payment && CardPayment::enabled()),
+            '{reglement}' => self::paymentBlock($s, $number, ! $invoice->isCreditNote() && ($card ?? $invoice->card_payment) && CardPayment::enabled()),
         ];
+
+        // Date et lieu de naissance : demandés dans l'espace client avant l'ouverture des plans, plus par e-mail.
+        $vars['{infos_cerfa}'] = '';
 
         [$subject, $body] = match ($invoice->type) {
             InvoiceType::Acompte => [self::DEPOSIT_SUBJECT, self::DEPOSIT_BODY],
@@ -130,7 +132,35 @@ TXT;
         ];
     }
 
-    private static function common(?Dossier $dossier, $client): array
+    /** Mots repérés dans le titre du dossier, l'objet ou les prestations → nature affichée dans l'objet de l'e-mail. */
+    private const NATURE_WORDS = [
+        'v[ée]randa' => 'Véranda', 'pergola' => 'Pergola', 'carport' => 'Carport', 'abri' => 'Abri de jardin',
+        'garage' => 'Garage', 'piscine' => 'Piscine', 'extension|agrandissement' => 'Extension', 'surélévation' => 'Surélévation',
+        'maison' => 'Maison', 'cl[ôo]ture|portail' => 'Clôture', 'fa[çc]ade|ouverture|fen[êe]tre' => 'Façade',
+        'photovolta|panneaux solaires' => 'Panneaux photovoltaïques', 'changement de destination' => 'Changement de destination',
+        'annexe' => 'Annexe', 'terrasse' => 'Terrasse', 'auvent' => 'Auvent',
+    ];
+
+    /** Nature des travaux : celle du dossier, sinon devinée dans les textes (titre, objet, prestations). */
+    public static function nature(?Dossier $dossier, array $texts = []): string
+    {
+        if ($dossier?->nature && $dossier->nature !== 'autre') {
+            return match ($dossier->nature) {
+                'maison' => 'Maison', 'abri' => 'Abri de jardin', 'cloture' => 'Clôture', 'facade' => 'Façade',
+                default => DossierResource::NATURES[$dossier->nature] ?? $dossier->nature,
+            };
+        }
+        $haystack = mb_strtolower(implode(' ', array_filter([$dossier?->title, ...$texts])));
+        foreach (self::NATURE_WORDS as $pattern => $label) {
+            if (preg_match('/\b('.$pattern.')/u', $haystack)) {
+                return $label;
+            }
+        }
+
+        return '';
+    }
+
+    private static function common(?Dossier $dossier, $client, array $texts = []): array
     {
         $procedure = $dossier?->procedure;
         $label = match ($procedure) {
@@ -147,8 +177,7 @@ TXT;
             '{sigle}' => match ($procedure) {
                 Procedure::DP => 'DP', Procedure::PC, Procedure::PCArchi => 'PC', Procedure::PA => 'PA', default => '',
             },
-            '{nature}' => $dossier?->nature && $dossier->nature !== 'autre'
-                ? (DossierResource::NATURES[$dossier->nature] ?? $dossier->nature) : '',
+            '{nature}' => self::nature($dossier, $texts),
             '{projet}' => $dossier?->title ?? '',
             '{client}' => $client?->full_name ?? '',
             '{infos_cerfa}' => $missingBirth && $dossier
@@ -157,11 +186,28 @@ TXT;
         ];
     }
 
+    /** Ligne « par carte » du bloc {reglement} (ajoutée ou retirée selon la case « Paiement par carte » à l'envoi). */
+    public const CARD_LINE = '- par carte bancaire, en ligne, avec le bouton « Payer par carte » ci-dessous ;';
+
+    /** Ajoute ou retire la ligne « par carte » d'un texte déjà préparé. */
+    public static function withCardLine(string $body, bool $card): string
+    {
+        $has = str_contains($body, self::CARD_LINE);
+        if (! $card && $has) {
+            return str_replace(self::CARD_LINE."\n", '', str_replace("\n".self::CARD_LINE, '', $body));
+        }
+        if ($card && ! $has && str_contains($body, "Règlement possible :\n")) {
+            return str_replace("Règlement possible :\n", "Règlement possible :\n".self::CARD_LINE."\n", $body);
+        }
+
+        return $body;
+    }
+
     private static function paymentBlock(CompanySetting $s, string $number, bool $card = false): string
     {
         $lines = [];
         if ($card) {
-            $lines[] = '- par carte bancaire, en ligne, avec le bouton « Payer par carte » ci-dessous ;';
+            $lines[] = self::CARD_LINE;
         }
         if ($s->iban) {
             $lines[] = '- par virement : IBAN '.$s->iban.($s->bic ? ' (BIC '.$s->bic.')' : '').", en indiquant la référence {$number} ;";

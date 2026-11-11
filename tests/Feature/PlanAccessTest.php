@@ -40,7 +40,8 @@ class PlanAccessTest extends TestCase
     /** @return array{Invoice, Document} */
     private function dossierWithPlanAndInvoice(bool $issue = true): array
     {
-        $client = Client::create(['first_name' => 'Jean', 'last_name' => 'Martin', 'email' => 'jean'.uniqid().'@example.com']);
+        $client = Client::create(['first_name' => 'Jean', 'last_name' => 'Martin', 'email' => 'jean'.uniqid().'@example.com',
+            'birth_date' => '1960-05-12', 'birth_place' => 'Périgueux (24)']);
         $dossier = Dossier::create(['client_id' => $client->id, 'title' => 'Véranda', 'procedure' => 'DP']);
         Storage::disk('local')->put("dossiers/{$dossier->id}/plans.pdf", Pdf::loadHTML('<h1>Plan de masse</h1><p>Échelle 1/200</p>')->output());
         $plan = Document::create(['dossier_id' => $dossier->id, 'category' => 'plan', 'name' => 'Plans DP véranda',
@@ -215,5 +216,23 @@ class PlanAccessTest extends TestCase
             'subject' => 'Plans + facture', 'body' => "Bonjour,\n\nVeuillez trouver en pièce jointe les plans établis pour votre déclaration."]);
 
         Mail::assertSent(DocumentMail::class, fn (DocumentMail $m) => str_contains($m->body, 'consulter en ligne') && ! str_contains($m->body, 'pièce jointe les plans'));
+    }
+
+    public function test_birth_date_and_place_are_asked_before_showing_the_plans(): void
+    {
+        [$invoice, $plan] = $this->dossierWithPlanAndInvoice();
+        $client = $invoice->client;
+        $client->update(['birth_date' => null, 'birth_place' => null]);
+        $this->assertStringNotContainsString('date et lieu de naissance', EmailTemplates::forInvoice($invoice)['body']);
+
+        $this->actingAs($client, 'client')->get(route('portal.documents.view', $plan))
+            ->assertOk()->assertSee('Avant d')->assertDontSee(route('portal.documents.page', [$plan, 1]), false);
+        $this->actingAs($client, 'client')->get(route('portal.documents.page', [$plan, 1]))->assertForbidden();
+
+        $this->actingAs($client, 'client')->post(route('portal.documents.birth', $plan), ['birth_date' => '1955-03-02', 'birth_place' => 'Sourzac (24)'])
+            ->assertRedirect(route('portal.documents.view', $plan));
+        $this->assertSame('Sourzac (24)', $client->refresh()->birth_place);
+        $this->actingAs($client, 'client')->get(route('portal.documents.view', $plan))
+            ->assertOk()->assertSee(route('portal.documents.page', [$plan, 1]), false);
     }
 }

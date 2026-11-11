@@ -18,7 +18,20 @@
 <h1>{{ $document->displayName() }}</h1>
 <p class="muted" style="margin-top:0">{{ $dossier->title }} · mis en ligne le {{ $document->created_at->format('d/m/Y') }}</p>
 
-@if ($pages > 0)
+@if ($needsBirth ?? false)
+    <div class="card action">
+        <h2>Avant d'ouvrir vos plans</h2>
+        <p>Pour remplir le formulaire officiel (CERFA) demandé par la mairie, j'ai besoin de votre date et de votre lieu de naissance.</p>
+        <form method="post" action="{{ route('portal.documents.birth', $document) }}">
+            @csrf
+            <div class="grid2">
+                <div><label for="birth_date">Date de naissance</label><div class="date-field"><input id="birth_date" type="date" name="birth_date" required value="{{ old('birth_date', $client->birth_date?->format('Y-m-d')) }}"><span class="ph" aria-hidden="true">jj/mm/aaaa</span></div></div>
+                <div>@include('portal.partials.birth-place', ['value' => old('birth_place', $client->birth_place), 'required' => true])</div>
+            </div>
+            <p><button class="btn cta block" type="submit">Voir mes plans</button></p>
+        </form>
+    </div>
+@elseif ($pages > 0)
     <p class="muted">Faites défiler pour voir toutes les pages. Sur téléphone, écartez deux doigts pour zoomer.</p>
     <div class="plan-pages" oncontextmenu="return false" ondragstart="return false">
         @for ($p = 1; $p <= $pages; $p++)
@@ -35,7 +48,7 @@
     </div>
 @endif
 
-@if ($document->isAwaitingValidation())
+@if ($document->isAwaitingValidation() && ! ($needsBirth ?? false))
     <div class="card action plan-actions">
         <h2>Ces plans vous conviennent ?</h2>
         <form method="post" action="{{ route('portal.documents.validate', $document) }}" onsubmit="return confirm('Confirmez-vous que les plans vous conviennent ?')">

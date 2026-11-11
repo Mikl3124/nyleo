@@ -33,6 +33,11 @@ class DocumentController extends Controller
         if (! PlanAccess::isProtected($document)) {
             return redirect()->route('portal.documents.download', $document);
         }
+        // Date et lieu de naissance (CERFA) demandés avant d'ouvrir les plans.
+        if (self::needsBirth($request)) {
+            return response()->view('portal.plan', ['document' => $document, 'dossier' => $document->dossier, 'pages' => 0, 'needsBirth' => true, 'client' => $request->user('client')])
+                ->header('Cache-Control', 'private, no-store');
+        }
         ClientTracking::record(ClientActivity::VIEWED, '« '.$document->displayName().' » consulté en ligne', ['document' => $document], $request);
 
         try {
@@ -42,7 +47,7 @@ class DocumentController extends Controller
             $pages = 0;
         }
 
-        return response()->view('portal.plan', ['document' => $document, 'dossier' => $document->dossier, 'pages' => $pages])
+        return response()->view('portal.plan', ['document' => $document, 'dossier' => $document->dossier, 'pages' => $pages, 'needsBirth' => false])
             ->header('Cache-Control', 'private, no-store');
     }
 
@@ -50,6 +55,7 @@ class DocumentController extends Controller
     {
         $this->authorizeDocument($request, $document);
         abort_unless(PlanAccess::isProtected($document), 404);
+        abort_if(self::needsBirth($request), 403);
         $path = PlanPreview::pagePath($document, $page);
         abort_unless($path, 404);
 
@@ -59,6 +65,28 @@ class DocumentController extends Controller
             'Cache-Control' => 'private, no-store',
             'X-Robots-Tag' => 'noindex',
         ]);
+    }
+
+    /** Formulaire « date et lieu de naissance » affiché avant les plans. */
+    public function saveBirth(Request $request, Document $document)
+    {
+        $this->authorizeDocument($request, $document);
+        $data = $request->validate([
+            'birth_date' => ['required', 'date', 'before:today'],
+            'birth_place' => ['required', 'string', 'max:120'],
+        ], [], ['birth_date' => 'date de naissance', 'birth_place' => 'lieu de naissance']);
+        $client = $request->user('client');
+        $client->fill($data)->save();
+        $document->dossier->log('infos_client', 'Le client a indiqué sa date et son lieu de naissance', true);
+
+        return redirect()->route('portal.documents.view', $document);
+    }
+
+    private static function needsBirth(Request $request): bool
+    {
+        $client = $request->user('client');
+
+        return ! $client->birth_date || ! filled($client->birth_place);
     }
 
     public function validatePlan(Request $request, Document $document)
