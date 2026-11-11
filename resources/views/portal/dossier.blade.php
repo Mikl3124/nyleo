@@ -70,7 +70,7 @@
     <div class="card action">
         <h2>À faire : vérifier vos plans</h2>
         <p>Les plans <strong>{{ $plan->displayName() }}</strong> sont prêts. Ouvrez-les, puis dites-moi s'ils vous conviennent.</p>
-        <p><a class="btn secondary block" href="{{ route('portal.documents.download', $plan) }}" target="_blank">1. Ouvrir les plans</a></p>
+        <p>@if (\App\Services\PlanAccess::isProtected($plan))<a class="btn secondary block" href="{{ route('portal.documents.view', $plan) }}">1. Consulter les plans</a>@else<a class="btn secondary block" href="{{ route('portal.documents.download', $plan) }}" target="_blank">1. Ouvrir les plans</a>@endif</p>
         <form method="post" action="{{ route('portal.documents.validate', $plan) }}" onsubmit="return confirm('Confirmez-vous que les plans vous conviennent ?')">
             @csrf
             <button class="btn {{ $cta === 'plans' ? 'cta' : '' }} block" type="submit">2. ✓ Je valide les plans</button>
@@ -185,7 +185,11 @@
                     <span class="doc-icon" aria-hidden="true">{{ match ($doc->category->value) { 'photo' => '📷', 'plan' => '📐', 'recepisse', 'arrete', 'courrier_mairie' => '🏛️', default => '📎' } }}</span>
                     <span class="doc-body"><strong>{{ $doc->displayName() }}</strong><span class="muted">{{ $doc->category->label() }} · {{ $doc->created_at->format('d/m/Y') }}</span></span>
                     @if ($doc->validated_at)<span class="badge ok">Validé</span>@endif
-                    <a class="btn small secondary" href="{{ route('portal.documents.download', $doc) }}" target="_blank">Ouvrir</a>
+                    @if (\App\Services\PlanAccess::isProtected($doc))
+                        <a class="btn small secondary" href="{{ route('portal.documents.view', $doc) }}">Consulter</a>
+                    @else
+                        <a class="btn small secondary" href="{{ route('portal.documents.download', $doc) }}" target="_blank">{{ $doc->category->value === 'plan' ? 'Télécharger' : 'Ouvrir' }}</a>
+                    @endif
                 </li>
             @endforeach
         </ul>

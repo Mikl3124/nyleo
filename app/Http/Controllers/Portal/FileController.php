@@ -10,6 +10,7 @@ use App\Models\Invoice;
 use App\Models\Quote;
 use App\Services\ClientTracking;
 use App\Services\PdfService;
+use App\Services\PlanAccess;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -50,6 +51,10 @@ class FileController extends Controller
 
     private function document(Document $document, Request $request)
     {
+        // Plans pas encore téléchargeables : consultation en ligne dans l'espace client.
+        if (PlanAccess::isProtected($document)) {
+            return redirect()->away(PlanAccess::viewerUrl($document));
+        }
         abort_unless(Storage::disk('local')->exists($document->path), 404);
         ClientTracking::record(ClientActivity::DOWNLOADED, '« '.$document->displayName().' » téléchargé', ['document' => $document], $request);
 

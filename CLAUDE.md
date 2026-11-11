@@ -6,6 +6,7 @@ Application Laravel 13 + Filament 5 de gestion de l'activité de dessinateur (DP
 - Statuts dans `app/Enums`. La frise client est `DossierStatus::clientSteps()`.
 - Factures : une facture avec numéro ne se modifie pas ; correction par avoir. Exception voulue pour la phase de test : `InvoiceService::delete` (bouton « Supprimer » et commande `nyleo:reset-invoices`) efface une facture avec paiements, avoirs et PDF, et rend son numéro si c'était le dernier. Les données client/entreprise sont figées dans `*_snapshot` à l'émission.
 - Espace client : garde `client`, connexion par URL signée (`ClientNotification::portalUrl`). Toujours vérifier que la ressource appartient au client connecté.
+- Plans protégés (`App\Services\PlanAccess`) : tant que les factures émises du dossier ne sont pas toutes réglées (ou `dossiers.plans_unlocked_at` vide), le client consulte les plans en images avec filigrane (`PlanPreview`, Ghostscript sur le serveur), sans téléchargement ni pièce jointe. Ne jamais écrire au client que le téléchargement dépend du paiement.
 - Les études RE2020 ne passent pas par Nyleo.
 - Lancer `php artisan test` avant chaque push.
 

@@ -106,7 +106,7 @@ class DocumentMailTest extends TestCase
         $this->assertStringContainsString('07 85 65 91 65', $html);
     }
 
-    public function test_send_draft_invoice_issues_it_and_attaches_plans(): void
+    public function test_send_draft_invoice_issues_it_and_links_unpaid_plans_online(): void
     {
         $quote = $this->makeQuote();
         $quote->forceFill(['status' => QuoteStatus::Signe])->save();
@@ -128,9 +128,11 @@ class DocumentMailTest extends TestCase
         Mail::assertSent(DocumentMail::class, function (DocumentMail $m) use ($invoice) {
             $names = array_map(fn ($a) => $a->as, $m->attachments());
 
-            return $names === ["Facture-{$invoice->number}.pdf", 'V1 - DP - MARTIN.pdf']
+            // Facture pas encore réglée : les plans ne sont pas joints, seulement consultables en ligne.
+            return $names === ["Facture-{$invoice->number}.pdf"]
                 && $m->buttonLabel === 'Consulter ma facture'
-                && array_column($m->downloads, 'label') === ['Télécharger la facture (PDF)', 'Télécharger « V1 - DP - MARTIN (V1) »'];
+                && array_column($m->downloads, 'label') === ['Télécharger la facture (PDF)']
+                && array_column($m->online, 'label') === ['Voir les plans'];
         });
     }
 

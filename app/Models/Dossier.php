@@ -36,6 +36,7 @@ class Dossier extends Model
             'decision_date' => 'date',
             'received_at' => 'date',
             'follow_up_at' => 'date',
+            'plans_unlocked_at' => 'datetime',
             'instruction_started_at' => 'date',
             'incomplete_answered_at' => 'date',
             'waiting_on' => WaitingOn::class,

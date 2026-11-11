@@ -37,7 +37,7 @@ TXT;
     public const INVOICE_BODY = <<<'TXT'
 Bonjour,
 
-Veuillez trouver en pièce jointe les plans établis pour votre {procedure}. Si ces documents correspondent à vos attentes, je procéderai, comme convenu, au dépôt de la demande à réception du règlement de la facture {numero} relative à ma prestation ({montant}), également jointe à ce message.
+Les plans établis pour votre {procedure} sont prêts : vous pouvez les consulter en ligne grâce au bouton « Voir les plans » ci-dessous. Si ces documents correspondent à vos attentes, je procéderai, comme convenu, au dépôt de la demande à réception du règlement de la facture {numero} relative à ma prestation ({montant}), jointe à ce message.
 
 {reglement}
 

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\DocumentCategory;
+use App\Services\PlanPreview;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
@@ -37,6 +38,7 @@ class Document extends Model
 
         static::deleted(function (Document $doc) {
             Storage::disk('local')->delete($doc->path);
+            PlanPreview::forget($doc);
         });
     }
 
