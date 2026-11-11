@@ -24,7 +24,7 @@ class InvoiceReminder extends ClientNotification
         $mail = $this->message($notifiable, "Rappel : facture {$i->number}", 'Petit rappel de règlement', 'Facture '.$i->number)
             ->line("Sauf erreur de ma part, la facture {$i->number}".($i->issue_date ? ' du '.$i->issue_date->format('d/m/Y') : '').' n\'est pas encore réglée. Je vous la remets en pièce jointe.')
             ->line('Si vous avez déjà fait le règlement, merci de ne pas tenir compte de ce message.')
-            ->action('Consulter ma facture', self::portalUrl($notifiable, $i->dossier ? route('portal.dossiers.show', $i->dossier, false) : null))
+            ->action('Consulter ma facture', self::portalUrl($notifiable, route('portal.invoices.show', $i, false)))
             ->attachData($pdf, PdfService::invoiceFilename($i), ['mime' => 'application/pdf']);
 
         $this->recap($mail, [
@@ -33,7 +33,6 @@ class InvoiceReminder extends ClientNotification
             'Échéance' => $i->due_date?->format('d/m/Y'),
         ]);
         $cardUrl = CardPayment::url($i);
-        $this->payButton($mail, $cardUrl, 'Payer '.money($i->remaining()).' par carte');
         $this->panel($mail, 'Comment régler ?', self::paymentLines($s, $i->number, $cardUrl));
 
         $this->downloads($mail, [['label' => 'Télécharger la facture (PDF)', 'url' => MailTracking::downloadUrl($i)]]);

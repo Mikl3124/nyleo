@@ -25,7 +25,7 @@ class CompanySetting extends Model
             'email' => 'mickael@nyleo.fr',
             'payment_terms_days' => 10,
             'quote_footer' => 'Ce devis concerne uniquement de la prestation de service.',
-            'payment_terms_text' => 'Paiement par virement bancaire ou par chèque.',
+            'payment_terms_text' => 'Paiement par virement bancaire ou par carte bancaire.',
             'late_penalty_text' => "En cas de retard de paiement, des pénalités au taux de 3 fois le taux d'intérêt légal sont exigibles, ainsi qu'une indemnité forfaitaire de 40 € pour frais de recouvrement (professionnels uniquement). Pas d'escompte pour paiement anticipé.",
         ]);
     }
