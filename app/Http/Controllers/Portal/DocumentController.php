@@ -60,8 +60,8 @@ class DocumentController extends Controller
         abort_unless($path, 404);
 
         return response()->file($path, [
-            'Content-Type' => 'image/png',
-            'Content-Disposition' => 'inline; filename="apercu-'.$page.'.png"',
+            'Content-Type' => 'image/jpeg',
+            'Content-Disposition' => 'inline; filename="apercu-'.$page.'.jpg"',
             'Cache-Control' => 'private, no-store',
             'X-Robots-Tag' => 'noindex',
         ]);

@@ -9,48 +9,69 @@ use Illuminate\Support\Facades\Storage;
 use RuntimeException;
 
 /**
- * Pages des plans en images PNG avec un léger filigrane en diagonale, pour la consultation en ligne
+ * Pages des plans en images JPEG avec un léger filigrane en diagonale, pour la consultation en ligne
  * quand le téléchargement n'est pas encore permis (voir PlanAccess). Le fichier original ne quitte jamais le serveur.
  *
  * Conversion du PDF : pdftoppm (poppler), sinon Ghostscript (gs, présent sur le serveur), sinon Imagick.
- * Les images sont gardées dans storage/app/private/plan-previews/{document}/{clé} ; la clé change avec le fichier ou le filigrane.
+ * Chaque page est dessinée à part (à la demande ou à l'avance par PreparePlanPreview), gardée dans
+ * storage/app/private/plan-previews/{document}/{clé} ; la clé change avec le fichier ou le filigrane.
  */
 class PlanPreview
 {
     /** Changer ce numéro régénère toutes les images (nouveau filigrane, nouvelle résolution…). */
-    private const VERSION = 2;
+    private const VERSION = 3;
 
     private const DPI = 110;
 
     private const MAX_PAGES = 30;
 
-    private const MAX_WIDTH = 2200;
+    private const MAX_WIDTH = 1800;
 
-    /** Nombre de pages, après avoir créé les images si besoin. */
+    private const JPEG_QUALITY = 80;
+
+    /** Nombre de pages (rapide : Ghostscript compte les pages sans les dessiner). */
     public static function pageCount(Document $document): int
     {
-        $dir = self::directory($document);
-        $count = count(self::pages($dir));
+        $dir = self::ensureDirectory($document);
+        $file = Storage::disk('local')->path($dir.'/count');
+        if (is_file($file)) {
+            return (int) file_get_contents($file);
+        }
+        $count = min(self::MAX_PAGES, self::countPages($document));
         if ($count > 0) {
-            return $count;
+            file_put_contents($file, (string) $count);
         }
 
-        return Cache::lock('plan-preview-'.$document->id, 180)->block(170, function () use ($document, $dir) {
-            $count = count(self::pages($dir));
-
-            return $count > 0 ? $count : self::render($document, $dir);
-        });
+        return $count;
     }
 
-    /** Chemin absolu de l'image d'une page (1 = première), ou null si elle n'existe pas. */
+    /** Chemin absolu de l'image d'une page (1 = première), créée à la demande si besoin ; null si la page n'existe pas. */
     public static function pagePath(Document $document, int $page): ?string
     {
         if ($page < 1 || $page > self::pageCount($document)) {
             return null;
         }
-        $path = Storage::disk('local')->path(self::directory($document).'/page-'.$page.'.png');
+        $path = Storage::disk('local')->path(self::directory($document).'/page-'.$page.'.jpg');
+        if (! is_file($path)) {
+            Cache::lock('plan-preview-'.$document->id.'-'.$page, 120)->block(110, function () use ($document, $page, $path) {
+                if (! is_file($path)) {
+                    self::renderPage($document, $page, $path);
+                }
+            });
+        }
 
         return is_file($path) ? $path : null;
+    }
+
+    /** Prépare toutes les pages à l'avance (tâche de fond après l'ajout des plans), pour un affichage immédiat. */
+    public static function warm(Document $document): int
+    {
+        $count = self::pageCount($document);
+        for ($page = 1; $page <= $count; $page++) {
+            self::pagePath($document, $page);
+        }
+
+        return $count;
     }
 
     public static function watermarkText(Document $document): string
@@ -73,91 +94,122 @@ class PlanPreview
         return 'plan-previews/'.$document->id.'/'.$key;
     }
 
-    /** @return list<string> */
-    private static function pages(string $dir): array
+    /** Dossier des images de la version actuelle ; les anciennes versions sont effacées. */
+    private static function ensureDirectory(Document $document): string
     {
-        $files = glob(Storage::disk('local')->path($dir).'/page-*.png') ?: [];
-        natsort($files);
+        $disk = Storage::disk('local');
+        $dir = self::directory($document);
+        if (! $disk->exists($dir)) {
+            foreach ($disk->directories('plan-previews/'.$document->id) as $old) {
+                $disk->deleteDirectory($old);
+            }
+            $disk->makeDirectory($dir);
+        }
 
-        return array_values($files);
+        return $dir;
     }
 
-    private static function render(Document $document, string $dir): int
+    private static function source(Document $document): string
     {
         $disk = Storage::disk('local');
         if (! $document->path || ! $disk->exists($document->path)) {
             throw new RuntimeException("Fichier introuvable pour le document {$document->id}");
         }
 
-        // Une seule version gardée par document.
-        $disk->deleteDirectory('plan-previews/'.$document->id);
-        $disk->makeDirectory($dir);
-        $source = $disk->path($document->path);
-        $out = $disk->path($dir);
-
-        $mime = (string) ($document->mime_type ?: $disk->mimeType($document->path));
-        $raw = str_starts_with($mime, 'image/') ? [$source] : self::rasterize($source, $out);
-        if ($raw === []) {
-            throw new RuntimeException("Impossible de convertir « {$document->path} » en images (pdftoppm, gs ou Imagick requis)");
-        }
-
-        $text = self::watermarkText($document);
-        foreach (array_values($raw) as $i => $file) {
-            $image = @imagecreatefromstring((string) file_get_contents($file));
-            if (! $image) {
-                continue;
-            }
-            $image = self::fit($image);
-            self::watermark($image, $text);
-            imagepng($image, $out.'/page-'.($i + 1).'.png', 9);
-            imagedestroy($image);
-            if ($file !== $source) {
-                @unlink($file);
-            }
-        }
-
-        return count(self::pages($dir));
+        return $disk->path($document->path);
     }
 
-    /** @return list<string> images brutes, dans l'ordre des pages */
-    private static function rasterize(string $pdf, string $out): array
+    private static function isImage(Document $document): bool
     {
+        return str_starts_with((string) ($document->mime_type ?: Storage::disk('local')->mimeType($document->path)), 'image/');
+    }
+
+    private static function countPages(Document $document): int
+    {
+        $pdf = self::source($document);
+        if (self::isImage($document)) {
+            return 1;
+        }
+        $result = Process::timeout(30)->run(['gs', '-q', '-dNODISPLAY', '-dBATCH', '-dNOPAUSE', '--permit-file-read='.$pdf,
+            '-c', '('.addcslashes($pdf, '()\\').') (r) file runpdfbegin pdfpagecount = quit']);
+        if ($result->successful() && ($n = (int) trim($result->output())) > 0) {
+            return $n;
+        }
+        $result = Process::timeout(30)->run(['pdfinfo', $pdf]);
+        if ($result->successful() && preg_match('/^Pages:\s+(\d+)/m', $result->output(), $m)) {
+            return (int) $m[1];
+        }
+        if (class_exists(\Imagick::class)) {
+            try {
+                $im = new \Imagick;
+                $im->pingImage($pdf);
+
+                return $im->getNumberImages();
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+
+        return 0;
+    }
+
+    /** Dessine une seule page, ajoute le filigrane et l'enregistre en JPEG. */
+    private static function renderPage(Document $document, int $page, string $target): void
+    {
+        $source = self::source($document);
+        $raw = self::isImage($document) ? $source : self::rasterize($source, $page, dirname($target));
+        if (! $raw) {
+            throw new RuntimeException("Impossible de convertir la page {$page} de « {$document->path} » (pdftoppm, gs ou Imagick requis)");
+        }
+        $image = @imagecreatefromstring((string) file_get_contents($raw));
+        if ($raw !== $source) {
+            @unlink($raw);
+        }
+        if (! $image) {
+            throw new RuntimeException("Image illisible pour la page {$page} du document {$document->id}");
+        }
+        $image = self::fit($image);
+        self::watermark($image, self::watermarkText($document));
+        imageinterlace($image, true); // JPEG progressif : la page apparaît tout de suite, puis se précise
+        imagejpeg($image, $target.'.tmp', self::JPEG_QUALITY);
+        imagedestroy($image);
+        rename($target.'.tmp', $target);
+    }
+
+    /** Image brute d'une page du PDF (chemin du fichier), ou null. */
+    private static function rasterize(string $pdf, int $page, string $out): ?string
+    {
+        $base = $out.'/raw-'.$page.'-'.bin2hex(random_bytes(3));
         $attempts = [
-            ['pdftoppm', '-r', (string) self::DPI, '-png', '-l', (string) self::MAX_PAGES, $pdf, $out.'/raw'],
-            ['gs', '-q', '-dSAFER', '-dBATCH', '-dNOPAUSE', '-sDEVICE=png16m', '-r'.self::DPI,
-                '-dTextAlphaBits=4', '-dGraphicsAlphaBits=4', '-dLastPage='.self::MAX_PAGES, '-sOutputFile='.$out.'/raw-%03d.png', $pdf],
+            ['pdftoppm', '-r', (string) self::DPI, '-png', '-f', (string) $page, '-l', (string) $page, '-singlefile', $pdf, $base],
+            ['gs', '-q', '-dSAFER', '-dBATCH', '-dNOPAUSE', '-sDEVICE=png16m', '-r'.self::DPI, '-dTextAlphaBits=4', '-dGraphicsAlphaBits=4',
+                '-dFirstPage='.$page, '-dLastPage='.$page, '-sOutputFile='.$base.'.png', $pdf],
         ];
         foreach ($attempts as $command) {
-            $result = Process::timeout(150)->run($command);
-            $files = glob($out.'/raw*.png') ?: [];
-            if ($result->successful() && $files) {
-                natsort($files);
-
-                return array_values($files);
+            $result = Process::timeout(110)->run($command);
+            if ($result->successful() && is_file($base.'.png') && filesize($base.'.png') > 0) {
+                return $base.'.png';
             }
-            array_map('unlink', $files);
+            @unlink($base.'.png');
         }
 
         if (class_exists(\Imagick::class)) {
             try {
                 $im = new \Imagick;
                 $im->setResolution(self::DPI, self::DPI);
-                $im->readImage($pdf.'[0-'.(self::MAX_PAGES - 1).']');
-                $files = [];
-                foreach ($im as $i => $page) {
-                    $page->setImageBackgroundColor('white');
-                    $page = $page->mergeImageLayers(\Imagick::LAYERMETHOD_FLATTEN);
-                    $page->setImageFormat('png');
-                    $page->writeImage($files[] = sprintf('%s/raw-%03d.png', $out, $i + 1));
-                }
+                $im->readImage($pdf.'['.($page - 1).']');
+                $im->setImageBackgroundColor('white');
+                $im = $im->mergeImageLayers(\Imagick::LAYERMETHOD_FLATTEN);
+                $im->setImageFormat('png');
+                $im->writeImage($base.'.png');
 
-                return $files;
+                return $base.'.png';
             } catch (\Throwable $e) {
                 report($e);
             }
         }
 
-        return [];
+        return null;
     }
 
     private static function fit(\GdImage $image): \GdImage
