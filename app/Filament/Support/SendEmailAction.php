@@ -50,7 +50,7 @@ class SendEmailAction
     {
         $isDraft = $invoice->isDraft();
 
-        return self::base('sendEmail', $invoice->dossier)
+        return self::base('sendEmail', $invoice->dossier, withPlansUpload: ! $invoice->isCreditNote())
             ->label($isDraft ? 'Émettre et envoyer' : 'Envoyer par e-mail')
             ->visible(fn () => $invoice->status->value !== 'annulee' || $invoice->isCreditNote())
             ->modalHeading(($isDraft ? 'Émettre et envoyer : ' : 'Envoyer : ').$invoice->title())
@@ -64,7 +64,7 @@ class SendEmailAction
             });
     }
 
-    private static function base(string $name, ?Dossier $dossier): Action
+    private static function base(string $name, ?Dossier $dossier, bool $withPlansUpload = false): Action
     {
         $documents = $dossier
             ? $dossier->documents()->latest()->get()->mapWithKeys(fn ($d) => [$d->id => $d->category->label().' — '.$d->displayName()
@@ -93,12 +93,19 @@ class SendEmailAction
                     // Inutile quand la copie cachée automatique est activée dans les Paramètres.
                     Toggle::make('copy_to_me')->label('M\'envoyer une copie')->visible(fn () => MailCopy::address() === null),
                 ]),
+                // Plans déposés ici : rangés dans le dossier et envoyés en bouton « Voir les plans » (visionneuse avec filigrane), jamais en pièce jointe.
+                FileUpload::make('plans')->label('Plans à envoyer (PDF)')
+                    ->visible($withPlansUpload)
+                    ->multiple()->disk('local')->directory('email-attachments')->visibility('private')
+                    ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png'])
+                    ->storeFileNamesIn('plan_names')->maxSize(50 * 1024)->maxFiles(5)
+                    ->helperText('Rangés dans le dossier. Le client les voit en ligne avec un filigrane (bouton « Voir les plans ») ; téléchargeables une fois la facture réglée.'),
                 CheckboxList::make('documents')->label('Documents du dossier à joindre (avec un bouton « Télécharger »)')
                     ->options($documents)->visible($documents !== [])->columns(1)->bulkToggleable(),
                 FileUpload::make('attachments')->label('Autres pièces jointes')
                     ->multiple()->disk('local')->directory('email-attachments')->visibility('private')
                     ->storeFileNamesIn('attachment_names')->maxSize(15 * 1024)->maxFiles(10)
-                    ->helperText('15 Mo maximum par fichier.'),
+                    ->helperText($withPlansUpload ? '15 Mo maximum par fichier. Pour les plans, utilise le champ « Plans à envoyer » ci-dessus.' : '15 Mo maximum par fichier.'),
             ]);
     }
 
@@ -118,6 +125,7 @@ class SendEmailAction
             'copy_to_me' => true,
             'documents' => $plan ? [$plan] : [],
             'attachments' => [],
+            'plans' => [],
         ];
     }
 

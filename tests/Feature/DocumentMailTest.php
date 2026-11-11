@@ -132,7 +132,7 @@ class DocumentMailTest extends TestCase
             return $names === ["Facture-{$invoice->number}.pdf"]
                 && $m->buttonLabel === 'Consulter ma facture'
                 && array_column($m->downloads, 'label') === ['Télécharger la facture (PDF)']
-                && array_column($m->online, 'label') === ['Consulter « V1 - DP - MARTIN (V1) »'];
+                && array_column($m->online, 'label') === ['Voir les plans'];
         });
     }
 

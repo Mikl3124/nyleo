@@ -13,6 +13,7 @@ use App\Notifications\ClientNotification;
 use App\Support\MailTracking;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use RuntimeException;
 
 /**
@@ -61,6 +62,8 @@ class DocumentMailer
             $invoice->refresh();
         }
 
+        $data = self::storePlans($invoice, $data);
+
         $files = [];
         if ($data['attach_pdf'] ?? true) {
             $files[] = $invoice->pdf_path && Storage::disk('local')->exists($invoice->pdf_path)
@@ -81,6 +84,37 @@ class DocumentMailer
         );
 
         $invoice->forceFill(['sent_at' => now()])->saveQuietly();
+    }
+
+    /**
+     * Plans déposés dans la fenêtre d'envoi : rangés dans le dossier (visibles par le client) et ajoutés aux documents
+     * de l'e-mail, où ils deviennent un bouton « Voir les plans » tant qu'ils sont protégés.
+     */
+    private static function storePlans(Invoice $invoice, array $data): array
+    {
+        $paths = array_values(array_filter((array) ($data['plans'] ?? [])));
+        if ($paths === []) {
+            return $data;
+        }
+        InvoiceService::ensureDossier($invoice);
+        $dossier = $invoice->refresh()->dossier;
+        $names = (array) ($data['plan_names'] ?? []);
+        foreach ($paths as $path) {
+            if (! $dossier || ! Storage::disk('local')->exists($path)) {
+                continue;
+            }
+            $original = (string) ($names[$path] ?? basename($path));
+            $target = 'dossiers/'.$dossier->id.'/'.Str::random(6).'-'.Str::slug(pathinfo($original, PATHINFO_FILENAME)).'.'.(pathinfo($path, PATHINFO_EXTENSION) ?: 'pdf');
+            Storage::disk('local')->move($path, $target);
+            $doc = Document::create([
+                'dossier_id' => $dossier->id, 'category' => 'plan', 'name' => 'Plans '.$dossier->procedure?->value,
+                'path' => $target, 'original_name' => $original, 'visible_to_client' => true, 'uploaded_by' => 'admin',
+            ]);
+            $dossier->log('document', "Plans ajoutés : {$doc->displayName()}", true);
+            $data['documents'] = [...(array) ($data['documents'] ?? []), $doc->id];
+        }
+
+        return $data;
     }
 
     /** Adresse où arrivent les réponses des clients : celle des paramètres (mickael@nyleo.fr), sinon le premier admin. */
@@ -111,7 +145,7 @@ class DocumentMailer
             foreach (Document::where('dossier_id', $dossier->id)->whereIn('id', $data['documents'])->get() as $doc) {
                 // Plans pas encore téléchargeables : ni pièce jointe ni PDF, un bouton « Consulter » en ligne.
                 if (PlanAccess::isProtected($doc)) {
-                    $online[] = ['label' => 'Consulter « '.$doc->displayName().' »', 'url' => PlanAccess::viewerUrl($doc)];
+                    $online[] = ['label' => 'Voir les plans', 'name' => $doc->displayName(), 'url' => PlanAccess::viewerUrl($doc)];
                     $consulted[] = $doc->displayName().' (consultation en ligne)';
 
                     continue;
@@ -123,6 +157,14 @@ class DocumentMailer
                     }
                 }
             }
+        }
+
+        if (count($online) > 1) {
+            $online = array_map(fn ($o) => ['label' => 'Voir « '.$o['name'].' »'] + $o, $online);
+        }
+        if ($online) {
+            // Ancien texte (modèle personnalisé) : les plans ne sont plus joints mais consultables en ligne.
+            $body = str_replace('Veuillez trouver en pièce jointe les plans établis', 'Vous pouvez consulter en ligne, grâce au bouton « Voir les plans », les plans établis', $body);
         }
 
         $uploads = array_values(array_filter((array) ($data['attachments'] ?? [])));

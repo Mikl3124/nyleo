@@ -144,7 +144,7 @@ class PlanAccessTest extends TestCase
             $names = array_column($m->files, 'name');
 
             return count($names) === 1 && str_ends_with($names[0], '.pdf') && ! str_contains($names[0], 'Plans')
-                && count($m->online) === 1 && str_contains($m->online[0]['label'], 'Consulter')
+                && count($m->online) === 1 && $m->online[0]['label'] === 'Voir les plans'
                 && ! collect($m->downloads)->contains(fn ($d) => str_contains($d['label'], 'Plans'));
         });
 
@@ -180,5 +180,40 @@ class PlanAccessTest extends TestCase
             ->assertSee('Téléchargeable')
             ->callTableAction('lockPlans');
         $this->assertNull($dossier->refresh()->plans_unlocked_at);
+    }
+
+    public function test_plans_uploaded_in_the_send_window_are_stored_and_shown_online_only(): void
+    {
+        Mail::fake();
+        [$invoice] = $this->dossierWithPlanAndInvoice();
+        Storage::disk('local')->put('email-attachments/abc.pdf', Pdf::loadHTML('<h1>Plan V2</h1>')->output());
+        $template = EmailTemplates::forInvoice($invoice);
+        $this->assertStringContainsString('« Voir les plans »', $template['body']);
+        $this->assertStringNotContainsString('pièce jointe les plans', $template['body']);
+
+        DocumentMailer::sendInvoice($invoice, ['to' => $invoice->client->email, 'plans' => ['email-attachments/abc.pdf'],
+            'plan_names' => ['email-attachments/abc.pdf' => 'V2 - DP - MARTIN.pdf']] + $template);
+
+        $doc = $invoice->dossier->documents()->latest('id')->first();
+        $this->assertSame('plan', $doc->category->value);
+        $this->assertTrue($doc->visible_to_client);
+        $this->assertSame('V2 - DP - MARTIN.pdf', $doc->original_name);
+        $this->assertTrue(Storage::disk('local')->exists($doc->path));
+        $this->assertFalse(Storage::disk('local')->exists('email-attachments/abc.pdf'));
+
+        Mail::assertSent(DocumentMail::class, fn (DocumentMail $m) => array_column($m->online, 'label') === ['Voir les plans']
+            && ! collect($m->files)->contains(fn ($f) => str_contains($f['name'], 'V2'))
+            && str_contains($m->online[0]['url'], urlencode('/espace/documents/'.$doc->id.'/consulter')));
+    }
+
+    public function test_old_custom_text_is_adapted_when_plans_are_online(): void
+    {
+        Mail::fake();
+        [$invoice, $plan] = $this->dossierWithPlanAndInvoice();
+
+        DocumentMailer::sendInvoice($invoice, ['to' => $invoice->client->email, 'documents' => [$plan->id],
+            'subject' => 'Plans + facture', 'body' => "Bonjour,\n\nVeuillez trouver en pièce jointe les plans établis pour votre déclaration."]);
+
+        Mail::assertSent(DocumentMail::class, fn (DocumentMail $m) => str_contains($m->body, 'consulter en ligne') && ! str_contains($m->body, 'pièce jointe les plans'));
     }
 }
