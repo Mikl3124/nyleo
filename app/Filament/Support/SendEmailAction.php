@@ -8,6 +8,7 @@ use App\Enums\QuoteStatus;
 use App\Models\Dossier;
 use App\Models\Invoice;
 use App\Models\Quote;
+use App\Services\CardPayment;
 use App\Services\DocumentMailer;
 use App\Services\PlanAccess;
 use App\Support\EmailTemplates;
@@ -22,6 +23,8 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 
@@ -55,13 +58,19 @@ class SendEmailAction
             ->visible(fn () => $invoice->status->value !== 'annulee' || $invoice->isCreditNote())
             ->modalHeading(($isDraft ? 'Émettre et envoyer : ' : 'Envoyer : ').$invoice->title())
             ->modalDescription($isDraft ? 'La facture reçoit son numéro définitif et ne pourra plus être modifiée (seulement annulée par un avoir).' : null)
-            ->fillForm(fn () => self::defaults($invoice->client->email, EmailTemplates::forInvoice($invoice), $invoice->dossier,
-                $invoice->type === InvoiceType::Facture) + ['include_link' => true])
+            ->fillForm(fn () => self::defaults($invoice->client->email, EmailTemplates::forInvoice($invoice, card: self::cardByDefault($invoice)), $invoice->dossier,
+                $invoice->type === InvoiceType::Facture) + ['include_link' => true, 'card_payment' => self::cardByDefault($invoice)])
             ->action(function (array $data) use ($invoice, $before, $after) {
                 $before && $before();
                 self::run(fn () => DocumentMailer::sendInvoice($invoice->refresh(), $data), $invoice->type->label().' envoyée à '.$data['to']);
                 $after && $after();
             });
+    }
+
+    /** Case « Paiement par carte » cochée d'office sur les factures à régler (si Stripe est configuré). */
+    private static function cardByDefault(Invoice $invoice): bool
+    {
+        return ! $invoice->isCreditNote() && $invoice->status->value !== 'payee';
     }
 
     private static function base(string $name, ?Dossier $dossier, bool $withPlansUpload = false): Action
@@ -87,6 +96,11 @@ class SendEmailAction
                 Textarea::make('body')->label('Message')->rows(14)->required()
                     ->helperText('Ta signature est ajoutée automatiquement à la fin. Une ligne commençant par « - » devient une puce.'),
                 Grid::make(['default' => 1, 'md' => 2])->schema([
+                    Toggle::make('card_payment')->label('Paiement par carte bancaire (bouton « Payer par carte »)')
+                        ->visible($withPlansUpload)->live()
+                        ->helperText(CardPayment::enabled() ? null : 'Stripe n\'est pas encore configuré : le bouton apparaîtra dès que la clé Stripe sera ajoutée sur le serveur.')
+                        ->afterStateUpdated(fn ($state, Get $get, Set $set) => $set('body', EmailTemplates::withCardLine((string) $get('body'), (bool) $state && CardPayment::enabled())))
+                        ->columnSpanFull(),
                     Toggle::make('include_link')->label('Bouton « Consulter » (en ligne)'),
                     Toggle::make('include_downloads')->label('Boutons « Télécharger le PDF »'),
                     Toggle::make('attach_pdf')->label('Joindre aussi le PDF à l\'e-mail'),
@@ -121,7 +135,7 @@ class SendEmailAction
             'subject' => $template['subject'],
             'body' => $template['body'],
             'attach_pdf' => true,
-            'include_downloads' => true,
+            'include_downloads' => false,
             'copy_to_me' => true,
             'documents' => $plan ? [$plan] : [],
             'attachments' => [],

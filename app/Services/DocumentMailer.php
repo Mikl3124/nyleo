@@ -10,6 +10,7 @@ use App\Models\Invoice;
 use App\Models\Quote;
 use App\Models\User;
 use App\Notifications\ClientNotification;
+use App\Support\EmailTemplates;
 use App\Support\MailTracking;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
@@ -55,6 +56,12 @@ class DocumentMailer
 
     public static function sendInvoice(Invoice $invoice, array $data): void
     {
+        // Case « Paiement par carte » de la fenêtre d'envoi : enregistrée sur la facture, texte ajusté.
+        if (array_key_exists('card_payment', $data) && ! $invoice->isCreditNote()) {
+            $invoice->forceFill(['card_payment' => (bool) $data['card_payment']])->saveQuietly();
+            $data['body'] = EmailTemplates::withCardLine((string) ($data['body'] ?? ''), (bool) $data['card_payment'] && CardPayment::enabled());
+        }
+
         $predicted = $invoice->number;
         if ($invoice->isDraft()) {
             $predicted = Numbering::peek($invoice->isCreditNote() ? 'credit_note' : 'invoice');

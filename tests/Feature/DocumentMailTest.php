@@ -118,7 +118,7 @@ class DocumentMailTest extends TestCase
         $this->assertSame('Plans DP Véranda + facture', $t['subject']);
         $this->assertStringContainsString('F'.now()->format('Ym').'-117', $t['body']);
         $this->assertStringContainsString('IBAN FR76 1234', $t['body']);
-        $this->assertStringContainsString('date et lieu de naissance', $t['body']);
+        $this->assertStringNotContainsString('date et lieu de naissance', $t['body']); // demandés avant l'ouverture des plans
 
         DocumentMailer::sendInvoice($invoice, $t + ['to' => 'jean@example.com', 'attach_pdf' => true, 'documents' => [$plan->id]]);
 
