@@ -100,8 +100,9 @@ class PaymentQrTest extends TestCase
         $this->assertNotEmpty(PdfService::invoice($invoice)->output());
 
         $this->actingAs($invoice->client, 'client')
-            ->get(route('portal.dossiers.show', $invoice->dossier))
+            ->get(route('portal.invoices.show', $invoice))
             ->assertOk()
+            ->assertSee('Payer ma facture')
             ->assertSee('data:image/svg+xml;base64,', false)
             ->assertSee("Scannez avec l'application de votre banque", false)
             ->assertSee('FR14 2004 1010 0505 0001 3M02 606');
@@ -113,9 +114,21 @@ class PaymentQrTest extends TestCase
         CompanySetting::current()->update(['iban' => null]);
 
         $this->actingAs($invoice->client, 'client')
-            ->get(route('portal.dossiers.show', $invoice->dossier))
+            ->get(route('portal.invoices.show', $invoice))
             ->assertOk()
             ->assertDontSee('data:image/svg+xml;base64,', false)
             ->assertDontSee('Scannez avec');
+    }
+
+    public function test_invoice_page_is_private_and_offers_no_cheque(): void
+    {
+        $invoice = $this->issuedInvoice();
+        $other = Client::create(['first_name' => 'Paul', 'last_name' => 'Autre', 'email' => 'paul@example.com']);
+
+        $this->actingAs($other, 'client')->get(route('portal.invoices.show', $invoice))->assertNotFound();
+        $this->actingAs($invoice->client, 'client')->get(route('portal.invoices.show', $invoice))
+            ->assertOk()->assertSee('Payer ma facture')->assertSee($invoice->number)->assertDontSee('chèque');
+        $this->actingAs($invoice->client, 'client')->get(route('portal.dossiers.show', $invoice->dossier))
+            ->assertOk()->assertSee('Voir et payer ma facture')->assertDontSee('compléter vos informations');
     }
 }

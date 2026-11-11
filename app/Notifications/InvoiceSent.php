@@ -21,7 +21,7 @@ class InvoiceSent extends ClientNotification
         $s = CompanySetting::current();
         $pdf = $i->pdf_path && Storage::disk('local')->exists($i->pdf_path)
             ? Storage::disk('local')->get($i->pdf_path) : PdfService::invoice($i)->output();
-        $url = self::portalUrl($notifiable, $i->dossier ? route('portal.dossiers.show', $i->dossier, false) : null);
+        $url = self::portalUrl($notifiable, route('portal.invoices.show', $i, false));
 
         if ($i->type === InvoiceType::Avoir) {
             $mail = $this->message($notifiable, "Avoir {$i->number}", 'Votre avoir', 'Avoir '.$i->number)
@@ -44,7 +44,6 @@ class InvoiceSent extends ClientNotification
         }
         $cardUrl = CardPayment::url($i);
         $mail->action('Consulter ma facture', $url);
-        $this->payButton($mail, $cardUrl, 'Payer '.money($i->remaining()).' par carte');
         $this->downloads($mail, [['label' => 'Télécharger la facture (PDF)', 'url' => MailTracking::downloadUrl($i)]]);
         $this->track($mail, $notifiable, ['invoice' => $i->id, 'dossier' => $i->dossier_id]);
         if ($s->iban && $i->dossier) {

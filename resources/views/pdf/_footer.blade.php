@@ -19,7 +19,6 @@
                 <div class="t">Mode de paiement</div>
                 @if (! empty($company['iban']))<div>IBAN : {{ $company['iban'] }}</div>@endif
                 @if (! empty($company['bic']))<div>BIC : {{ $company['bic'] }}</div>@endif
-                @if (! empty($company['cheque_order']))<div>Chèque à l'ordre de : {{ $company['cheque_order'] }}</div>@endif
             </td>
         </tr>
     </table>

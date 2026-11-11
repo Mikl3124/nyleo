@@ -12,6 +12,17 @@ use Illuminate\Support\Facades\Storage;
 
 class InvoiceController extends Controller
 {
+    /** La facture en ligne : détail, reste à régler et moyens de paiement (carte, virement). */
+    public function show(Request $request, Invoice $invoice)
+    {
+        abort_unless($invoice->client_id === $request->user('client')->id && $invoice->number, 404);
+        if (! ClientTracking::isStaff($request)) {
+            ClientTracking::record(ClientActivity::VIEWED, $invoice->type->label().' '.$invoice->number.' consultée en ligne', ['invoice' => $invoice], $request);
+        }
+
+        return view('portal.invoice', ['invoice' => $invoice->load('lines', 'dossier', 'payments'), 'client' => $request->user('client')]);
+    }
+
     public function pdf(Request $request, Invoice $invoice)
     {
         abort_unless($invoice->client_id === $request->user('client')->id && $invoice->number, 404);

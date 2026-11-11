@@ -150,7 +150,7 @@ class SiteContent
         ['Devis', ['Vous m\'appelez et décrivez votre projet', 'Cinq minutes au téléphone'], ['Je vérifie la démarche et vous envoie le devis', 'Clair et détaillé, par e-mail']],
         ['Signature', ['Vous signez en ligne', 'Un clic, sans code SMS'], ['Je vous demande photos et mesures', 'Liste simple, au cas par cas']],
         ['Plans', ['Vous relisez et validez', 'Deux versions comprises'], ['Je dessine toutes les pièces', 'Situation, masse, coupe, façades, insertion']],
-        ['Dépôt', ['Vous réglez la facture', 'Virement ou chèque'], ['Je dépose le dossier en votre nom', 'En ligne ou en mairie, récépissé envoyé']],
+        ['Dépôt', ['Vous réglez la facture', 'Virement ou carte bancaire'], ['Je dépose le dossier en votre nom', 'En ligne ou en mairie, récépissé envoyé']],
         ['Décision', [null, 'Rien à faire, vous suivez en ligne'], ['Je suis l\'instruction et réponds à la mairie', 'Jusqu\'à l\'arrêté']],
     ];
 
@@ -193,7 +193,7 @@ class SiteContent
         ['Que se passe-t-il si la mairie demande des pièces en plus ?', "Je reprends les pièces demandées et je dépose les compléments dans le délai imparti. Si la demande vient d'une erreur de ma part, c'est sans frais."],
         ['Quelles taxes prévoir après l\'accord ?', "La taxe d'aménagement et la redevance d'archéologie préventive sont des taxes dues à l'administration après l'accord. Je peux vous en donner une estimation."],
         ['L\'étude thermique RE2020 est-elle comprise ?', "Non. Pour une maison neuve, l'attestation RE2020 est exigée au dépôt du permis. Elle est réalisée à part par un bureau d'études thermiques."],
-        ['Comment payer ?', "Par virement ou par chèque. Les coordonnées figurent sur la facture et dans votre espace client. Le dossier est déposé en mairie après règlement."],
+        ['Comment payer ?', "Par virement ou par carte bancaire, en ligne. Les coordonnées figurent sur la facture et dans votre espace client. Le dossier est déposé en mairie après règlement."],
         ['Une fois l\'accord obtenu, que dois-je faire ?', "Affichez le panneau sur le terrain, visible de la rue, pendant toute la durée des travaux. Les voisins disposent de deux mois de recours à partir du premier jour d'affichage. L'autorisation est valable trois ans et peut être prolongée deux fois d'un an."],
     ];
 }

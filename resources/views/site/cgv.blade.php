@@ -29,7 +29,7 @@
         <h2>4. Montant, acompte et paiement</h2>
         <p>Le montant de la prestation est celui indiqué sur le devis signé. Nyleo n'est pas assujettie à la TVA (article 293 B du Code général des impôts), sauf mention contraire sur le devis.</p>
         <p>Lorsque le devis le prévoit, un acompte est demandé à la signature. Le travail commence à réception de cet acompte et, pour un particulier qui n'a pas demandé à commencer tout de suite, à la fin du délai de rétractation (article 10). Le solde est facturé à la livraison des plans.</p>
-        <p>Les factures sont payables dans un délai de <strong>10 jours</strong> à compter de leur date d'émission, par virement bancaire ou par chèque. Chaque facture comporte un QR code : il suffit de le scanner avec l'application de sa banque pour préremplir le virement (bénéficiaire, IBAN, montant et référence). Aucun paiement par carte bancaire n'est proposé.</p>
+        <p>Les factures sont payables dans un délai de <strong>10 jours</strong> à compter de leur date d'émission, par virement bancaire ou par carte bancaire (paiement en ligne sécurisé depuis l'espace client). Chaque facture comporte un QR code : il suffit de le scanner avec l'application de sa banque pour préremplir le virement (bénéficiaire, IBAN, montant et référence).</p>
         <p>Le dossier n'est déposé en mairie qu'après réception du paiement complet.</p>
         <p>En cas de retard de paiement, des pénalités égales à trois fois le taux d'intérêt légal sont exigibles. Pour un Client professionnel, s'y ajoute l'indemnité forfaitaire pour frais de recouvrement prévue à l'article D441-5 du Code de commerce. Aucun escompte n'est accordé pour paiement anticipé.</p>
 
