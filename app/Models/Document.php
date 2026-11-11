@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\DocumentCategory;
+use App\Jobs\PreparePlanPreview;
 use App\Services\PlanPreview;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -33,6 +34,14 @@ class Document extends Model
             if ($doc->path && ! $doc->size && Storage::disk('local')->exists($doc->path)) {
                 $doc->size = Storage::disk('local')->size($doc->path);
                 $doc->mime_type ??= Storage::disk('local')->mimeType($doc->path);
+            }
+        });
+
+        // Plans : pages avec filigrane préparées en tâche de fond dès l'ajout (affichage immédiat chez le client).
+        static::saved(function (Document $doc) {
+            if ($doc->category === DocumentCategory::Plan && $doc->uploaded_by !== 'client' && $doc->path
+                && ($doc->wasRecentlyCreated || $doc->wasChanged('path'))) {
+                PreparePlanPreview::dispatch($doc)->afterCommit();
             }
         });
 
