@@ -127,6 +127,19 @@ class Client extends Authenticatable
             : trim($this->first_name.' '.$this->last_name);
     }
 
+    /**
+     * Nom pour les listes admin : NOM en majuscules d'abord, puis le prénom.
+     * Ex. « LEFORT Gilles ». Pour un professionnel : la société en majuscules.
+     */
+    public function getListNameAttribute(): string
+    {
+        if ($this->type === 'professionnel' && $this->company_name) {
+            return mb_strtoupper(trim($this->company_name));
+        }
+
+        return trim(mb_strtoupper(trim((string) $this->last_name)).' '.trim((string) $this->first_name));
+    }
+
     public function fullAddress(): string
     {
         return trim(collect([$this->address, trim($this->postal_code.' '.$this->city)])->filter()->implode("\n"));

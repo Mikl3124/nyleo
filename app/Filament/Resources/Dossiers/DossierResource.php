@@ -30,6 +30,8 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\FontWeight;
+use Filament\Support\Enums\TextSize;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -256,10 +258,19 @@ class DossierResource extends Resource
                 // Liste compacte : toutes les colonnes doivent tenir sur un écran d'ordinateur.
                 // Les textes longs sont coupés à 2 lignes, le texte complet s'affiche au survol et sur la fiche.
                 TextColumn::make('reference')->label('Réf.')->searchable()->sortable(),
-                TextColumn::make('title')->label('Projet')->searchable(['title', 'site_city'])->limit(26)
-                    ->tooltip(fn (Dossier $r) => mb_strlen((string) $r->title) > 26 ? $r->title : null)
-                    // Client et commune sous le titre : une colonne de moins, la commune reste cherchable.
-                    ->description(fn (Dossier $r) => Str::limit(collect([$r->client?->display_name, $r->site_city])->filter()->implode(' · '), 30)),
+                // Colonne Projet : le client en gros (NOM en majuscules puis prénom), le projet et la commune en petit dessous.
+                TextColumn::make('client_list_name')->label('Projet')
+                    ->state(fn (Dossier $r) => $r->client?->list_name ?: ($r->title ?: '—'))
+                    ->weight(FontWeight::Bold)->size(TextSize::Large)
+                    ->searchable(query: fn (Builder $query, string $search) => $query->where(fn (Builder $query) => $query
+                        ->where('title', 'like', "%{$search}%")
+                        ->orWhere('site_city', 'like', "%{$search}%")
+                        ->orWhereHas('client', fn (Builder $query) => $query
+                            ->where('last_name', 'like', "%{$search}%")
+                            ->orWhere('first_name', 'like', "%{$search}%")
+                            ->orWhere('company_name', 'like', "%{$search}%"))))
+                    ->tooltip(fn (Dossier $r) => $r->title)
+                    ->description(fn (Dossier $r) => Str::limit(collect([$r->client ? $r->title : null, $r->site_city])->filter()->implode(' · '), 40)),
                 TextColumn::make('procedure')->label('Proc.')->badge()->formatStateUsing(fn (Procedure $state) => $state->value === 'PC_ARCHI' ? 'PC + archi' : $state->value)
                     ->toggleable(),
                 TextColumn::make('site_city')->label('Commune')->searchable()->limit(18)
