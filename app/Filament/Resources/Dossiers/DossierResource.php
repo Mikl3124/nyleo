@@ -24,6 +24,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\ViewEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -236,6 +237,14 @@ class DossierResource extends Resource
                         ->visible(fn (Dossier $r) => filled($r->portal_url)),
                 ]),
             ]),
+            // Photos et documents envoyés par le client depuis son espace : en haut, ouvrables en un clic.
+            Section::make('Envoyé par le client')->columnSpanFull()->icon(Heroicon::OutlinedPhoto)
+                ->description('Photos et documents déposés dans son espace. Cliquer pour ouvrir.')
+                ->visible(fn (Dossier $r) => $r->documents()->where('uploaded_by', 'client')->exists())
+                ->schema([
+                    ViewEntry::make('client_files')->hiddenLabel()->view('filament.dossier-client-files')
+                        ->state(fn (Dossier $r) => $r->documents()->where('uploaded_by', 'client')->latest()->latest('id')->get()),
+                ]),
         ]);
     }
 
