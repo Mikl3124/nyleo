@@ -59,9 +59,11 @@ class DossierController extends Controller
             'files.*.mimes' => 'Seules les photos et les PDF sont acceptés.',
         ], ['files' => 'fichiers', 'files.*' => 'fichier']);
 
+        $received = [];
         foreach ($request->file('files') as $file) {
             $path = $file->store('dossiers/'.$dossier->id, 'local');
             $isImage = str_starts_with((string) $file->getMimeType(), 'image/');
+            $received[] = ['path' => $path, 'name' => $file->getClientOriginalName()];
             $dossier->documents()->create([
                 'category' => $isImage ? DocumentCategory::Photo : DocumentCategory::Autre,
                 'name' => $file->getClientOriginalName(),
@@ -74,8 +76,13 @@ class DossierController extends Controller
         }
         $n = count($request->file('files'));
         $dossier->log('upload_client', $n > 1 ? "{$n} photos ou documents reçus" : 'Une photo ou un document reçu', true);
-        Admin::notify(new AdminAlert("Nouveaux fichiers — {$dossier->reference}", "{$dossier->client->display_name} a envoyé {$n} fichier(s).",
-            route('filament.admin.resources.dossiers.view', $dossier), mail: false));
+        Admin::notify(new AdminAlert(
+            "Nouveaux fichiers — {$dossier->reference}",
+            "{$dossier->client->display_name} a envoyé ".($n > 1 ? "{$n} fichiers" : 'un fichier')." pour le dossier « {$dossier->title} ».",
+            route('filament.admin.resources.dossiers.view', $dossier),
+            files: $received,
+            actionLabel: 'Voir les fichiers',
+        ));
 
         $message = $n > 1 ? "Merci, vos {$n} fichiers ont bien été envoyés." : 'Merci, votre fichier a bien été envoyé.';
         // Envoi par la zone glisser-déposer (JavaScript) : la page se recharge ensuite et affiche le message.

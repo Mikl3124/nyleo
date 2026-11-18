@@ -168,6 +168,20 @@ class Dossier extends Model
             ->orWhereHas('openPieceRequests', fn ($r) => $r->where('waiting_on', $who->value)));
     }
 
+    /** Dossier qui remplace un dossier fusionné ou supprimé : celui qui l'a absorbé, sinon le dernier dossier du même client. */
+    public static function successorOf(int|string $id): ?self
+    {
+        $gone = static::onlyTrashed()->find($id);
+        if (! $gone) {
+            return null;
+        }
+
+        $mergedInto = DossierEvent::where('type', 'fusion')->where('message', 'like', "Dossier {$gone->reference} %")->latest('id')->value('dossier_id');
+
+        return ($mergedInto ? static::find($mergedInto) : null)
+            ?? static::where('client_id', $gone->client_id)->latest('id')->first();
+    }
+
     public function log(string $type, string $message, bool $visibleToClient = false, array $meta = []): DossierEvent
     {
         return $this->events()->create([

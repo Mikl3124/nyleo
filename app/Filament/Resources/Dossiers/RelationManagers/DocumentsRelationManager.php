@@ -46,6 +46,9 @@ class DocumentsRelationManager extends RelationManager
     {
         return $table
             ->defaultSort('created_at', 'desc')
+            // Un clic sur la ligne ouvre le fichier (le bouton « Télécharger » peut sortir de l'écran).
+            ->recordUrl(fn (Document $r) => route('admin.documents.download', $r))
+            ->openRecordUrlInNewTab()
             ->emptyStateHeading('Aucun document pour le moment')
             ->emptyStateDescription('Les photos envoyées par le client, les plans, le récépissé et l\'arrêté apparaîtront ici.')
             ->columns([
@@ -94,6 +97,8 @@ class DocumentsRelationManager extends RelationManager
                     ->after(fn (Document $record) => $record->dossier->log('document', "Document ajouté : {$record->displayName()}", $record->visible_to_client)),
             ])
             ->recordActions([
+                Action::make('open')->label('Ouvrir')->icon(Heroicon::OutlinedEye)->color('primary')
+                    ->url(fn (Document $r) => route('admin.documents.download', $r))->openUrlInNewTab(),
                 Action::make('submit')->label('Envoyer pour validation')->icon(Heroicon::OutlinedPaperAirplane)->color('primary')
                     ->visible(fn (Document $r) => $r->category === DocumentCategory::Plan && ! $r->validated_at && ! $r->isAwaitingValidation())
                     ->schema([Textarea::make('message')->label('Message au client (facultatif)')->rows(2)])
@@ -103,7 +108,7 @@ class DocumentsRelationManager extends RelationManager
                         Notification::make()->title('Plans envoyés au client')->success()->send();
                     }),
                 Action::make('download')->label('Télécharger')->icon(Heroicon::OutlinedArrowDownTray)->color('gray')
-                    ->url(fn (Document $r) => route('admin.documents.download', $r))->openUrlInNewTab(),
+                    ->url(fn (Document $r) => route('admin.documents.download', [$r, 'telecharger' => 1])),
                 EditAction::make(),
                 DeleteAction::make(),
             ]);
