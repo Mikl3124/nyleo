@@ -113,7 +113,8 @@ class WorkflowTest extends TestCase
         $this->assertEquals(400, (float) $invoice->amount_due);
         Storage::disk('local')->assertExists($invoice->pdf_path);
         Notification::assertSentTo($quote->client, InvoiceSent::class);
-        $this->get(route('portal.dossiers.show', $quote->dossier))->assertSee('FR76 0000 0000 0000');
+        $this->get(route('portal.dossiers.show', $quote->dossier))->assertSee('Voir et payer ma facture');
+        $this->get(route('portal.invoices.show', $invoice))->assertSee('FR76 0000 0000 0000')->assertDontSee('chèque');
 
         // Paiement par chèque
         InvoiceService::addPayment($invoice, 400, 'cheque', now(), 'Chèque 123');

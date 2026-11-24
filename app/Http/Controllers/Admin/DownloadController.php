@@ -7,6 +7,7 @@ use App\Models\Document;
 use App\Models\Invoice;
 use App\Models\Quote;
 use App\Services\PdfService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class DownloadController extends Controller
@@ -29,10 +30,14 @@ class DownloadController extends Controller
         return PdfService::invoice($invoice)->stream(PdfService::invoiceFilename($invoice));
     }
 
-    public function document(Document $document)
+    /** Ouvre le document dans le navigateur ; ?telecharger=1 l'enregistre sur l'ordinateur. */
+    public function document(Request $request, Document $document)
     {
         abort_unless(Storage::disk('local')->exists($document->path), 404);
+        $name = $document->original_name ?: basename($document->path);
 
-        return Storage::disk('local')->response($document->path, $document->original_name ?: basename($document->path));
+        return $request->boolean('telecharger')
+            ? Storage::disk('local')->download($document->path, $name)
+            : Storage::disk('local')->response($document->path, $name);
     }
 }

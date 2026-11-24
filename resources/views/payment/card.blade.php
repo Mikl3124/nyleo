@@ -17,7 +17,7 @@
             @break
         @case('cancelled')
             <h1>Paiement annulé</h1>
-            <p>Aucun montant n'a été débité. Vous pouvez réessayer quand vous le souhaitez, ou régler la facture {{ $invoice->number }} par virement ou par chèque.</p>
+            <p>Aucun montant n'a été débité. Vous pouvez réessayer quand vous le souhaitez, ou régler la facture {{ $invoice->number }} par virement.</p>
             @break
         @case('paid')
             <h1>Cette facture est déjà réglée</h1>
@@ -25,11 +25,11 @@
             @break
         @case('error')
             <h1>Paiement momentanément indisponible</h1>
-            <p>Le paiement par carte ne fonctionne pas pour l'instant. Merci de réessayer un peu plus tard, ou de régler la facture {{ $invoice->number }} par virement ou par chèque.</p>
+            <p>Le paiement par carte ne fonctionne pas pour l'instant. Merci de réessayer un peu plus tard, ou de régler la facture {{ $invoice->number }} par virement.</p>
             @break
         @default
             <h1>Paiement par carte indisponible</h1>
-            <p>Le paiement par carte n'est pas proposé pour la facture {{ $invoice->number }}. Vous pouvez la régler par virement ou par chèque : les informations sont sur la facture.</p>
+            <p>Le paiement par carte n'est pas proposé pour la facture {{ $invoice->number }}. Vous pouvez la régler par virement : les informations sont sur la facture.</p>
     @endswitch
 
     @if ($retryUrl && in_array($state, ['cancelled', 'error'], true))

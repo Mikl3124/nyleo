@@ -107,3 +107,16 @@
 .nyleo-track-date{flex:none;width:9.5em;font-variant-numeric:tabular-nums;color:var(--ny-ink-2);font-size:.9rem;padding-top:1px}
 .nyleo-track-empty{color:var(--ny-ink-3);margin:0}
 .nyleo-track-note{margin:18px 0 0;font-size:.8rem;color:var(--ny-ink-3)}
+
+/* Fichiers envoyés par le client (fiche dossier) */
+.nyleo-client-files{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+.nyleo-client-file{display:flex;flex-direction:column;gap:8px;min-width:0}
+.nyleo-client-file-thumb{display:flex;align-items:center;justify-content:center;aspect-ratio:4/3;border:1px solid var(--ny-line);border-radius:6px;background:var(--ny-stone);overflow:hidden}
+.nyleo-client-file-thumb img{width:100%;height:100%;object-fit:cover}
+.nyleo-client-file-thumb:hover{border-color:var(--ny-blue)}
+.nyleo-client-file-ext{font-family:var(--ny-mono);font-size:.8rem;letter-spacing:.08em;color:var(--ny-blue)}
+.nyleo-client-file-info{display:flex;flex-direction:column;gap:2px;min-width:0}
+.nyleo-client-file-name{font-weight:700;color:var(--ny-ink);overflow-wrap:anywhere}
+.nyleo-client-file-name:hover{color:var(--ny-blue)}
+.nyleo-client-file-meta{font-size:.85rem;color:var(--ny-ink-3)}
+.nyleo-client-file-dl{font-size:.85rem;color:var(--ny-blue);text-decoration:underline}

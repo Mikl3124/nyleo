@@ -83,7 +83,8 @@ class EmailContentTest extends TestCase
 
         $this->assertStringContainsString('Comment régler ?', $html);
         $this->assertStringContainsString('FR14 2004 1010 0505 0001 3M02 606', $html);
-        $this->assertStringContainsString("chèque</strong> à l'ordre de M-GREEN", str_replace('&#039;', "'", $html));
+        $this->assertStringNotContainsString('chèque', $html);
+        $this->assertStringContainsString('/espace/factures/'.$invoice->id, urldecode($html));
         $this->assertStringContainsString('dépose votre dossier en mairie', $html);
     }
 

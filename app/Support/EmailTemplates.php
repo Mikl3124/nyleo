@@ -78,7 +78,7 @@ TXT;
         '{client}' => 'nom du client',
         '{validite}' => 'date de fin de validité du devis',
         '{echeance}' => "date d'échéance de la facture",
-        '{reglement}' => 'IBAN et ordre du chèque (factures)',
+        '{reglement}' => 'Moyens de paiement : carte et virement (factures)',
         '{infos_cerfa}' => 'demande de date et lieu de naissance, seulement si elles manquent',
     ];
 
@@ -187,7 +187,7 @@ TXT;
     }
 
     /** Ligne « par carte » du bloc {reglement} (ajoutée ou retirée selon la case « Paiement par carte » à l'envoi). */
-    public const CARD_LINE = '- par carte bancaire, en ligne, avec le bouton « Payer par carte » ci-dessous ;';
+    public const CARD_LINE = '- par carte bancaire, en ligne, depuis votre espace client (bouton « Consulter ma facture ») ;';
 
     /** Ajoute ou retire la ligne « par carte » d'un texte déjà préparé. */
     public static function withCardLine(string $body, bool $card): string
@@ -212,9 +212,7 @@ TXT;
         if ($s->iban) {
             $lines[] = '- par virement : IBAN '.$s->iban.($s->bic ? ' (BIC '.$s->bic.')' : '').", en indiquant la référence {$number} ;";
         }
-        if ($s->cheque_order) {
-            $lines[] = "- par chèque à l'ordre de ".$s->cheque_order.($s->cheque_address ? ', à envoyer à : '.str_replace("\n", ', ', $s->cheque_address) : '').'.';
-        }
+        // Plus de chèque proposé aux clients (Mickaël, 2026-11-11) : virement ou carte.
 
         return $lines ? "Règlement possible :\n".implode("\n", $lines) : '';
     }

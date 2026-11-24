@@ -84,10 +84,10 @@ class DocumentMailer
         self::deliver($invoice->client, $invoice->dossier, $data, $files, $predicted, $invoice->number,
             ($data['include_link'] ?? true)
                 ? [$invoice->isCreditNote() ? 'Consulter mon avoir' : 'Consulter ma facture',
-                    ClientNotification::portalUrl($invoice->client, $invoice->dossier ? route('portal.dossiers.show', $invoice->dossier, false) : null)]
+                    ClientNotification::portalUrl($invoice->client, route('portal.invoices.show', $invoice, false))]
                 : null,
+            // Pas de bouton « Payer par carte » dans l'e-mail (Mickaël, 2026-11-11) : la carte se règle depuis l'espace client.
             $downloads, ['invoice' => $invoice->id],
-            CardPayment::url($invoice) ? [CardPayment::url($invoice), 'Payer '.money($invoice->remaining()).' par carte'] : null,
         );
 
         $invoice->forceFill(['sent_at' => now()])->saveQuietly();

@@ -124,13 +124,12 @@ abstract class ClientNotification extends Notification implements ShouldQueue
         return $dossier ? trim($dossier->title.($dossier->reference ? " ({$dossier->reference})" : '')) : null;
     }
 
-    /** Lignes « par virement… / par chèque… » reprises dans les factures et les rappels. */
+    /** Lignes « par carte… / par virement… » reprises dans les factures et les rappels (plus de chèque). */
     protected static function paymentLines(CompanySetting $s, string $reference, ?string $cardUrl = null): array
     {
         return [
-            $cardUrl ? '**Par carte bancaire** : en ligne, avec le bouton « Payer par carte » ci-dessous (paiement sécurisé).' : null,
+            $cardUrl ? '**Par carte bancaire** : en ligne, depuis votre espace client (bouton « Consulter ma facture », paiement sécurisé).' : null,
             $s->iban ? '**Par virement** : IBAN '.$s->iban.($s->bic ? ' (BIC '.$s->bic.')' : '').", en indiquant la référence **{$reference}**." : null,
-            $s->cheque_order ? "**Par chèque** à l'ordre de ".$s->cheque_order.($s->cheque_address ? ', à envoyer à : '.str_replace("\n", ', ', $s->cheque_address) : '').'.' : null,
         ];
     }
 }

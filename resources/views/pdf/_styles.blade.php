@@ -31,6 +31,10 @@
     table.lines td.label { text-align: left; text-transform: uppercase; color: #2b3036; }
     table.lines td.desc { text-align: left; font-size: 8.5px; color: #3d434a; padding: 4px 10px 12px; border-bottom: 1px solid #e8edf2; }
     table.lines tr.no-desc td { padding-bottom: 12px; border-bottom: 1px solid #e8edf2; }
+    table.lines .tag { display: inline-block; font-size: 7.5px; font-weight: bold; letter-spacing: .5px; color: {{ $color }}; border: 1px solid {{ $color }}; border-radius: 3px; padding: 0 4px; margin-left: 4px; text-transform: uppercase; }
+    table.lines .was { font-size: 8px; color: #6b7480; white-space: nowrap; }
+    table.lines tr.option td { color: #6b7480; }
+    .options-note { font-size: 8.5px; color: #6b7480; text-align: right; padding: 4px 10px 0; }
     .desc ul { margin: 4px 0 2px 0; padding-left: 22px; }
     .desc li { margin: 1px 0; }
     .desc .subtitle { font-weight: bold; color: #2b3036; margin-top: 1px; }

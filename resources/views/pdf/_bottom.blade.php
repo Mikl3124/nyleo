@@ -15,12 +15,19 @@
         </td>
         <td style="width:48%">
             <table class="totals">
+                @if ((float) $doc->discount_amount > 0)
+                    <tr><td class="k">Sous-total HT</td><td class="v">{{ money($doc->subtotal()) }}</td></tr>
+                    <tr><td class="k">{{ $doc->discountLabel() }}</td><td class="v">− {{ money($doc->discount_amount) }}</td></tr>
+                @endif
                 <tr><td class="k">Total HT</td><td class="v">{{ money($doc->total_ht) }}</td></tr>
                 <tr class="sep"><td class="k">TVA</td><td class="v">{{ money($doc->total_vat) }}</td></tr>
                 <tr class="grand"><td class="k">Total TTC</td><td class="v">{{ money($doc->total_ttc) }}</td></tr>
                 @foreach ($extraRows ?? [] as [$k, $v, $grand])
                     <tr class="{{ $grand ? 'grand' : '' }}"><td class="k">{{ $k }}</td><td class="v">{{ $v }}</td></tr>
                 @endforeach
+                @if ($doc->optionsTotal() > 0)
+                    <tr><td class="k" style="font-weight:normal">Options proposées (non comprises)</td><td class="v">{{ money($doc->optionsTotal()) }}</td></tr>
+                @endif
             </table>
         </td>
     </tr>

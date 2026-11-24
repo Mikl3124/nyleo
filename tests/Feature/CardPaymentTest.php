@@ -163,28 +163,28 @@ class CardPaymentTest extends TestCase
     public function test_portal_shows_the_card_button_only_when_enabled(): void
     {
         $invoice = $this->invoice();
-        $this->actingAs($invoice->client, 'client')->get(route('portal.dossiers.show', $invoice->dossier))
-            ->assertOk()->assertSee('par carte bancaire')->assertSee('/paiement/facture/'.$invoice->id, false);
+        $this->actingAs($invoice->client, 'client')->get(route('portal.invoices.show', $invoice))
+            ->assertOk()->assertSee('Payer ma facture par carte bancaire')->assertSee('/paiement/facture/'.$invoice->id, false);
 
         $invoice->update(['card_payment' => false]);
-        $this->actingAs($invoice->client, 'client')->get(route('portal.dossiers.show', $invoice->dossier))
+        $this->actingAs($invoice->client, 'client')->get(route('portal.invoices.show', $invoice))
             ->assertOk()->assertDontSee('/paiement/facture/'.$invoice->id, false);
     }
 
-    public function test_invoice_email_has_the_pay_button(): void
+    public function test_invoice_email_mentions_the_card_without_a_pay_button(): void
     {
         $invoice = $this->invoice();
         $html = (string) (new InvoiceSent($invoice))->toMail($invoice->client)->render();
 
-        $this->assertStringContainsString('par carte', $html);
-        $this->assertStringContainsString('/paiement/facture/'.$invoice->id, $html);
+        $this->assertStringContainsString('Par carte bancaire', $html);
+        $this->assertStringNotContainsString('/paiement/facture/', $html);
 
         $invoice->update(['card_payment' => false]);
         $html = (string) (new InvoiceSent($invoice->refresh()))->toMail($invoice->client)->render();
-        $this->assertStringNotContainsString('/paiement/facture/', $html);
+        $this->assertStringNotContainsString('Par carte bancaire', $html);
     }
 
-    public function test_one_click_email_has_the_pay_button_and_payment_line(): void
+    public function test_one_click_email_has_the_payment_line_but_no_pay_button(): void
     {
         Mail::fake();
         $invoice = $this->invoice(issue: false);
@@ -193,7 +193,6 @@ class CardPaymentTest extends TestCase
 
         DocumentMailer::sendInvoice($invoice, ['to' => $invoice->client->email] + $template);
 
-        Mail::assertSent(DocumentMail::class, fn (DocumentMail $m) => str_contains((string) $m->payUrl, '/paiement/facture/'.$invoice->id)
-            && str_contains((string) $m->payLabel, 'par carte'));
+        Mail::assertSent(DocumentMail::class, fn (DocumentMail $m) => $m->payUrl === null && str_contains($m->body, 'par carte bancaire'));
     }
 }

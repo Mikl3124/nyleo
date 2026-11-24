@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Portal;
 use App\Http\Controllers\Controller;
 use App\Models\ClientActivity;
 use App\Models\Document;
+use App\Notifications\AdminAlert;
 use App\Services\ClientTracking;
 use App\Services\DossierWorkflow;
 use App\Services\PlanAccess;
 use App\Services\PlanPreview;
+use App\Support\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -77,7 +79,13 @@ class DocumentController extends Controller
         ], [], ['birth_date' => 'date de naissance', 'birth_place' => 'lieu de naissance']);
         $client = $request->user('client');
         $client->fill($data)->save();
-        $document->dossier->log('infos_client', 'Le client a indiqué sa date et son lieu de naissance', true);
+        $dossier = $document->dossier;
+        $dossier->log('infos_client', 'Le client a indiqué sa date et son lieu de naissance', true);
+        Admin::notify(new AdminAlert(
+            "Naissance reçue — {$dossier->reference}",
+            "{$client->display_name} a indiqué sa date et son lieu de naissance : ".$client->birth_date->format('d/m/Y').", {$client->birth_place}.",
+            route('filament.admin.resources.dossiers.view', $dossier),
+        ));
 
         return redirect()->route('portal.documents.view', $document);
     }

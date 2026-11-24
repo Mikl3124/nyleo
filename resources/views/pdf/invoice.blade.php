@@ -55,8 +55,7 @@
 @include('pdf._terms', [
     'footerText' => $company['invoice_footer'] ?? null,
     'extraTerms' => $isCredit ? [] : array_filter([
-        $invoice->card_payment && \App\Services\CardPayment::enabled() ? 'Paiement par carte bancaire possible en ligne, depuis l\'e-mail de la facture ou votre espace client.' : null,
-        ! empty($company['cheque_order']) ? "Règlement par virement ou par chèque à l'ordre de ".$company['cheque_order'].(! empty($company['cheque_address']) ? ', à envoyer à : '.$company['cheque_address'] : '').'.' : null,
+        $invoice->card_payment && \App\Services\CardPayment::enabled() ? 'Paiement par carte bancaire possible en ligne, depuis votre espace client.' : null,
         $company['late_penalty_text'] ?? null,
     ]),
 ])

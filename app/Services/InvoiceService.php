@@ -67,9 +67,11 @@ class InvoiceService
             'quote_id' => $quote->id,
             'subject' => $quote->subject,
             'deposits_deducted' => $deposits,
+            'discount_type' => $quote->discount_type,
+            'discount_value' => $quote->discount_value,
         ]);
         foreach ($quote->lines as $line) {
-            $invoice->lines()->create($line->only(['label', 'description', 'quantity', 'unit', 'unit_price', 'vat_rate', 'position']));
+            $invoice->lines()->create($line->only(['label', 'description', 'quantity', 'unit', 'unit_price', 'vat_rate', 'is_option', 'discount_type', 'discount_value', 'position']));
         }
         $invoice->recalculate();
 
@@ -186,8 +188,10 @@ class InvoiceService
         ]);
 
         if ($amount === null) {
-            foreach ($invoice->lines as $line) {
-                $credit->lines()->create($line->only(['label', 'description', 'quantity', 'unit', 'unit_price', 'vat_rate', 'position']));
+            // Même total que la facture : mêmes remises ; les options (jamais facturées) ne sont pas reprises.
+            $credit->forceFill(['discount_type' => $invoice->discount_type, 'discount_value' => $invoice->discount_value])->saveQuietly();
+            foreach ($invoice->lines->reject(fn ($l) => $l->is_option) as $line) {
+                $credit->lines()->create($line->only(['label', 'description', 'quantity', 'unit', 'unit_price', 'vat_rate', 'discount_type', 'discount_value', 'position']));
             }
         } else {
             $credit->lines()->create([

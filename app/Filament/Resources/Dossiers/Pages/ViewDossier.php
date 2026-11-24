@@ -27,10 +27,30 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Schemas\Components\Grid;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class ViewDossier extends ViewRecord
 {
     protected static string $resource = DossierResource::class;
+
+    /**
+     * Lien vers un dossier fusionné ou supprimé (ex. une ancienne notification) : on ouvre le dossier
+     * qui l'a absorbé, ou à défaut le dernier dossier du client, au lieu d'une page introuvable.
+     */
+    protected function resolveRecord(int|string $key): Model
+    {
+        try {
+            return parent::resolveRecord($key);
+        } catch (ModelNotFoundException $e) {
+            $target = Dossier::successorOf($key);
+            if (! $target) {
+                throw $e;
+            }
+            throw new HttpResponseException(redirect(DossierResource::getUrl('view', ['record' => $target])));
+        }
+    }
 
     public function getTitle(): string
     {

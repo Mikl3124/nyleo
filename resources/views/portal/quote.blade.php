@@ -9,11 +9,7 @@
 <div class="card">
     @if ($quote->subject)<p><strong>{{ $quote->subject }}</strong></p>@endif
     <table class="q">
-        @foreach ($quote->lines as $l)
-            <tr><td><strong>{{ $l->label }}</strong>@if ($l->description)<br><span class="muted">{!! nl2br(e($l->description)) !!}</span>@endif
-                @if ((float) $l->quantity != 1)<br><span class="muted">{{ rtrim(rtrim(number_format($l->quantity, 2, ',', ' '), '0'), ',') }} × {{ money($l->unit_price) }}</span>@endif</td>
-                <td class="r">{{ money($l->total_ht) }}</td></tr>
-        @endforeach
+        @include('portal._lines', ['lines' => $quote->lines, 'doc' => $quote])
         <tr class="total"><td>Total à payer</td><td class="r">{{ money($quote->total_ttc) }}</td></tr>
     </table>
     @if (! $company->vat_enabled && $company->vat_exemption_mention)<p class="muted" style="font-size:.85rem">{{ $company->vat_exemption_mention }} : aucune TVA à ajouter.</p>@endif

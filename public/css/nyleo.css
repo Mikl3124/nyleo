@@ -106,6 +106,8 @@ input[type=file]::file-selector-button:hover{background:var(--ink);color:#fff}
 table.q{width:100%;border-collapse:collapse;margin:10px 0}
 table.q td,table.q th{padding:12px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
 table.q .r{text-align:right;white-space:nowrap}
+table.q .opt-tag{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--blue);border:1px solid currentColor;border-radius:6px;padding:0 6px;margin-left:6px;vertical-align:middle}
+table.q tr.is-option td{color:var(--muted)}
 table.q tr.total td{font-weight:800;font-size:1.15rem;border-top:2px solid var(--ochre);border-bottom:0}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
 .grid2>*{min-width:0}

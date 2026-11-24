@@ -73,6 +73,6 @@ class InvoiceSendOptionsTest extends TestCase
 
         DocumentMailer::sendInvoice($invoice, ['to' => 'jean@example.com', 'card_payment' => true] + EmailTemplates::forInvoice($invoice, card: false));
         $this->assertTrue((bool) $invoice->refresh()->card_payment);
-        Mail::assertSent(DocumentMail::class, fn (DocumentMail $m) => str_contains((string) $m->payUrl, '/paiement/facture/') && str_contains($m->body, 'par carte'));
+        Mail::assertSent(DocumentMail::class, fn (DocumentMail $m) => $m->payUrl === null && str_contains($m->body, 'par carte'));
     }
 }
