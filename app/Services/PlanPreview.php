@@ -66,6 +66,9 @@ class PlanPreview
     /** Prépare toutes les pages à l'avance (tâche de fond après l'ajout des plans), pour un affichage immédiat. */
     public static function warm(Document $document): int
     {
+        if (! $document->path || ! Storage::disk('local')->exists($document->path)) {
+            return 0; // fichier pas (encore) là : les pages seront faites à la première consultation
+        }
         $count = self::pageCount($document);
         for ($page = 1; $page <= $count; $page++) {
             self::pagePath($document, $page);
