@@ -97,7 +97,7 @@ class PlanAccessTest extends TestCase
             ->assertDontSee('Télécharger')->assertDontSee('paiement')->assertDontSee('règlement');
 
         $page = $this->actingAs($client, 'client')->get(route('portal.documents.page', [$plan, 1]));
-        $page->assertOk()->assertHeader('Content-Type', 'image/png');
+        $page->assertOk()->assertHeader('Content-Type', 'image/jpeg');
         $this->assertStringContainsString('no-store', (string) $page->headers->get('Cache-Control'));
         $this->assertSame(1, PlanPreview::pageCount($plan));
         $this->assertStringContainsString('Jean Martin', PlanPreview::watermarkText($plan));

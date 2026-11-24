@@ -6,6 +6,8 @@
     .plan-page { position: relative; background: #fff; border: 1px solid #dfe3eb; border-radius: 14px; overflow: hidden; }
     .plan-page img { display: block; width: 100%; height: auto; pointer-events: none; -webkit-user-drag: none; }
     .plan-page::after { content: ""; position: absolute; inset: 0; } /* couche transparente au-dessus de l'image */
+    .plan-page:not(.ok) { aspect-ratio: 1.414; }
+    .plan-page:not(.ok)::before { content: "Chargement de la page…"; position: absolute; top: 50%; left: 0; right: 0; text-align: center; color: #5b6475; transform: translateY(-50%); }
     .plan-page .num { position: absolute; top: 8px; right: 10px; z-index: 1; font-size: .8rem; background: rgba(255, 255, 255, .85); border-radius: 6px; padding: 2px 8px; }
     .plan-print { display: none; }
     @media print {
@@ -37,7 +39,7 @@
         @for ($p = 1; $p <= $pages; $p++)
             <figure class="plan-page" style="margin:0">
                 @if ($pages > 1)<span class="num">Page {{ $p }} sur {{ $pages }}</span>@endif
-                <img src="{{ route('portal.documents.page', [$document, $p]) }}" alt="{{ $document->displayName() }}, page {{ $p }}" loading="{{ $p > 2 ? 'lazy' : 'eager' }}" draggable="false">
+                <img src="{{ route('portal.documents.page', [$document, $p]) }}" alt="{{ $document->displayName() }}, page {{ $p }}" loading="{{ $p > 2 ? 'lazy' : 'eager' }}" draggable="false" onload="this.parentNode.classList.add('ok')">
             </figure>
         @endfor
     </div>
