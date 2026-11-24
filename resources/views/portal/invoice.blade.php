@@ -54,11 +54,7 @@
 <div class="card">
     @if ($invoice->subject)<p><strong>{{ $invoice->subject }}</strong></p>@endif
     <table class="q">
-        @foreach ($invoice->lines as $l)
-            <tr><td><strong>{{ $l->label }}</strong>@if ($l->description)<br><span class="muted">{!! nl2br(e($l->description)) !!}</span>@endif
-                @if ((float) $l->quantity != 1)<br><span class="muted">{{ rtrim(rtrim(number_format($l->quantity, 2, ',', ' '), '0'), ',') }} × {{ money($l->unit_price) }}</span>@endif</td>
-                <td class="r">{{ money($l->total_ht) }}</td></tr>
-        @endforeach
+        @include('portal._lines', ['lines' => $invoice->lines, 'doc' => $invoice])
         @if ((float) $invoice->deposits_deducted > 0)
             <tr><td>Acomptes déjà facturés</td><td class="r">− {{ money($invoice->deposits_deducted) }}</td></tr>
         @endif

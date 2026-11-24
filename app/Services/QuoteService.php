@@ -109,7 +109,7 @@ class QuoteService
         $copy->status = QuoteStatus::Brouillon;
         $copy->save();
         foreach ($quote->lines as $line) {
-            $copy->lines()->create($line->only(['label', 'description', 'quantity', 'unit', 'unit_price', 'vat_rate', 'position']));
+            $copy->lines()->create($line->only(['label', 'description', 'quantity', 'unit', 'unit_price', 'vat_rate', 'is_option', 'discount_type', 'discount_value', 'position']));
         }
         $copy->recalculate();
 

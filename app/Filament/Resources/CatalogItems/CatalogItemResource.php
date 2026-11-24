@@ -33,7 +33,7 @@ class CatalogItemResource extends Resource
     protected static ?string $navigationLabel = 'Catalogue';
 
     public const CATEGORIES = [
-        'DP' => 'Déclaration préalable', 'PC' => 'Permis de construire', 'option' => 'Option', 'autre' => 'Autre',
+        'DP' => 'Déclaration préalable', 'PC' => 'Permis de construire', 'RE2020' => 'Étude thermique RE2020', 'option' => 'Option', 'autre' => 'Autre',
     ];
 
     public static function form(Schema $schema): Schema

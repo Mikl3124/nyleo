@@ -89,6 +89,7 @@ class QuoteResource extends Resource
                     ->helperText('0 = sans acompte. Sinon, la facture d\'acompte part toute seule à la signature.'),
             ])->columnSpanFull()->visible($editing),
             LineItems::repeater()->visible($editing),
+            LineItems::globalDiscount()->visible($editing),
             Textarea::make('notes')->label('Conditions particulières (affichées sur le devis)')->rows(3)->columnSpanFull()->visible($editing),
             View::make('filament.quote-preview')->columnSpanFull()
                 ->visible(fn ($livewire) => ! $editing($livewire)),

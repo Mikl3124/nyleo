@@ -103,6 +103,7 @@ class InvoiceResource extends Resource
                     ->columnSpanFull(),
             ]),
             LineItems::repeater(),
+            LineItems::globalDiscount(),
             Textarea::make('notes')->label('Mention particulière (affichée sur la facture)')->rows(2)->columnSpanFull(),
         ])->disabled(fn (?Invoice $record) => $record && ! $record->isDraft());
     }

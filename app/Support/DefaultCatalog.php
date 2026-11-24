@@ -116,6 +116,25 @@ class DefaultCatalog
                 'unit' => 'forfait',
                 'unit_price' => 0.00,
             ],
+            self::thermalStudy(),
+        ];
+    }
+
+    /** Étude thermique RE2020 (Mickaël, 2026-11-24). Ajoutée au catalogue en ligne par migration. */
+    public static function thermalStudy(): array
+    {
+        return [
+            'category' => 'RE2020',
+            'label' => 'ÉTUDE THERMIQUE RE2020 (ATTESTATION POUR LE DÉPÔT DU PERMIS)',
+            'description' => 'Prestations incluses :' . "\n" .
+            '- Examen de votre conception : besoins bioclimatiques et comportement en période chaude.' . "\n" .
+            '- Deux variantes de votre projet peuvent être étudiées pour préciser vos choix.' . "\n" .
+            '- Préparation de l’attestation à partir des résultats de calcul.' . "\n" .
+            '- Résultats et documents réunis dans votre espace projet.' . "\n" .
+            'Documents remis :' . "\n" .
+            '- Les résultats Bbio et DH, les préconisations de l’étude et l’attestation destinée au dépôt.',
+            'unit' => 'forfait',
+            'unit_price' => 280.00,
         ];
     }
 
