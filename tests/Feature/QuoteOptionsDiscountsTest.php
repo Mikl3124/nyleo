@@ -84,6 +84,10 @@ class QuoteOptionsDiscountsTest extends TestCase
         $this->assertStringContainsString('Sous-total HT', $html);
         $this->assertStringContainsString('Options proposées (non comprises)', $html);
         $this->assertStringContainsString('872,00', $html);
+
+        // Sans aucune remise de ligne : pas de colonne Remise.
+        $quote->lines[1]->update(['discount_type' => null, 'discount_value' => null]);
+        $this->assertStringNotContainsString('<th>Remise</th>', PdfService::quoteHtml($quote->refresh()));
     }
 
     public function test_invoice_keeps_discounts_and_card_and_qr_use_the_discounted_amount(): void
