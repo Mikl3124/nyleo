@@ -78,7 +78,9 @@ class QuoteOptionsDiscountsTest extends TestCase
         $html = PdfService::quoteHtml($quote);
         $this->assertStringContainsString('Option', $html);
         $this->assertStringContainsString('ne sont pas comprises dans le total', $html);
-        $this->assertStringContainsString('Remise 10', $html);
+        $this->assertStringContainsString('<th>Remise</th>', $html);
+        $this->assertStringContainsString('− 28,00', $html);
+        $this->assertStringNotContainsString('<th>TVA</th>', $html); // non assujetti : pas de colonne TVA
         $this->assertStringContainsString('Sous-total HT', $html);
         $this->assertStringContainsString('Options proposées (non comprises)', $html);
         $this->assertStringContainsString('872,00', $html);
